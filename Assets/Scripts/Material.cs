@@ -2,17 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Material : MonoBehaviour
+public class Material  
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public string id;
+    public string name;
+    public enum Type { Land, Resource, Item}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
+   
 }

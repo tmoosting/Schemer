@@ -2,17 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Institution : MonoBehaviour
+public class Institution  
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public string id;
+    public string name;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
+
+
 }
