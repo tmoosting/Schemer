@@ -12,7 +12,8 @@ public class Relation : DataObject
     public RelationType relationType;
 
     public DataObject activeDataObject;
-    public DataObject passiveDataObject; 
+    public DataObject passiveDataObject;
+    public DataObject relationOrigin;
    
     public Relation(Dictionary<string, string> dict)
     {
@@ -59,6 +60,19 @@ public class Relation : DataObject
                 if (ins.ID == dict["PassiveInstitution"])
                     passiveDataObject = ins;
         }
-      
+
+
+       
+    }
+    public Relation(Character activeCha, Character passiveCha, Institution sharedInstitution)
+    {
+        DataController data = DataController.Instance;
+        dataType = DataType.Relation;
+        ID = "REL" + activeCha.ID + passiveCha.ID;
+        name = "REL" + activeCha.name + passiveCha.name + "through" + sharedInstitution.name;
+        relationType = RelationType.Personal;
+        activeDataObject = activeCha;
+        passiveDataObject = passiveCha;
+        relationOrigin = sharedInstitution;
     }
 }

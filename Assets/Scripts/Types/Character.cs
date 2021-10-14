@@ -22,6 +22,12 @@ public class Character : DataObject
         name = dict["Name"];
         if (dict["Age"] != "")
             age = int.Parse(dict["Age"]); 
+        if (dict["Fearfulness"] != "")
+            fearfulness = float.Parse(dict["Fearfulness"]);
+        if (dict["Charisma"] != "")
+            charisma = float.Parse(dict["Charisma"]);
+        if (dict["DecisionMaking"] != "")
+            decisionMaking = float.Parse(dict["DecisionMaking"]);
     }
 
  

@@ -24,7 +24,9 @@ public class DataController : MonoBehaviour
     }
     private void Start()
     {
-        CreateFromDatabase();
+        CreateObjectsFromDatabase();
+        CreateRelationsWithinInstitutions();
+
 
         if (scanDatabaseAtStart == true)
             linker.DatabaseTestScan(false);
@@ -33,7 +35,7 @@ public class DataController : MonoBehaviour
     }
 
 
-    void CreateFromDatabase()
+    void CreateObjectsFromDatabase()
     {
         // create a list of dicts with key: fieldname, value: fieldvalue
 
@@ -51,13 +53,7 @@ public class DataController : MonoBehaviour
                 fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Material", field, id));
             materialList.Add(new Material(fieldNamesAndValues));
         } 
-        foreach (string id in linker.GetIDValuesForTable("Institution"))
-        {
-            Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
-            foreach (string field in linker.GetFieldNamesForTable("Institution"))
-                fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Institution", field, id));
-            institutionList.Add(new Institution(fieldNamesAndValues));
-        } 
+    
         foreach (string id in linker.GetIDValuesForTable("Relation"))
         {
             Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
@@ -66,12 +62,29 @@ public class DataController : MonoBehaviour
             relationList.Add(new Relation(fieldNamesAndValues));
         }
 
-          
+        foreach (string id in linker.GetIDValuesForTable("Institution"))
+        {
+            Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
+            foreach (string field in linker.GetFieldNamesForTable("Institution"))
+                fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Institution", field, id));
+            institutionList.Add(new Institution(fieldNamesAndValues));
+        }
     }
 
+    void CreateRelationsWithinInstitutions()
+    {
+        // for each character in its member list, create a relation to each other member
+        foreach (Institution ins in institutionList)                  
+            foreach (Character cha in ins.memberCharacters)            
+                foreach (Character otherCha in ins.memberCharacters)                
+                    if (cha != otherCha)                    
+                        CreatePersonalRelation(cha, otherCha, ins);
+    }
 
-
-
+    void CreatePersonalRelation (Character activeCha, Character passiveCha, Institution sharedInstitution)
+    {
+        relationList.Add(new Relation(activeCha, passiveCha, sharedInstitution));
+    }
 
 
     void ScanCreatedObjects()
@@ -92,7 +105,18 @@ public class DataController : MonoBehaviour
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 Debug.Log(rel.activeDataObject.name + " Owns: "+ rel.passiveDataObject.name);
-             //   Debug.Log("Relation " + rel.name + " has owner: " + rel.activeDataObject.ID + " owning: "+ rel.passiveDataObject.ID);
+
+        Debug.Log("------------- SCANNING MEMBERSHIPS -------------");
+        foreach (Institution ins in institutionList)
+        {
+            string charstr = "";
+            foreach (Character cha in ins.memberCharacters)            
+                charstr += cha.name + "  ";
+            string matstr = "";
+            foreach (Material mat in ins.memberMaterials)
+                matstr += mat.name + "  ";
+            Debug.Log(ins.name + " has members: " + charstr + "  ///  and material: " + matstr);
+        } 
 
     }
 }

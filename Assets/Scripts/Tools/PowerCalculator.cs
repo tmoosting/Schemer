@@ -21,7 +21,7 @@ public class PowerCalculator : MonoBehaviour
             CalculatePowerPotential(cha);
 
         foreach (Character cha in DataController.Instance.characterList)
-            str += cha.name + " has Power: " + cha.powerPotential +"\n";
+            str += cha.name + " has PowerPotential: " + cha.powerPotential +"\n";
 
             calculateText.text = str;
     }
@@ -36,4 +36,11 @@ public class PowerCalculator : MonoBehaviour
         cha.powerPotential = çalculatedPower;
     }
 
+    void CalculateInstitutionalPower(Character cha, Institution ins)
+    {
+        float çalculatedPower = 0f;
+        
+
+
+    }
 }

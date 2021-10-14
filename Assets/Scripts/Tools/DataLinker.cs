@@ -140,17 +140,17 @@ public class DataLinker : MonoBehaviour
 
     // ---------------- DATABASE EDITING
 
-    public void CreateNewElement(string tableName, string fieldName, string elementName, string value)
-    {
-        OpenDatabase();
+    //public void CreateNewElement(string tableName, string fieldName, string elementName, string value)
+    //{
+    //    OpenDatabase();
 
-        dbcmd.CommandText = "INSERT INTO " + tableName + " VALUES ('" + elementName + "','" + value + "','" + "nully" + "','" + "eh" + "')";
+    //    dbcmd.CommandText = "INSERT INTO " + tableName + " VALUES ('" + elementName + "','" + value + "','" + "nully" + "','" + "eh" + "')";
 
 
-        dbcmd.ExecuteNonQuery();
+    //    dbcmd.ExecuteNonQuery();
 
-        CloseDatabase();
-    }
+    //    CloseDatabase();
+    //}
 
 
     // ---------------- HELPER FUNCTIONS
