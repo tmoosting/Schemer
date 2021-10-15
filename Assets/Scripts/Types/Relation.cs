@@ -4,17 +4,18 @@ using UnityEngine;
 
 public class Relation : DataObject
 {
-    public string ID;
-    public string name;
-
-    public enum RelationType { Personal, Ownership}
+     
+    public enum RelationType { Personal, Ownership, Institutional}
 
     public RelationType relationType;
 
     public DataObject activeDataObject;
     public DataObject passiveDataObject;
-    public DataObject relationOrigin;
+    public Institution sharedInstitution;
    
+
+
+    // CONSTRUCTOR -- FROM DATABASE
     public Relation(Dictionary<string, string> dict)
     {
         DataController data = DataController.Instance;
@@ -64,15 +65,28 @@ public class Relation : DataObject
 
        
     }
+    // CONSTRUCTOR -- INTERPERSONAL
     public Relation(Character activeCha, Character passiveCha, Institution sharedInstitution)
     {
         DataController data = DataController.Instance;
         dataType = DataType.Relation;
-        ID = "REL" + activeCha.ID + passiveCha.ID;
-        name = "REL" + activeCha.name + passiveCha.name + "through" + sharedInstitution.name;
+        ID = "RELPERS" + activeCha.ID + passiveCha.ID;
+        name = "RELPERS" + activeCha.name + passiveCha.name + "through" + sharedInstitution.name;
         relationType = RelationType.Personal;
         activeDataObject = activeCha;
         passiveDataObject = passiveCha;
-        relationOrigin = sharedInstitution;
+        this.sharedInstitution = sharedInstitution;
+    }
+
+    // CONSTRUCTOR -- INSTITUTIONAL
+    public Relation(Character character , Institution institution)
+    {
+        DataController data = DataController.Instance;
+        dataType = DataType.Relation;
+        ID = "RELINS" + character.ID + institution.ID;
+        name = "RELINS" + character.name  + institution.name;
+        relationType = RelationType.Institutional;
+        activeDataObject = character;
+        passiveDataObject = institution; 
     }
 }

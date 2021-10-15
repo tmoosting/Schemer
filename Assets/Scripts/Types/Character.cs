@@ -9,8 +9,9 @@ public class Character : DataObject
     public float charisma;
     public float decisionMaking;
 
-    // Calculated Externally
-    public float powerPotential;
+    // Calculated In Runtime
+    public float powerPotential = 0f;
+    public float totalPower = 0f;
 
 
 

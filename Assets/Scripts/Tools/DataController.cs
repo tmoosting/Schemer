@@ -25,7 +25,8 @@ public class DataController : MonoBehaviour
     private void Start()
     {
         CreateObjectsFromDatabase();
-        CreateRelationsWithinInstitutions();
+        CreatePersonalRelationsFromInstitutions();
+        CreateInstitutionalRelations();
 
 
         if (scanDatabaseAtStart == true)
@@ -71,7 +72,7 @@ public class DataController : MonoBehaviour
         }
     }
 
-    void CreateRelationsWithinInstitutions()
+    void CreatePersonalRelationsFromInstitutions()
     {
         // for each character in its member list, create a relation to each other member
         foreach (Institution ins in institutionList)                  
@@ -79,6 +80,16 @@ public class DataController : MonoBehaviour
                 foreach (Character otherCha in ins.memberCharacters)                
                     if (cha != otherCha)                    
                         CreatePersonalRelation(cha, otherCha, ins);
+    }
+    void CreateInstitutionalRelations()
+    {
+        foreach (Institution ins in institutionList)
+        {
+            foreach  (Character cha in characterList)
+            {
+
+            }
+        }
     }
 
     void CreatePersonalRelation (Character activeCha, Character passiveCha, Institution sharedInstitution)

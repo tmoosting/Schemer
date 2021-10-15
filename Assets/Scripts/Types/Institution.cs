@@ -6,6 +6,10 @@ public class Institution : DataObject
 {
     public List<Character> memberCharacters = new List<Character>();
     public List<Material> memberMaterials = new List<Material>();
+
+
+    public Character leaderCharacter;
+    public float totalPower = 0f;
  
     public Institution(Dictionary<string, string> dict)
     {
@@ -24,5 +28,8 @@ public class Institution : DataObject
                 if (mat.ID == memberID)
                     memberMaterials.Add(mat);
 
+        foreach (Character cha in data.characterList)
+            if (dict["Leader"] == cha.ID)
+                leaderCharacter = cha;
     }
 }
