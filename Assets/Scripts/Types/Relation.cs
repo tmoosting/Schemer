@@ -15,7 +15,7 @@ public class Relation : DataObject
    
 
 
-    // CONSTRUCTOR -- FROM DATABASE
+    // CONSTRUCTOR --- FROM DATABASE
     public Relation(Dictionary<string, string> dict)
     {
         DataController data = DataController.Instance;
@@ -65,7 +65,7 @@ public class Relation : DataObject
 
        
     }
-    // CONSTRUCTOR -- INTERPERSONAL
+    // CONSTRUCTOR --- INTERPERSONAL
     public Relation(Character activeCha, Character passiveCha, Institution sharedInstitution)
     {
         DataController data = DataController.Instance;
@@ -78,15 +78,27 @@ public class Relation : DataObject
         this.sharedInstitution = sharedInstitution;
     }
 
-    // CONSTRUCTOR -- INSTITUTIONAL
-    public Relation(Character character , Institution institution)
+    // CONSTRUCTOR --- INSTITUTIONAL
+    public Relation(Character character, Institution institution)
     {
         DataController data = DataController.Instance;
         dataType = DataType.Relation;
         ID = "RELINS" + character.ID + institution.ID;
-        name = "RELINS" + character.name  + institution.name;
+        name = "RELINS" + character.name + institution.name;
         relationType = RelationType.Institutional;
         activeDataObject = character;
-        passiveDataObject = institution; 
+        passiveDataObject = institution;
+    }
+
+    // CONSTRUCTOR --- OWNERSHIP
+    public Relation(Character character, Material material)
+    {
+        DataController data = DataController.Instance;
+        dataType = DataType.Relation;
+        ID = "RELOWN" + character.ID + material.ID;
+        name = "RELOWN" + character.name + material.name;
+        relationType = RelationType.Ownership;
+        activeDataObject = character;
+        passiveDataObject = material;
     }
 }

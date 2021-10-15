@@ -15,10 +15,15 @@ public class Material : DataObject
     public MaterialSubtype materialSubtype;
     public MaterialBase materialBase;
 
+    public float bonusFear;
+    public float bonusCharisma;
+    public float bonusSkill;
 
     // Calculated In Runtime
     public float powerPotential;
 
+
+    // CONSTRUCTOR --- DATABASE
     public Material(Dictionary<string, string> dict)
     {
         DataController data = DataController.Instance;
@@ -31,5 +36,20 @@ public class Material : DataObject
             materialSubtype = (MaterialSubtype)System.Enum.Parse(typeof(MaterialSubtype), dict["Subtype"]);
         if (dict["Base"] != "")
             materialBase = (MaterialBase)System.Enum.Parse(typeof(MaterialBase), dict["Base"]);
+        if (dict["BonusFear"] != "")
+            bonusFear = int.Parse(dict["BonusFear"]);
+        if (dict["BonusCharisma"] != "")
+            bonusCharisma = int.Parse(dict["BonusCharisma"]);
+        if (dict["BonusSkill"] != "")
+            bonusSkill = int.Parse(dict["BonusSkill"]);
+    }
+
+
+    // CONSTRUCTOR --- AUTOCREATE
+    public Material(string id, MaterialType type, MaterialSubtype subType)
+    {
+        this.ID = id;
+        materialType = type;
+        materialSubtype = subType;
     }
 }

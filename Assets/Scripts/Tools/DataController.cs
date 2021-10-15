@@ -1,12 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI; 
 public class DataController : MonoBehaviour
 {
     public static DataController Instance;
 
+    [Header("Assigns")]
     public DataLinker linker;
+    public Button autoCreateButton;
+
+    [Header("Options")]
     public bool scanDatabaseAtStart;
     public bool scanUnityObjectsAtStart;
 
@@ -24,17 +28,26 @@ public class DataController : MonoBehaviour
     }
     private void Start()
     {
-        CreateObjectsFromDatabase();
-        CreatePersonalRelationsFromInstitutions();
-        CreateInstitutionalRelations();
-
-
+        AutoCreate();
         if (scanDatabaseAtStart == true)
             linker.DatabaseTestScan(false);
         if (scanUnityObjectsAtStart == true)
              ScanCreatedObjects();
     }
+    void AutoCreate()
+    {
+        // DATABASE 
+        CreateObjectsFromDatabase();
 
+        // AUTO GENERATE
+        //  CreateInstitutionalRelations();  
+        CreatePersonalRelationsFromInstitutions();
+    }
+    public void ButtonCreate()
+    {
+        autoCreateButton.interactable = false;
+        CreateEnforcerEquipment();
+    }
 
     void CreateObjectsFromDatabase()
     {
@@ -76,26 +89,67 @@ public class DataController : MonoBehaviour
     {
         // for each character in its member list, create a relation to each other member
         foreach (Institution ins in institutionList)                  
-            foreach (Character cha in ins.memberCharacters)            
-                foreach (Character otherCha in ins.memberCharacters)                
+            foreach (Character cha in ins.GetMemberCharacters())            
+                foreach (Character otherCha in ins.GetMemberCharacters())                
                     if (cha != otherCha)                    
                         CreatePersonalRelation(cha, otherCha, ins);
     }
-    void CreateInstitutionalRelations()
-    {
-        foreach (Institution ins in institutionList)
-        {
-            foreach  (Character cha in characterList)
-            {
+    //void CreateInstitutionalRelations()
+    //{
+    //    // create relations between characters and institution for enhanced membership defining 
+    //    foreach (Institution ins in institutionList)
+    //    {
+    //        foreach  (Character cha in characterList)
+    //        {
 
-            }
-        }
-    }
+    //        }
+    //    }
+    //}
 
     void CreatePersonalRelation (Character activeCha, Character passiveCha, Institution sharedInstitution)
     {
         relationList.Add(new Relation(activeCha, passiveCha, sharedInstitution));
     }
+
+    void CreateEnforcerEquipment()
+    {
+        List<Character> processedCharacters = new List<Character>();
+        foreach (Institution ins in institutionList)
+        {
+            foreach (Character cha in ins.enforcerCharacters)
+            {
+                if (processedCharacters.Contains(cha) == false)
+                {
+                    processedCharacters.Add(cha);
+                    bool weaponFound = false;
+                    foreach (Relation rel in relationList)
+                    {
+                        if (rel.relationType == Relation.RelationType.Ownership)
+                            if (rel.activeDataObject == cha)
+                            {
+                                Material mat = (Material)rel.passiveDataObject;
+                                if (mat.materialSubtype == Material.MaterialSubtype.Weapon)                                
+                                    weaponFound = true;                                
+                            } 
+                    } 
+                    if (weaponFound == false)
+                        CreateWeaponMaterialForCharacter(cha);
+                }
+            }
+        }
+    }
+
+    // TODO: Make separate script for auto creation??
+    void CreateWeaponMaterialForCharacter (Character character)
+    {
+        string matID = "AUTOENFORCERWEAPON" + character.ID;
+        Material material = new Material(matID, Material.MaterialType.Item, Material.MaterialSubtype.Weapon);
+        materialList.Add(material);
+        Relation relation = new Relation(character, material);
+        relationList.Add(relation);
+    }
+
+
 
 
     void ScanCreatedObjects()
@@ -121,12 +175,12 @@ public class DataController : MonoBehaviour
         foreach (Institution ins in institutionList)
         {
             string charstr = "";
-            foreach (Character cha in ins.memberCharacters)            
+            foreach (Character cha in ins.GetMemberCharacters())            
                 charstr += cha.name + "  ";
             string matstr = "";
             foreach (Material mat in ins.memberMaterials)
                 matstr += mat.name + "  ";
-            Debug.Log(ins.name + " has members: " + charstr + "  ///  and material: " + matstr);
+            Debug.Log(ins.name + " has members: " + charstr + "  ///  and material: " + matstr + "  ///  Generics: "+ ins.genericExecutiveCount + ", "+ ins.genericEnforcerCount +", "+ ins.genericAttendantCount +" exec count: "+ ins.executiveCharacters.Count +  " enforcer count: "+ ins.enforcerCharacters.Count );
         } 
 
     }

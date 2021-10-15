@@ -11,6 +11,7 @@ public class Character : DataObject
 
     // Calculated In Runtime
     public float powerPotential = 0f;
+    public float materialPower = 0f;
     public float totalPower = 0f;
 
 
