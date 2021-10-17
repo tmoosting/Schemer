@@ -20,9 +20,7 @@ public class Institution : DataObject
     public float genericAttendantPower = 0f;
     public float materialPower = 0f;
     public float totalPower = 0f;
-
-
-
+     
 
    
     public Institution(Dictionary<string, string> dict)

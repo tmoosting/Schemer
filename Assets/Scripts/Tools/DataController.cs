@@ -8,12 +8,11 @@ public class DataController : MonoBehaviour
 
     [Header("Assigns")]
     public DataLinker linker;
-    public Button autoCreateButton;
+    public Button autoCreateButton; 
 
     [Header("Options")]
     public bool scanDatabaseAtStart;
-    public bool scanUnityObjectsAtStart;
-
+    public bool scanUnityObjectsAtStart; 
 
     [HideInInspector]  public List<Character> characterList = new List<Character>();
     [HideInInspector]  public List<Material> materialList = new List<Material>();

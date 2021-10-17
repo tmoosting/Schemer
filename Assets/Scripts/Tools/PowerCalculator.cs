@@ -12,7 +12,7 @@ public class PowerCalculator : MonoBehaviour
     public TextMeshProUGUI highscoresText;
     DataController data;
     Constants constants;
-
+   
     private void Start()
     {
         data = DataController.Instance;
@@ -49,7 +49,7 @@ public class PowerCalculator : MonoBehaviour
    
 
     void CalculateCharacterPowerPotential(Character character)
-    { 
+    {  
         float calculatedPower = 0f;
         calculatedPower += character.fearfulness;
         calculatedPower += character.charisma;
