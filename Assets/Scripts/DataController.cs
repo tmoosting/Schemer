@@ -32,6 +32,7 @@ public class DataController : MonoBehaviour
             linker.DatabaseTestScan(false);
         if (scanUnityObjectsAtStart == true)
              ScanCreatedObjects();
+        UIController.Instance.RunStartupToggles();
     }
     void AutoCreate()
     {
@@ -147,6 +148,33 @@ public class DataController : MonoBehaviour
         Relation relation = new Relation(character, material);
         relationList.Add(relation);
     }
+
+
+
+
+    // --------------- GET FUNCTIONS
+
+
+    public Character GetCharacterWithName (string name)
+    {
+        Character character = null;
+
+        foreach (Character cha in characterList)        
+            if (cha.name == name)
+                character = cha;
+
+        return character;
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 

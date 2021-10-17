@@ -9,6 +9,9 @@ public class Relation : DataObject
 
     public RelationType relationType;
 
+    // From database - meta
+    public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
+
     public DataObject activeDataObject;
     public DataObject passiveDataObject;
     public Institution sharedInstitution;
@@ -19,6 +22,7 @@ public class Relation : DataObject
     public Relation(Dictionary<string, string> dict)
     {
         DataController data = DataController.Instance;
+        fieldValueDict = dict;
         dataType = DataType.Relation;
         ID = dict["ID"];
         name = dict["Name"]; 

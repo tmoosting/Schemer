@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Institution : DataObject
 { 
+    // From database
     public List<Material> memberMaterials = new List<Material>(); 
     public List<Character> executiveCharacters = new List<Character>();
     public List<Character> enforcerCharacters = new List<Character>();
@@ -11,6 +12,9 @@ public class Institution : DataObject
     public int genericExecutiveCount;
     public int genericEnforcerCount;
     public int genericAttendantCount;
+
+    // From database - meta
+    public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
 
     public float namedExecutivePower = 0f;
     public float namedEnforcerPower = 0f;
@@ -26,6 +30,9 @@ public class Institution : DataObject
     public Institution(Dictionary<string, string> dict)
     {
         DataController data = DataController.Instance;
+        fieldValueDict = dict;
+        dataType = DataType.Institution;
+
 
         ID = dict["ID"];
         name = dict["Name"];

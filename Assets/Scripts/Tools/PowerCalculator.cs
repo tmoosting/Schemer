@@ -137,7 +137,8 @@ public class PowerCalculator : MonoBehaviour
                 calcPower += ins.totalPower / ins.GetMemberCharacters().Count; 
             }        
         }
-       character.totalPower += calcPower;
+       character.institutionalPower = calcPower;
+       character.totalPower += character.institutionalPower;
     }
 
 
@@ -148,6 +149,7 @@ public class PowerCalculator : MonoBehaviour
         {
             cha.powerPotential = 0f;
             cha.materialPower = 0f;
+            cha.institutionalPower = 0f;
             cha.totalPower = 0f;
         }
         foreach (Material mat in data.materialList)

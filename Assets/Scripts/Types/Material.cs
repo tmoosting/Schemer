@@ -19,6 +19,9 @@ public class Material : DataObject
     public float bonusCharisma;
     public float bonusSkill;
 
+    // From database - meta
+    public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
+
     // Calculated In Runtime
     public float powerPotential;
 
@@ -27,6 +30,8 @@ public class Material : DataObject
     public Material(Dictionary<string, string> dict)
     {
         DataController data = DataController.Instance;
+        fieldValueDict = dict;
+        dataType = DataType.Material;
 
         ID = dict["ID"];
         name = dict["Name"];
@@ -49,6 +54,7 @@ public class Material : DataObject
     public Material(string id, MaterialType type, MaterialSubtype subType)
     {
         this.ID = id;
+        dataType = DataType.Material; 
         materialType = type;
         materialSubtype = subType;
     }
