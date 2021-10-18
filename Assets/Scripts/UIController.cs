@@ -10,7 +10,8 @@ public class UIController : MonoBehaviour
     DataController data;
     [Header("Assigns")]
     public GameObject cardPrefab;
-    public Transform cardParent;
+    public GameObject panelRegularView;
+    public GameObject panelObjectView;
     public Toggle toggleCharacter;
     public Toggle toggleMaterial;
     public Toggle toggleInstitution;
@@ -21,6 +22,7 @@ public class UIController : MonoBehaviour
     public Slider sliderCardWidth;
     public Slider sliderCardHeight;
     public TextMeshProUGUI textSelectedObject;
+    public GameObject objectViewSwitch;
     [Header ("Startup - Objects")]
     public bool enableToggleCharactersOnStart;
     public bool enableToggleMaterialsOnStart;
@@ -32,6 +34,8 @@ public class UIController : MonoBehaviour
     public bool enableToggleRelationDetailsOnStart;
 
     public List<ObjectViewCard> cardList = new List<ObjectViewCard>();
+    public List<ObjectViewCard> cardListObjectView = new List<ObjectViewCard>();
+    [HideInInspector] public DataObject selectedObject;
 
     private void Awake()
     {
@@ -39,7 +43,10 @@ public class UIController : MonoBehaviour
     }
     private void Start()
     {
-      cardParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2(sliderCardWidth.value, sliderCardHeight.value);
+        panelRegularView.SetActive(true);
+        panelObjectView.SetActive(false);
+        objectViewSwitch.SetActive(false);
+        panelRegularView.GetComponent<GridLayoutGroup>().cellSize = new Vector2(sliderCardWidth.value, sliderCardHeight.value);
     }
 
     // Called from DataController when done creating
@@ -51,19 +58,7 @@ public class UIController : MonoBehaviour
         toggleCharacter.isOn = enableToggleCharactersOnStart;
         toggleMaterial.isOn = enableToggleMaterialsOnStart;
         toggleInstitution.isOn = enableToggleInstitutionsOnStart;
-        toggleRelation.isOn = enableToggleRelationsOnStart;
-      
-
-
-        // Below disabled because it does not update graphic
-        //toggleCharacter.SetIsOnWithoutNotify(ToggleCharactersOnStart);
-        //toggleMaterial.SetIsOnWithoutNotify(ToggleMaterialsOnStart);
-        //toggleInstitution.SetIsOnWithoutNotify(ToggleInstitutionsOnStart);
-        //toggleRelation.SetIsOnWithoutNotify(ToggleRelationsOnStart);
-        //toggleShowDatabase.SetIsOnWithoutNotify(ToggleDatabaseInfoOnStart);
-        //toggleShowPower.SetIsOnWithoutNotify(TogglePowerValuesOnStart);
-        //toggleShowRelations.SetIsOnWithoutNotify(ToggleRelationDetailsOnStart);
-        //ReloadObjectCards();
+        toggleRelation.isOn = enableToggleRelationsOnStart; 
     }
 
 
@@ -76,7 +71,7 @@ public class UIController : MonoBehaviour
         if (toggleCharacter.isOn)
             foreach (Character cha in data.characterList)
             {
-                GameObject cardObj = Instantiate(cardPrefab, cardParent);
+                GameObject cardObj = Instantiate(cardPrefab, panelRegularView.GetComponent<Transform>());
                 ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
                 card.LoadDataObject(cha);
                 cardList.Add(card);
@@ -84,7 +79,7 @@ public class UIController : MonoBehaviour
         if (toggleMaterial.isOn)
             foreach (Material mat in data.materialList)
             {
-                GameObject cardObj = Instantiate(cardPrefab, cardParent);
+                GameObject cardObj = Instantiate(cardPrefab, panelRegularView.GetComponent<Transform>());
                 ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
                 card.LoadDataObject(mat);
                 cardList.Add(card);
@@ -92,7 +87,7 @@ public class UIController : MonoBehaviour
         if (toggleInstitution.isOn)
             foreach (Institution ins in data.institutionList)
             {
-                GameObject cardObj = Instantiate(cardPrefab, cardParent);
+                GameObject cardObj = Instantiate(cardPrefab, panelRegularView.GetComponent<Transform>());
                 ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
                 card.LoadDataObject(ins);
                 cardList.Add(card);
@@ -100,40 +95,79 @@ public class UIController : MonoBehaviour
         if (toggleRelation.isOn)
             foreach (Relation rel in data.relationList)
             {
-                GameObject cardObj = Instantiate(cardPrefab, cardParent);
+                GameObject cardObj = Instantiate(cardPrefab, panelRegularView.GetComponent<Transform>());
                 ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
                 card.LoadDataObject(rel);
                 cardList.Add(card);
             }
 
     }
+    void ReloadObjectView()
+    {
+        // clear previous cards
+        foreach (ObjectViewCard existingCard in cardListObjectView)
+            Destroy(existingCard.gameObject);
+        cardListObjectView = new List<ObjectViewCard>();
 
+        GameObject cardObj = Instantiate(cardPrefab, panelObjectView.GetComponent<Transform>());
+        ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
+        card.LoadDataObject(selectedObject);
+        card.SetSelectedStatus(true);
+        cardListObjectView.Add(card);
+
+    }
 
 
     void ClearObjectCards()
     {
         foreach (ObjectViewCard card in cardList)        
             Destroy(card.gameObject);
-        cardList = new List<ObjectViewCard>();
-
-
+        cardList = new List<ObjectViewCard>(); 
     }
 
-
+    public void ToggleRegularView ( )
+    {
+        panelRegularView.SetActive(true );
+        panelObjectView.SetActive(false);
+    }
+    public void ToggleObjectView( )
+    {
+        panelRegularView.SetActive(false);
+        panelObjectView.SetActive(true);
+        ReloadObjectView();
+    }
     public void SlideCardWidth (float width)
     {
-        GridLayoutGroup cardGrid = cardParent.GetComponent<GridLayoutGroup>();
+        GridLayoutGroup cardGrid = panelRegularView.GetComponent<GridLayoutGroup>();
         cardGrid.cellSize = new Vector2(width, cardGrid.cellSize.y);
+       
     }
     public void SlideCardHeight(float height)
     {
-        GridLayoutGroup cardGrid = cardParent.GetComponent<GridLayoutGroup>();
+        GridLayoutGroup cardGrid = panelRegularView.GetComponent<GridLayoutGroup>();
         cardGrid.cellSize = new Vector2( cardGrid.cellSize.x, height);
     }
 
     // called from LinkPrefab
     public void ClickLinkPrefab(LinkPrefab clickedLink)
     {
-        textSelectedObject.text = "Selected: " + clickedLink.linkedObject.ID;
+        SelectObject(clickedLink.linkedObject);
+    }
+    public void SelectObject(DataObject dataObject)
+    {
+        selectedObject = dataObject;
+        textSelectedObject.text = "SELECTED:\n\n" + dataObject.ID;
+        ObjectViewCard viewCard = null;
+        foreach (ObjectViewCard card in cardList)
+        {
+            card.SetSelectedStatus(false);
+            if (card.containedObject == dataObject)
+                viewCard = card; 
+        }
+        if (viewCard != null)
+            viewCard.SetSelectedStatus(true);
+        ReloadObjectView();
+        objectViewSwitch.SetActive(true);
+
     }
 }

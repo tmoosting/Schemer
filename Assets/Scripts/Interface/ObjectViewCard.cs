@@ -5,26 +5,41 @@ using UnityEngine.UI;
 using TMPro;
 
 public class ObjectViewCard : MonoBehaviour
-{
-    UIController ui;
+{ 
     public DataObject containedObject;
     //  public DataObject previousViewObject; use to navigate back when clicking a link
 
     public TextMeshProUGUI titleText;
     public Transform listParent;
+    public Image selectionImage;
+    public Color32 defaultColor;
+    public Color32 selectionColor;
 
     public GameObject textPrefab;
     public GameObject linkPrefab;
     List<GameObject> textPrefabList = new List<GameObject>();
     List<GameObject> linkPrefabList = new List<GameObject>();
 
-    private void Awake()
+    [HideInInspector] public bool clickable = true;
+
+    
+    public void ClickSelectButton()
     {
-        ui = UIController.Instance;
+        UIController.Instance.SelectObject(containedObject);
     }
+    public void SetSelectedStatus(bool selected)
+    {
+        if (selected == true)
+            selectionImage.color = selectionColor;
+        else
+            selectionImage.color = defaultColor;
+        
+    }
+
     // Delegator
     public void LoadDataObject(DataObject dataObject)
     {
+        containedObject = dataObject;
         if (dataObject.dataType == DataObject.DataType.Character)
             LoadCharacterObject((Character)dataObject);
         if (dataObject.dataType == DataObject.DataType.Material)
@@ -40,7 +55,7 @@ public class ObjectViewCard : MonoBehaviour
     {
         titleText.text = character.name;
 
-        if (ui.toggleShowDatabase.isOn)
+        if (UIController.Instance.toggleShowDatabase.isOn)
         {
             foreach (string str in character.fieldValueDict.Keys)
                 if (str != "Name")
@@ -49,7 +64,7 @@ public class ObjectViewCard : MonoBehaviour
                 }
             CreateTextObject("----------------------------");
         }
-        if (ui.toggleShowPower.isOn)
+        if (UIController.Instance.toggleShowPower.isOn)
         {
             CreateTextObject("Pow.Potential: "+ character.powerPotential);
             CreateTextObject("Pow.Material: "+ character.materialPower);
@@ -63,7 +78,7 @@ public class ObjectViewCard : MonoBehaviour
     void LoadMaterialObject(Material material)
     {
         titleText.text = material.name;
-        if (ui.toggleShowDatabase.isOn)
+        if (UIController.Instance.toggleShowDatabase.isOn)
         {
             foreach (string str in material.fieldValueDict.Keys)
                 if (str != "Name")
@@ -72,7 +87,7 @@ public class ObjectViewCard : MonoBehaviour
                 }
             CreateTextObject("----------------------------");
         }
-        if (ui.toggleShowPower.isOn)
+        if (UIController.Instance.toggleShowPower.isOn)
         {
             CreateTextObject("Pow.Potential: " + material.powerPotential);
             CreateTextObject("----------------------------");
@@ -81,7 +96,7 @@ public class ObjectViewCard : MonoBehaviour
     void LoadInstitutionObject(Institution institution)
     {
         titleText.text = institution.name;
-        if (ui.toggleShowDatabase.isOn)
+        if (UIController.Instance.toggleShowDatabase.isOn)
         {
             foreach (string str in institution.fieldValueDict.Keys)
                 if (str != "Name")
@@ -90,7 +105,7 @@ public class ObjectViewCard : MonoBehaviour
                 }
             CreateTextObject("----------------------------");
         }
-        if (ui.toggleShowPower.isOn)
+        if (UIController.Instance.toggleShowPower.isOn)
         {
             CreateTextObject("Pow.NamedOwners: " + institution.namedOwnerPower); 
             CreateTextObject("Pow.NamedCoops: " + institution.namedCooperativePower); 
@@ -124,6 +139,7 @@ public class ObjectViewCard : MonoBehaviour
         GameObject linkObj = Instantiate(linkPrefab, listParent);
         linkObj.GetComponent<TextMeshProUGUI>().text = content;
         linkObj.GetComponent<LinkPrefab>().linkedObject = linkedObject;
+        linkObj.GetComponent<LinkPrefab>().parentCard = this;
         linkPrefabList.Add(linkObj);
     }
 }
