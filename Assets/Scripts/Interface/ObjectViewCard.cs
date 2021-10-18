@@ -14,7 +14,9 @@ public class ObjectViewCard : MonoBehaviour
     public Transform listParent;
 
     public GameObject textPrefab;
+    public GameObject linkPrefab;
     List<GameObject> textPrefabList = new List<GameObject>();
+    List<GameObject> linkPrefabList = new List<GameObject>();
 
     private void Awake()
     {
@@ -33,12 +35,7 @@ public class ObjectViewCard : MonoBehaviour
             LoadRelationObject((Relation)dataObject);
     }
 
-    void CreateTextObject (string content)
-    {
-        GameObject textObj = Instantiate(textPrefab, listParent);
-        textObj.GetComponent<TextMeshProUGUI>().text = content;
-        textPrefabList.Add(textObj);
-    }
+   
     void LoadCharacterObject(Character character)
     {
         titleText.text = character.name;
@@ -95,12 +92,12 @@ public class ObjectViewCard : MonoBehaviour
         }
         if (ui.toggleShowPower.isOn)
         {
-            CreateTextObject("Pow.NamedExec: " + institution.namedExecutivePower); 
-            CreateTextObject("Pow.NamedEnfo: " + institution.namedEnforcerPower); 
-            CreateTextObject("Pow.NamedAtte: " + institution.namedAttendantPower); 
-            CreateTextObject("Pow.GenerExec: " + institution.genericExecutivePower); 
-            CreateTextObject("Pow.GenerEnfo: " + institution.genericEnforcerPower); 
-            CreateTextObject("Pow.GenerAtte: " + institution.genericAttendantPower); 
+            CreateTextObject("Pow.NamedOwners: " + institution.namedOwnerPower); 
+            CreateTextObject("Pow.NamedCoops: " + institution.namedCooperativePower); 
+            CreateTextObject("Pow.NamedOwnees: " + institution.namedOwneePower); 
+            CreateTextObject("Pow.GenerOwners: " + institution.genericOwnerPower); 
+            CreateTextObject("Pow.GenerCoops: " + institution.genericCooperativePower); 
+            CreateTextObject("Pow.GenerOwnees: " + institution.genericOwnerPower); 
             CreateTextObject("Pow.Material: " + institution.materialPower); 
             CreateTextObject("Pow.Total: " + institution.totalPower);
             CreateTextObject("----------------------------");
@@ -110,17 +107,23 @@ public class ObjectViewCard : MonoBehaviour
     void LoadRelationObject(Relation relation)
     {
         titleText.text = relation.name;
-        if (ui.toggleShowDatabase.isOn)
-        {
-            foreach (string str in relation.fieldValueDict.Keys)
-                if (str != "Name")
-                {
-                    CreateTextObject(str + ": " + relation.fieldValueDict[str]);
-                }
-            CreateTextObject("----------------------------");
-        }
+        CreateTextObject("Type: " + relation.relationType);
+        CreateLinkObject("Primary: "+ relation.primaryDataObject.name, relation.primaryDataObject);
+        CreateLinkObject("Secondary: "+ relation.secondaryDataObject.name, relation.secondaryDataObject);
 
 
     }
-
+    void CreateTextObject(string content)
+    {
+        GameObject textObj = Instantiate(textPrefab, listParent);
+        textObj.GetComponent<TextMeshProUGUI>().text = content;
+        textPrefabList.Add(textObj);
+    }
+    void CreateLinkObject(string content, DataObject linkedObject)
+    {
+        GameObject linkObj = Instantiate(linkPrefab, listParent);
+        linkObj.GetComponent<TextMeshProUGUI>().text = content;
+        linkObj.GetComponent<LinkPrefab>().linkedObject = linkedObject;
+        linkPrefabList.Add(linkObj);
+    }
 }

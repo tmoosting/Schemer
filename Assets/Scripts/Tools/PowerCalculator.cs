@@ -60,7 +60,7 @@ public class PowerCalculator : MonoBehaviour
     void CalculateMaterialPowerPotential(Material material)
     {
         float calculatedPower = 0f;
-        calculatedPower += constants.materialSubtypePotentialPower[material.materialSubtype];
+        calculatedPower += constants.materialSubtypeBaseValues[material.materialSubtype];
         calculatedPower += material.bonusFear;
         calculatedPower += material.bonusCharisma;
         calculatedPower += material.bonusSkill;
@@ -71,9 +71,9 @@ public class PowerCalculator : MonoBehaviour
         float matPower = 0f;
         foreach (Relation rel in data.relationList)        
             if (rel.relationType == Relation.RelationType.Ownership)
-                if (rel.activeDataObject == character)
+                if (rel.primaryDataObject == character && rel.secondaryDataObject.dataType == DataObject.DataType.Material)
                 {
-                    Material mat = (Material)rel.passiveDataObject;
+                    Material mat = (Material)rel.secondaryDataObject;
                     matPower += mat.powerPotential; 
                 }
 
@@ -82,32 +82,32 @@ public class PowerCalculator : MonoBehaviour
     }
     void CalculateInstitutionPower(Institution institution)
     {  
-        foreach (Character cha in institution.executiveCharacters)
+        foreach (Character cha in institution.GetOwnerCharacters())
         {
-            institution.namedExecutivePower += cha.powerPotential;
-            institution.namedExecutivePower += cha.materialPower;
+            institution.namedOwnerPower += cha.powerPotential;
+            institution.namedOwnerPower += cha.materialPower;
         }
-        foreach (Character cha in institution.enforcerCharacters)
+        foreach (Character cha in institution.GetCooperativeCharacters())
         {
-            institution.namedEnforcerPower += cha.powerPotential;
-            institution.namedEnforcerPower += cha.materialPower;
+            institution.namedCooperativePower += cha.powerPotential;
+            institution.namedCooperativePower += cha.materialPower;
         }
-        foreach (Character cha in institution.attendantCharacters)
+        foreach (Character cha in institution.GetOwneeCharacters())
         {
-            institution.namedAttendantPower += cha.powerPotential;
-            institution.namedAttendantPower += cha.materialPower;
+            institution.namedOwneePower += cha.powerPotential;
+            institution.namedOwneePower += cha.materialPower;
         }
 
-        institution.genericExecutivePower += institution.genericExecutiveCount * constants.GENERIC_EXECUTIVE_AVERAGE_POWER_POTENTIAL;
-        institution.genericEnforcerPower += institution.genericEnforcerCount * constants.GENERIC_ENFORCER_AVERAGE_POWER_POTENTIAL;
-        institution.genericAttendantPower += institution.genericAttendantCount * constants.GENERIC_ATTENDANT_AVERAGE_POWER_POTENTIAL;
+        institution.genericOwnerPower += institution.genericOwnerCount * constants.GENERIC_OWNER_AVERAGE_POWER_POTENTIAL;
+        institution.genericCooperativePower += institution.genericCooperativeCount * constants.GENERIC_COOPERATIVE_AVERAGE_POWER_POTENTIAL;
+        institution.genericOwneePower += institution.genericOwneeCount * constants.GENERIC_OWNEE_AVERAGE_POWER_POTENTIAL;
 
         float calcPower =
-            institution.namedExecutivePower + institution.namedEnforcerPower + institution.namedAttendantPower +
-               institution.genericExecutivePower + institution.genericEnforcerPower + institution.genericAttendantPower;
+            institution.namedOwnerPower + institution.namedCooperativePower + institution.namedOwneePower +
+               institution.genericOwnerPower + institution.genericCooperativePower + institution.genericOwneePower;
 
         
-        foreach (Material mat in institution.memberMaterials)
+        foreach (Material mat in institution.GetOwnedMaterials())
             calcPower += mat.powerPotential;
 
         institution.totalPower += calcPower;
@@ -119,16 +119,16 @@ public class PowerCalculator : MonoBehaviour
         float calcPower = 0f;
         foreach (Institution ins in data.institutionList)
         {
-            if (ins.executiveCharacters.Contains(character))
+            if (ins.GetOwnerCharacters().Contains(character))
             { 
-                if (ins.executiveCharacters[0] == character)
+                if (ins.GetOwnerCharacters()[0] == character)
                 {
-                    calcPower += (ins.totalPower * constants.PRIMARY_EXECUTIVE_POWERSHARE);
+                    calcPower += (ins.totalPower * constants.PRIMARY_OWNER_POWERSHARE);
                     calcPower += ins.totalPower / ins.GetMemberCharacters().Count; 
                 }
                 else
                 {
-                    calcPower += (ins.totalPower * (1f- constants.PRIMARY_EXECUTIVE_POWERSHARE) / ins.executiveCharacters.Count - 1);
+                    calcPower += (ins.totalPower * (1f- constants.PRIMARY_OWNER_POWERSHARE) / ins.GetOwnerCharacters().Count - 1);
                     calcPower += ins.totalPower / ins.GetMemberCharacters().Count; 
                 }
             }
@@ -158,12 +158,12 @@ public class PowerCalculator : MonoBehaviour
         }
         foreach (Institution ins in data.institutionList)
         {
-            ins.namedExecutivePower = 0f;
-            ins.namedEnforcerPower = 0f;
-            ins.namedAttendantPower = 0f;
-            ins.genericExecutivePower = 0f;
-            ins.genericEnforcerPower = 0f;
-            ins.genericAttendantPower = 0f;
+            ins.namedOwnerPower = 0f;
+            ins.namedCooperativePower = 0f;
+            ins.namedOwneePower = 0f;
+            ins.genericOwnerPower = 0f;
+            ins.genericCooperativePower = 0f;
+            ins.genericOwneePower = 0f;
             ins.materialPower = 0f;
             ins.totalPower = 0f;
         }
@@ -186,20 +186,22 @@ public class PowerCalculator : MonoBehaviour
         foreach (Institution ins in data.institutionList)
         {
             institutionTextString += ins.name + " has TotP: " + ins.totalPower + "\n";
-            institutionTextString += ins.namedExecutivePower + " from " + ins.executiveCharacters.Count + " named Executives;\n";
-            institutionTextString += ins.namedEnforcerPower + " from " + ins.enforcerCharacters.Count + " named Enforcers;\n";
-            institutionTextString += ins.namedAttendantPower + " from " + ins.attendantCharacters.Count + " named Attendants;\n";
-            institutionTextString += ins.genericExecutivePower + " from " + ins.genericExecutiveCount + " generic Executives;\n";
-            institutionTextString += ins.genericEnforcerPower + " from " + ins.genericEnforcerCount + " generic Enforcers;\n";
-            institutionTextString += ins.genericAttendantPower + " from " + ins.genericAttendantCount + " generic Attendants;\n\n";
+            institutionTextString += ins.namedOwnerPower + " from " + ins.GetOwnerCharacters().Count + " named Executives;\n";
+            institutionTextString += ins.namedCooperativePower + " from " + ins.GetCooperativeCharacters().Count + " named Enforcers;\n";
+            institutionTextString += ins.namedOwneePower + " from " + ins.GetOwneeCharacters().Count + " named Attendants;\n";
+            institutionTextString += ins.genericOwnerPower + " from " + ins.genericOwnerCount + " generic Executives;\n";
+            institutionTextString += ins.genericCooperativePower + " from " + ins.genericCooperativeCount + " generic Enforcers;\n";
+            institutionTextString += ins.genericOwneePower + " from " + ins.genericOwneeCount + " generic Attendants;\n\n";
         }
         institutionsText.text = institutionTextString;
 
         string highscoreTextString = "";
         highscoreTextString += "Most powerful Institution: " + FindMostPowerfulInstitution().name + " at " + FindMostPowerfulInstitution().totalPower + "\n";
         highscoreTextString += "Most powerful Character: " + FindMostPowerfulCharacter().name + " at " + FindMostPowerfulCharacter().totalPower + "\n";
-        foreach (Institution ins in data.institutionList)
-            highscoreTextString += "Most powerful Character in " + ins.name + ": " + ins.GetMostPowerfulMember().name + " at " + ins.GetMostPowerfulMember().totalPower + "\n";
+        //foreach (Institution ins in data.institutionList)
+        //    highscoreTextString += "Most powerful Character in " + ins.name +
+        //        ": " + ins.GetMostPowerfulMember().name + " at " + 
+        //        ins.GetMostPowerfulMember().totalPower + "\n";
 
         highscoresText.text = highscoreTextString;
     }

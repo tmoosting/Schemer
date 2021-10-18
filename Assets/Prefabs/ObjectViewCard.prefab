@@ -63,6 +63,7 @@ MonoBehaviour:
   titleText: {fileID: 8339891994937261765}
   listParent: {fileID: 8339891995148522346}
   textPrefab: {fileID: 1397073144831743308, guid: 2a0429e5c7186484196f0781e455a30b, type: 3}
+  linkPrefab: {fileID: 3140604536667628494, guid: 95229db4af3c0864f85ae4f0971a0122, type: 3}
 --- !u!1 &8339891994382432634
 GameObject:
   m_ObjectHideFlags: 0
@@ -397,7 +398,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000034332275}
+  m_AnchoredPosition: {x: 0, y: 0.000015258789}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8339891995148522351
@@ -772,7 +773,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 8339891994382432637}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.99971366
+  m_Size: 0.9964005
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

@@ -20,6 +20,7 @@ public class UIController : MonoBehaviour
     public Toggle toggleShowRelations;
     public Slider sliderCardWidth;
     public Slider sliderCardHeight;
+    public TextMeshProUGUI textSelectedObject;
     [Header ("Startup - Objects")]
     public bool enableToggleCharactersOnStart;
     public bool enableToggleMaterialsOnStart;
@@ -128,5 +129,11 @@ public class UIController : MonoBehaviour
     {
         GridLayoutGroup cardGrid = cardParent.GetComponent<GridLayoutGroup>();
         cardGrid.cellSize = new Vector2( cardGrid.cellSize.x, height);
+    }
+
+    // called from LinkPrefab
+    public void ClickLinkPrefab(LinkPrefab clickedLink)
+    {
+        textSelectedObject.text = "Selected: " + clickedLink.linkedObject.ID;
     }
 }

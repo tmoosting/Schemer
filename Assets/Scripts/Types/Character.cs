@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Character : DataObject
-{ 
+{
+    DataController data;
+
     // From database
     public int age;
     public float fearfulness;
@@ -23,7 +25,7 @@ public class Character : DataObject
 
     public Character(Dictionary<string, string> dict)
     {
-        DataController data = DataController.Instance;
+        data = DataController.Instance;
         fieldValueDict = dict;
         dataType = DataType.Character;
 
@@ -38,9 +40,30 @@ public class Character : DataObject
             charisma = float.Parse(dict["Charisma"]);
         if (dict["DecisionMaking"] != "")
             decisionMaking = float.Parse(dict["DecisionMaking"]);
+
+        
     }
 
  
+    public void CreateCharacterRelations()
+    {
+        foreach (string memberID in fieldValueDict["OwnsMaterials"].Split(','))
+            foreach (Material mat in data.materialList)
+                if (mat.ID == memberID)
+                    data.CreateRelation(Relation.RelationType.Ownership, this, mat);
+        foreach (string memberID in fieldValueDict["OwnsInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
+                if (ins.ID == memberID)
+                    data.CreateRelation(Relation.RelationType.Ownership, this, ins);
+        foreach (string memberID in fieldValueDict["CoopsInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
+                if (ins.ID == memberID)
+                    data.CreateRelation(Relation.RelationType.Cooperative, this, ins);
+        foreach (string memberID in fieldValueDict["OwnedByInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
+                if (ins.ID == memberID)
+                    data.CreateRelation(Relation.RelationType.Ownership, ins, this);
+    }
 
 
 }

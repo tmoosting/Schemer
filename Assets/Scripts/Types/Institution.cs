@@ -3,25 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Institution : DataObject
-{ 
+{
+
+    DataController data;
+
     // From database
-    public List<Material> memberMaterials = new List<Material>(); 
-    public List<Character> executiveCharacters = new List<Character>();
-    public List<Character> enforcerCharacters = new List<Character>();
-    public List<Character> attendantCharacters = new List<Character>();
-    public int genericExecutiveCount;
-    public int genericEnforcerCount;
-    public int genericAttendantCount;
+    //public List<Material> memberMaterials = new List<Material>(); 
+    //public List<Character> executiveCharacters = new List<Character>();
+    //public List<Character> enforcerCharacters = new List<Character>();
+    //public List<Character> attendantCharacters = new List<Character>();
+    public int genericOwnerCount;
+    public int genericCooperativeCount;
+    public int genericOwneeCount;
 
     // From database - meta
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
 
-    public float namedExecutivePower = 0f;
-    public float namedEnforcerPower = 0f;
-    public float namedAttendantPower = 0f;
-    public float genericExecutivePower = 0f;
-    public float genericEnforcerPower = 0f;
-    public float genericAttendantPower = 0f;
+    public float namedOwnerPower = 0f;
+    public float namedCooperativePower = 0f;
+    public float namedOwneePower = 0f;
+    public float genericOwnerPower = 0f;
+    public float genericCooperativePower = 0f;
+    public float genericOwneePower = 0f;
     public float materialPower = 0f;
     public float totalPower = 0f;
      
@@ -29,47 +32,36 @@ public class Institution : DataObject
    
     public Institution(Dictionary<string, string> dict)
     {
-        DataController data = DataController.Instance;
+        data = DataController.Instance;
         fieldValueDict = dict;
-        dataType = DataType.Institution;
-
+        dataType = DataType.Institution; 
 
         ID = dict["ID"];
-        name = dict["Name"];
+        name = dict["Name"];  
 
-       
-
-        foreach (string memberID in dict["Executives"].Split(',')) 
-            foreach (Character cha in data.characterList) 
-                if (cha.ID == memberID)
-                    executiveCharacters.Add(cha);  
-
-        foreach (string memberID in dict["Enforcers"].Split(','))
-            foreach (Character cha in data.characterList)
-                if (cha.ID == memberID)
-                    enforcerCharacters.Add(cha);
-
-        foreach (string memberID in dict["Attendants"].Split(','))
-            foreach (Character cha in data.characterList)
-                if (cha.ID == memberID)
-                    attendantCharacters.Add(cha);
-
-        if (dict["GenericExecutives"] != "")
-            genericExecutiveCount = int.Parse(dict["GenericExecutives"]);
-        if (dict["GenericEnforcers"] != "")
-            genericEnforcerCount = int.Parse(dict["GenericEnforcers"]);
-        if (dict["GenericAttendants"] != "")
-            genericAttendantCount = int.Parse(dict["GenericAttendants"]);
-
-        foreach (Material mat in data.materialList)
-            foreach (string memberID in dict["Materials"].Split(','))
-                if (mat.ID == memberID)
-                    memberMaterials.Add(mat);
-         
-
-
+        if (dict["GenericOwnerCharacters"] != "")
+            genericOwnerCount = int.Parse(dict["GenericOwnerCharacters"]);
+        if (dict["GenericCooperativeCharacters"] != "")
+            genericCooperativeCount = int.Parse(dict["GenericCooperativeCharacters"]);
+        if (dict["GenericOwneeCharacters"] != "")
+            genericOwneeCount = int.Parse(dict["GenericOwneeCharacters"]); 
     }
 
+    public void CreateInstitutionRelations()
+    { 
+        foreach (string memberID in fieldValueDict["OwnsMaterials"].Split(','))
+            foreach (Material mat in data.materialList)
+                if (mat.ID == memberID)
+                    data.CreateRelation(Relation.RelationType.Ownership, this, mat);
+        foreach (string memberID in fieldValueDict["OwnsInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
+                if (ins.ID == memberID)
+                    data.CreateRelation(Relation.RelationType.Ownership, this, ins);
+        foreach (string memberID in fieldValueDict["CoopsInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
+                if (ins.ID == memberID)
+                    data.CreateRelation(Relation.RelationType.Cooperative, this, ins);
+    }
     // ---------- GET FUNCTIONS
 
     public Character GetMostPowerfulMember()
@@ -90,22 +82,64 @@ public class Institution : DataObject
     public float GetTotalPower()
     {
         return
-            namedExecutivePower + namedEnforcerPower + namedAttendantPower +
-            genericExecutivePower + genericEnforcerPower + genericAttendantPower +
+            namedOwnerPower + namedCooperativePower + namedOwneePower +
+            genericOwnerPower + genericCooperativePower + genericOwneePower +
             materialPower;
     }
 
     public List<Character> GetMemberCharacters()
-    {
-        List<Character> charList = new List<Character>();
-        foreach (Character cha in executiveCharacters)
-            charList.Add(cha);
-        foreach (Character cha in enforcerCharacters)
-            charList.Add(cha);
-        foreach (Character cha in attendantCharacters)
-            charList.Add(cha);
-        return charList;
+    {       
+        return data.GetInstitutionCharacters(this);
     }
-
-
+    public List<Character> GetOwnerCharacters()
+    {
+        List<Character> charList =  data.GetInstitutionCharacters(this);
+        List<Character> returnList = new List<Character>();
+        foreach (Relation rel in data.relationList)    
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject.dataType == DataType.Character)
+                    if (charList.Contains((Character)rel.primaryDataObject))
+                        returnList.Add((Character)rel.primaryDataObject);
+        return returnList; 
+    }
+    public List<Character> GetCooperativeCharacters()
+    {
+        List<Character> charList = data.GetInstitutionCharacters(this);
+        List<Character> returnList = new List<Character>();
+        foreach (Relation rel in data.relationList)
+            if (rel.relationType == Relation.RelationType.Cooperative)
+            {
+                if (rel.primaryDataObject.dataType == DataType.Character)
+                {
+                    if (charList.Contains((Character)rel.primaryDataObject)) // might only need check primary because coop is set in Character table so relations are created only with Character as primary
+                        returnList.Add((Character)rel.primaryDataObject);
+                }              
+                else if (rel.secondaryDataObject.dataType == DataType.Character)
+                {
+                    if (charList.Contains((Character)rel.secondaryDataObject))
+                        returnList.Add((Character)rel.secondaryDataObject);
+                }
+               
+            }            
+        return returnList;
+    }
+    public List<Character> GetOwneeCharacters()
+    {
+        List<Character> charList = data.GetInstitutionCharacters(this);
+        List<Character> returnList = new List<Character>();
+        foreach (Relation rel in data.relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)      
+                if (rel.secondaryDataObject.dataType == DataType.Character)
+                    if (charList.Contains((Character)rel.secondaryDataObject))
+                        returnList.Add((Character)rel.secondaryDataObject);
+        return returnList;
+    }
+    public List<Material> GetOwnedMaterials()
+    {
+        return data.GetInstitutionMaterials(this);
+    }
+    public List<Material> GetCharacterOwnedMaterials()
+    {
+        return data.GetInstitutionCharacterMaterials(this);
+    }
 }

@@ -20,6 +20,9 @@ public class DataController : MonoBehaviour
     [HideInInspector]  public List<Relation> relationList = new List<Relation>();
 
 
+    // Private 
+    int createdRelationsAmount = 0;
+
 
     private void Awake()
     {
@@ -35,19 +38,13 @@ public class DataController : MonoBehaviour
         UIController.Instance.RunStartupToggles();
     }
     void AutoCreate()
-    {
-        // DATABASE 
-        CreateObjectsFromDatabase();
+    { 
+        CreateObjectsFromDatabase(); 
+        CreateRelationsFromObjects(); 
+    }
 
-        // AUTO GENERATE
-        //  CreateInstitutionalRelations();  
-        CreatePersonalRelationsFromInstitutions();
-    }
-    public void ButtonCreate()
-    {
-        autoCreateButton.interactable = false;
-        CreateEnforcerEquipment();
-    }
+  
+   
 
     void CreateObjectsFromDatabase()
     {
@@ -67,15 +64,7 @@ public class DataController : MonoBehaviour
                 fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Material", field, id));
             materialList.Add(new Material(fieldNamesAndValues));
         } 
-    
-        foreach (string id in linker.GetIDValuesForTable("Relation"))
-        {
-            Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
-            foreach (string field in linker.GetFieldNamesForTable("Relation"))
-                fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Relation", field, id));
-            relationList.Add(new Relation(fieldNamesAndValues));
-        }
-
+     
         foreach (string id in linker.GetIDValuesForTable("Institution"))
         {
             Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
@@ -83,73 +72,32 @@ public class DataController : MonoBehaviour
                 fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Institution", field, id));
             institutionList.Add(new Institution(fieldNamesAndValues));
         }
+
+        // DISABLED because no separate relation table for now
+        //foreach (string id in linker.GetIDValuesForTable("Relation"))
+        //{
+        //    Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
+        //    foreach (string field in linker.GetFieldNamesForTable("Relation"))
+        //        fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Relation", field, id));
+        //    relationList.Add(new Relation(fieldNamesAndValues));
+        //}
     }
 
-    void CreatePersonalRelationsFromInstitutions()
+    void CreateRelationsFromObjects()
     {
-        // for each character in its member list, create a relation to each other member
-        foreach (Institution ins in institutionList)                  
-            foreach (Character cha in ins.GetMemberCharacters())            
-                foreach (Character otherCha in ins.GetMemberCharacters())                
-                    if (cha != otherCha)                    
-                        CreatePersonalRelation(cha, otherCha, ins);
-    }
-    //void CreateInstitutionalRelations()
-    //{
-    //    // create relations between characters and institution for enhanced membership defining 
-    //    foreach (Institution ins in institutionList)
-    //    {
-    //        foreach  (Character cha in characterList)
-    //        {
-
-    //        }
-    //    }
-    //}
-
-    void CreatePersonalRelation (Character activeCha, Character passiveCha, Institution sharedInstitution)
-    {
-        relationList.Add(new Relation(activeCha, passiveCha, sharedInstitution));
-    }
-
-    void CreateEnforcerEquipment()
-    {
-        List<Character> processedCharacters = new List<Character>();
+        foreach (Character cha in characterList)
+            cha.CreateCharacterRelations();
         foreach (Institution ins in institutionList)
-        {
-            foreach (Character cha in ins.enforcerCharacters)
-            {
-                if (processedCharacters.Contains(cha) == false)
-                {
-                    processedCharacters.Add(cha);
-                    bool weaponFound = false;
-                    foreach (Relation rel in relationList)
-                    {
-                        if (rel.relationType == Relation.RelationType.Ownership)
-                            if (rel.activeDataObject == cha)
-                            {
-                                Material mat = (Material)rel.passiveDataObject;
-                                if (mat.materialSubtype == Material.MaterialSubtype.Weapon)                                
-                                    weaponFound = true;                                
-                            } 
-                    } 
-                    if (weaponFound == false)
-                        CreateWeaponMaterialForCharacter(cha);
-                }
-            }
-        }
+            ins.CreateInstitutionRelations(); 
     }
 
-    // TODO: Make separate script for auto creation??
-    void CreateWeaponMaterialForCharacter (Character character)
+    // Called from Cha,Mat,Ins constructors
+    public void CreateRelation(Relation.RelationType type, DataObject primaryObject, DataObject secondaryObject)
     {
-        string matID = "AUTOENFORCERWEAPON" + character.ID;
-        Material material = new Material(matID, Material.MaterialType.Item, Material.MaterialSubtype.Weapon);
-        materialList.Add(material);
-        Relation relation = new Relation(character, material);
+        createdRelationsAmount++;
+        Relation relation = new Relation(type, primaryObject, secondaryObject, createdRelationsAmount);
         relationList.Add(relation);
     }
-
-
 
 
     // --------------- GET FUNCTIONS
@@ -167,7 +115,48 @@ public class DataController : MonoBehaviour
     }
 
 
-
+    public List<Character> GetInstitutionCharacters(Institution institution)
+    {
+        List<Character> returnList = new List<Character>();
+        foreach (Relation rel in relationList)
+        {
+            if (rel.primaryDataObject == institution)
+            {
+                if (rel.secondaryDataObject.dataType == DataObject.DataType.Character)
+                    returnList.Add((Character)rel.secondaryDataObject);
+            }
+            else if (rel.secondaryDataObject == institution)
+            {
+                if (rel.primaryDataObject.dataType == DataObject.DataType.Character)
+                    returnList.Add((Character)rel.primaryDataObject);
+            }
+        } 
+        return returnList;
+    }
+    
+    public List<Material> GetInstitutionMaterials(Institution institution)
+    {
+        List<Material> returnList = new List<Material>();
+        foreach (Relation rel in relationList)        
+            if (rel.relationType == Relation.RelationType.Ownership)            
+                if (rel.primaryDataObject == institution)                
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
+                        returnList.Add((Material)rel.secondaryDataObject);    
+        return returnList;
+    }  
+    
+    public List<Material> GetInstitutionCharacterMaterials(Institution institution)
+    {
+        List<Material> returnList = new List<Material>();
+        List<Character> charList = GetInstitutionCharacters(institution); 
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject.dataType == DataObject.DataType.Character)
+                    if (charList.Contains((Character)rel.primaryDataObject))
+                        if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
+                            returnList.Add((Material)rel.secondaryDataObject);
+        return returnList;
+    }
 
 
 
@@ -186,17 +175,21 @@ public class DataController : MonoBehaviour
         foreach (Character cha in characterList)        
             Debug.Log("Character " + cha.name + " has ID " + cha.ID + " and age " + cha.age);
         foreach (Material mat in materialList)
-            Debug.Log("Material " + mat.name + " has ID " + mat.ID + " and type " + mat.materialType + " and base: "+ mat.materialBase);
+            Debug.Log("Material " + mat.name + " has ID " + mat.ID + " and type " + mat.materialType);
         foreach (Institution ins in institutionList)
             Debug.Log("Institution " + ins.name + " has ID " + ins.ID  );
-        foreach (Relation rel in relationList)
-            Debug.Log("Relation " + rel.name + " has ID " + rel.ID + " and type: "+ rel.relationType + " and active ID: "+ rel.activeDataObject.ID + ", type: "+ rel.activeDataObject.dataType + " and passive ID: "+ rel.passiveDataObject.ID);
+     // DISABLED because no separate relation table for now
+        //  foreach (Relation rel in relationList)
+       //     Debug.Log("Relation " + rel.name + " has ID " + rel.ID + " and type: "+ rel.relationType + " and active ID: "+ rel.activeDataObject.ID + ", type: "+ rel.activeDataObject.dataType + " and passive ID: "+ rel.passiveDataObject.ID);
 
 
-        Debug.Log("------------- SCANNING OWNERSHIPS -------------");
+        Debug.Log("------------- SCANNING RELATIONS -------------");
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
-                Debug.Log(rel.activeDataObject.name + " Owns: "+ rel.passiveDataObject.name);
+                Debug.Log(rel.primaryDataObject.name + " Owns: "+ rel.secondaryDataObject.name);
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Cooperative)
+                Debug.Log(rel.primaryDataObject.name + " Coops with: " + rel.secondaryDataObject.name);
 
         Debug.Log("------------- SCANNING MEMBERSHIPS -------------");
         foreach (Institution ins in institutionList)
@@ -205,10 +198,83 @@ public class DataController : MonoBehaviour
             foreach (Character cha in ins.GetMemberCharacters())            
                 charstr += cha.name + "  ";
             string matstr = "";
-            foreach (Material mat in ins.memberMaterials)
+            foreach (Material mat in ins.GetOwnedMaterials())
                 matstr += mat.name + "  ";
-            Debug.Log(ins.name + " has members: " + charstr + "  ///  and material: " + matstr + "  ///  Generics: "+ ins.genericExecutiveCount + ", "+ ins.genericEnforcerCount +", "+ ins.genericAttendantCount +" exec count: "+ ins.executiveCharacters.Count +  " enforcer count: "+ ins.enforcerCharacters.Count );
+            string charmatstr = "";
+            foreach (Material mat in ins.GetCharacterOwnedMaterials())
+                charmatstr += mat.name + "  ";
+            Debug.Log(ins.name + " has members: " + charstr + "  ///  and directly-owned-materials: " + matstr + " and indirectly-owned-materials: " + charmatstr + " ///  Generics: "+ ins.genericOwnerCount + ", "+ ins.genericCooperativeCount +", "+ ins.genericOwneeCount );
         } 
 
     }
+
+
+
+
+
+    // DISABLED because no personal relations (for now)
+    //void CreatePersonalRelationsFromInstitutions()
+    //{
+    //    // for each character in its member list, create a relation to each other member
+    //    foreach (Institution ins in institutionList)                  
+    //        foreach (Character cha in ins.GetMemberCharacters())            
+    //            foreach (Character otherCha in ins.GetMemberCharacters())                
+    //                if (cha != otherCha)                    
+    //                    CreatePersonalRelation(cha, otherCha, ins);
+    //}
+    //void CreateInstitutionalRelations()
+    //{
+    //    // create relations between characters and institution for enhanced membership defining 
+    //    foreach (Institution ins in institutionList)
+    //    {
+    //        foreach  (Character cha in characterList)
+    //        {
+
+    //        }
+    //    }
+    //}
+
+
+    // DISABLED because no autogenerate for now
+    //void CreateEnforcerEquipment()
+    //{
+    //    List<Character> processedCharacters = new List<Character>();
+    //    foreach (Institution ins in institutionList)
+    //    {
+    //        foreach (Character cha in ins.enforcerCharacters)
+    //        {
+    //            if (processedCharacters.Contains(cha) == false)
+    //            {
+    //                processedCharacters.Add(cha);
+    //                bool weaponFound = false;
+    //                foreach (Relation rel in relationList)
+    //                {
+    //                    if (rel.relationType == Relation.RelationType.Ownership)
+    //                        if (rel.primaryDataObject == cha)
+    //                        {
+    //                            Material mat = (Material)rel.secondaryDataObjecfft;
+    //                            if (mat.materialType == Material.MaterialType.Destructive)                                
+    //                                weaponFound = true;                                
+    //                        } 
+    //                } 
+    //                if (weaponFound == false)
+    //                    CreateWeaponMaterialForCharacter(cha);
+    //            }
+    //        }
+    //    }
+    //}
+    //void CreateWeaponMaterialForCharacter(Character character)
+    //{
+    //    string matID = "AUTOENFORCERWEAPON" + character.ID;
+    //    Material material = new Material(matID, Material.MaterialType.Destructive, Material.MaterialSubtype.SmallArms);
+    //    materialList.Add(material);
+    //    Relation relation = new Relation(character, material);
+    //    relationList.Add(relation);
+    //}
+    //public void ButtonCreate()
+    //{
+    //    autoCreateButton.interactable = false;
+    //    CreateEnforcerEquipment();
+    //}
+
 }
