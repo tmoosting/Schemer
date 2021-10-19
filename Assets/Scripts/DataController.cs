@@ -102,19 +102,58 @@ public class DataController : MonoBehaviour
 
     // --------------- GET FUNCTIONS
 
+    public List<Relation> GetRelationsThatIncludeObject(DataObject dataObject)
+    {
+        List<Relation> returnList = new List<Relation>();
+        foreach (Relation rel in relationList)        
+            if (rel.primaryDataObject == dataObject || rel.secondaryDataObject == dataObject)
+                returnList.Add(rel);        
+        return returnList;
+    }
 
-    public Character GetCharacterWithName (string name)
+    public List<DataObject> GetRelatedObjectsToObject(DataObject baseObject)
+    {
+        List<DataObject> returnList = new List<DataObject>();
+        List<Relation> objectRelations = new List<Relation>();
+        // grab relations first
+        foreach (Relation rel in relationList)
+            if (rel.primaryDataObject == baseObject || rel.secondaryDataObject == baseObject)
+                objectRelations.Add(rel);
+
+        foreach (Relation rel in objectRelations)
+        {
+            returnList.Add(rel);
+            if (rel.primaryDataObject == baseObject)
+                if (returnList.Contains(rel.secondaryDataObject) == false)
+                    returnList.Add(rel.secondaryDataObject);
+            if (rel.secondaryDataObject == baseObject)
+                if (returnList.Contains(rel.primaryDataObject) == false)
+                    returnList.Add(rel.primaryDataObject);
+        }
+
+        // if the baseObject is a relation..
+        if (baseObject.dataType == DataObject.DataType.Relation)
+        {
+            Relation baseRelation = (Relation)baseObject;
+            if (returnList.Contains(baseRelation.secondaryDataObject) == false)
+                returnList.Add(baseRelation.secondaryDataObject);
+            if (returnList.Contains(baseRelation.primaryDataObject) == false)
+                returnList.Add(baseRelation.primaryDataObject);
+        }
+             
+
+        return returnList;
+    }
+    public Character GetCharacterWithName(string name)
     {
         Character character = null;
 
-        foreach (Character cha in characterList)        
+        foreach (Character cha in characterList)
             if (cha.name == name)
                 character = cha;
 
         return character;
     }
-
-
     public List<Character> GetSchemeCharacters(Scheme scheme)
     {
         List<Character> returnList = new List<Character>();
@@ -165,6 +204,41 @@ public class DataController : MonoBehaviour
 
 
 
+    public bool IsFirstObjectOwnerOfSecondObject (DataObject firstObject, DataObject secondObject)
+    {
+        bool returnBool = false;
+        foreach (Relation rel in relationList)        
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == firstObject && rel.secondaryDataObject == secondObject)
+                    returnBool = true; 
+        return returnBool;
+    }
+
+    public bool IsFirstObjectCoopWithSecondObject(DataObject firstObject, DataObject secondObject)
+    {
+        bool returnBool = false;
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Cooperative)
+                if ((rel.primaryDataObject == firstObject && rel.secondaryDataObject == secondObject) ||
+                   (rel.primaryDataObject == secondObject && rel.secondaryDataObject == firstObject))
+                    returnBool = true;
+        return returnBool;
+    }
+
+    public bool IsFirstObjectOwneeOfSecondObject(DataObject firstObject, DataObject secondObject)
+    {
+        bool returnBool = false;
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == secondObject && rel.secondaryDataObject == firstObject)
+                    returnBool = true;
+        return returnBool;
+    }
+
+
+
+
+
 
 
 
@@ -207,8 +281,6 @@ public class DataController : MonoBehaviour
         } 
 
     }
-
-
 
 
 

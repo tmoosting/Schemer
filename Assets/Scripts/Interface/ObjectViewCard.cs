@@ -10,8 +10,10 @@ public class ObjectViewCard : MonoBehaviour
     //  public DataObject previousViewObject; use to navigate back when clicking a link
 
     public TextMeshProUGUI titleText;
+    public Button selectButton;
     public Transform listParent;
     public Image selectionImage;
+    public Image mainImage;
     public Color32 defaultColor;
     public Color32 selectionColor;
 
@@ -30,24 +32,30 @@ public class ObjectViewCard : MonoBehaviour
     public void SetSelectedStatus(bool selected)
     {
         if (selected == true)
+        {
+            selectButton.gameObject.SetActive(false);
             selectionImage.color = selectionColor;
+        }
         else
-            selectionImage.color = defaultColor;
+        {
+            selectButton.gameObject.SetActive(true); 
+        } 
         
     }
 
     // Delegator
     public void LoadDataObject(DataObject dataObject)
     {
-        containedObject = dataObject;
+        containedObject = dataObject; 
         if (dataObject.dataType == DataObject.DataType.Character)
             LoadCharacterObject((Character)dataObject);
         if (dataObject.dataType == DataObject.DataType.Material)
             LoadMaterialObject((Material)dataObject);
         if (dataObject.dataType == DataObject.DataType.Scheme)
-            LoadInstitutionObject((Scheme)dataObject);
+            LoadSchemeObject((Scheme)dataObject);
         if (dataObject.dataType == DataObject.DataType.Relation)
             LoadRelationObject((Relation)dataObject);
+        SetSelectedStatus(containedObject == UIController.Instance.selectedObject);
     }
 
    
@@ -72,7 +80,26 @@ public class ObjectViewCard : MonoBehaviour
             CreateTextObject("Pow.Total: "+ character.totalPower);
             CreateTextObject("----------------------------");
         }
-
+        if (UIController.Instance.toggleShowRelations.isOn)
+        {
+            List<Relation> relations = DataController.Instance.GetRelationsThatIncludeObject(containedObject);
+            foreach (Relation rel in relations)            
+                if (rel.relationType == Relation.RelationType.Ownership)
+                    if (rel.primaryDataObject == containedObject)
+                        CreateLinkObject("Ownee: " , rel.secondaryDataObject);
+            foreach (Relation rel in relations)
+                if (rel.relationType == Relation.RelationType.Cooperative)
+                {
+                    if (rel.primaryDataObject == containedObject)
+                        CreateLinkObject("Coops: " , rel.secondaryDataObject);
+                    else if (rel.secondaryDataObject == containedObject)
+                        CreateLinkObject("Coops: " , rel.primaryDataObject); 
+                }
+            foreach (Relation rel in relations)
+                if (rel.relationType == Relation.RelationType.Ownership)
+                    if (rel.secondaryDataObject == containedObject)
+                        CreateLinkObject("Owner: ", rel.primaryDataObject); 
+        }
 
     }
     void LoadMaterialObject(Material material)
@@ -92,39 +119,66 @@ public class ObjectViewCard : MonoBehaviour
             CreateTextObject("Pow.Potential: " + material.powerPotential);
             CreateTextObject("----------------------------");
         }
+        if (UIController.Instance.toggleShowRelations.isOn)
+        {
+            List<Relation> relations = DataController.Instance.GetRelationsThatIncludeObject(containedObject);
+            foreach (Relation rel in relations)
+                if (rel.relationType == Relation.RelationType.Ownership)
+                    if (rel.secondaryDataObject == containedObject)
+                        CreateLinkObject("Owner: ", rel.primaryDataObject);
+        }
     }
-    void LoadInstitutionObject(Scheme institution)
+    void LoadSchemeObject(Scheme scheme)
     {
-        titleText.text = institution.name;
+        titleText.text = scheme.name;
         if (UIController.Instance.toggleShowDatabase.isOn)
         {
-            foreach (string str in institution.fieldValueDict.Keys)
+            foreach (string str in scheme.fieldValueDict.Keys)
                 if (str != "Name")
                 {
-                    CreateTextObject(str + ": " + institution.fieldValueDict[str]);
+                    CreateTextObject(str + ": " + scheme.fieldValueDict[str]);
                 }
             CreateTextObject("----------------------------");
         }
         if (UIController.Instance.toggleShowPower.isOn)
         {
-            CreateTextObject("Pow.NamedOwners: " + institution.namedOwnerPower); 
-            CreateTextObject("Pow.NamedCoops: " + institution.namedCooperativePower); 
-            CreateTextObject("Pow.NamedOwnees: " + institution.namedOwneePower); 
-            CreateTextObject("Pow.GenerOwners: " + institution.genericOwnerPower); 
-            CreateTextObject("Pow.GenerCoops: " + institution.genericCooperativePower); 
-            CreateTextObject("Pow.GenerOwnees: " + institution.genericOwnerPower); 
-            CreateTextObject("Pow.Material: " + institution.materialPower); 
-            CreateTextObject("Pow.Total: " + institution.totalPower);
+            CreateTextObject("Pow.NamedOwners: " + scheme.namedOwnerPower); 
+            CreateTextObject("Pow.NamedCoops: " + scheme.namedCooperativePower); 
+            CreateTextObject("Pow.NamedOwnees: " + scheme.namedOwneePower); 
+            CreateTextObject("Pow.GenerOwners: " + scheme.genericOwnerPower); 
+            CreateTextObject("Pow.GenerCoops: " + scheme.genericCooperativePower); 
+            CreateTextObject("Pow.GenerOwnees: " + scheme.genericOwnerPower); 
+            CreateTextObject("Pow.Material: " + scheme.materialPower); 
+            CreateTextObject("Pow.Total: " + scheme.totalPower);
             CreateTextObject("----------------------------");
         }
-         
-}
+        if (UIController.Instance.toggleShowRelations.isOn)
+        {
+            List<Relation> relations = DataController.Instance.GetRelationsThatIncludeObject(containedObject);
+            foreach (Relation rel in relations)
+                if (rel.relationType == Relation.RelationType.Ownership)
+                    if (rel.primaryDataObject == containedObject)
+                        CreateLinkObject("Ownee: ", rel.secondaryDataObject);
+            foreach (Relation rel in relations)
+                if (rel.relationType == Relation.RelationType.Cooperative)
+                {
+                    if (rel.primaryDataObject == containedObject)
+                        CreateLinkObject("Coops: ", rel.secondaryDataObject);
+                    else if (rel.secondaryDataObject == containedObject)
+                        CreateLinkObject("Coops: ", rel.primaryDataObject);
+                }
+            foreach (Relation rel in relations)
+                if (rel.relationType == Relation.RelationType.Ownership)
+                    if (rel.secondaryDataObject == containedObject)
+                        CreateLinkObject("Owner: ", rel.primaryDataObject);
+        }
+    }
     void LoadRelationObject(Relation relation)
     {
         titleText.text = relation.name;
         CreateTextObject("Type: " + relation.relationType);
-        CreateLinkObject("Primary: "+ relation.primaryDataObject.name, relation.primaryDataObject);
-        CreateLinkObject("Secondary: "+ relation.secondaryDataObject.name, relation.secondaryDataObject);
+        CreateLinkObject("Pri: ", relation.primaryDataObject);
+        CreateLinkObject("Sec: ", relation.secondaryDataObject);
 
 
     }
@@ -137,9 +191,25 @@ public class ObjectViewCard : MonoBehaviour
     void CreateLinkObject(string content, DataObject linkedObject)
     {
         GameObject linkObj = Instantiate(linkPrefab, listParent);
-        linkObj.GetComponent<TextMeshProUGUI>().text = content;
+        linkObj.GetComponent<TextMeshProUGUI>().text = content + linkedObject.ID ;
         linkObj.GetComponent<LinkPrefab>().linkedObject = linkedObject;
         linkObj.GetComponent<LinkPrefab>().parentCard = this;
         linkPrefabList.Add(linkObj);
+    }
+    public void SetBodyColor()
+    {
+        Color32 color = UIController.Instance.colorViewCardDefault;
+        if (containedObject.dataType == DataObject.DataType.Character)
+            color = UIController.Instance.colorViewCardCharacter;
+        else if (containedObject.dataType == DataObject.DataType.Material)
+            color = UIController.Instance.colorViewCardMaterial;
+        else if (containedObject.dataType == DataObject.DataType.Scheme)
+            color = UIController.Instance.colorViewCardScheme;
+        else if (containedObject.dataType == DataObject.DataType.Relation)
+            color = UIController.Instance.colorViewCardRelation; 
+        selectionImage.color = color;
+   //     mainImage.color = color; 
+        if (UIController.Instance.selectedObject == containedObject)
+            selectionImage.color = selectionColor; 
     }
 }

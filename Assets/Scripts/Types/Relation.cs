@@ -34,7 +34,12 @@ public class Relation : DataObject
         relationType = type;
         primaryDataObject = primary;
         secondaryDataObject = secondary;
-        ID = "REL" + relNumber;
+        if (relNumber <= 9)
+           ID = "REL00" + relNumber;
+        else if (relNumber <= 99)
+            ID = "REL0" + relNumber;
+        else 
+            ID = "REL" + relNumber;
         name = "REL_" + primary.name + "_" + type.ToString() + "_" + secondary.name; 
     }
 
