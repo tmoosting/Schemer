@@ -44,8 +44,8 @@ public class ObjectViewCard : MonoBehaviour
             LoadCharacterObject((Character)dataObject);
         if (dataObject.dataType == DataObject.DataType.Material)
             LoadMaterialObject((Material)dataObject);
-        if (dataObject.dataType == DataObject.DataType.Institution)
-            LoadInstitutionObject((Institution)dataObject);
+        if (dataObject.dataType == DataObject.DataType.Scheme)
+            LoadInstitutionObject((Scheme)dataObject);
         if (dataObject.dataType == DataObject.DataType.Relation)
             LoadRelationObject((Relation)dataObject);
     }
@@ -93,7 +93,7 @@ public class ObjectViewCard : MonoBehaviour
             CreateTextObject("----------------------------");
         }
     }
-    void LoadInstitutionObject(Institution institution)
+    void LoadInstitutionObject(Scheme institution)
     {
         titleText.text = institution.name;
         if (UIController.Instance.toggleShowDatabase.isOn)

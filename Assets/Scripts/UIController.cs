@@ -85,7 +85,7 @@ public class UIController : MonoBehaviour
                 cardList.Add(card);
             }
         if (toggleInstitution.isOn)
-            foreach (Institution ins in data.institutionList)
+            foreach (Scheme ins in data.schemeList)
             {
                 GameObject cardObj = Instantiate(cardPrefab, panelRegularView.GetComponent<Transform>());
                 ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();

@@ -1845,7 +1845,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d60da95f4bd8c5344afe33064e3c2d0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 8339891994192003565, guid: 25aa38271081bbe42bdd28e7ff855e84, type: 3}
+  cardPrefab: {fileID: 6495820695503618324, guid: 25aa38271081bbe42bdd28e7ff855e84, type: 3}
   panelRegularView: {fileID: 2138397187}
   panelObjectView: {fileID: 1416327359}
   toggleCharacter: {fileID: 1577701973}

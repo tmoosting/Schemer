@@ -39,7 +39,7 @@ public class PowerCalculator : MonoBehaviour
         foreach (Character cha in data.characterList)
             CalculateCharacterOwnedMaterialPower(cha);
 
-        foreach (Institution ins in data.institutionList)
+        foreach (Scheme ins in data.schemeList)
             CalculateInstitutionPower(ins);
 
         foreach (Character cha in data.characterList)
@@ -80,7 +80,7 @@ public class PowerCalculator : MonoBehaviour
         character.materialPower = matPower;
         character.totalPower += character.materialPower;
     }
-    void CalculateInstitutionPower(Institution institution)
+    void CalculateInstitutionPower(Scheme institution)
     {  
         foreach (Character cha in institution.GetOwnerCharacters())
         {
@@ -117,7 +117,7 @@ public class PowerCalculator : MonoBehaviour
     void CalculatePowerFromInstitutions(Character character)
     {
         float calcPower = 0f;
-        foreach (Institution ins in data.institutionList)
+        foreach (Scheme ins in data.schemeList)
         {
             if (ins.GetOwnerCharacters().Contains(character))
             { 
@@ -156,7 +156,7 @@ public class PowerCalculator : MonoBehaviour
         {
             mat.powerPotential = 0f;
         }
-        foreach (Institution ins in data.institutionList)
+        foreach (Scheme ins in data.schemeList)
         {
             ins.namedOwnerPower = 0f;
             ins.namedCooperativePower = 0f;
@@ -183,7 +183,7 @@ public class PowerCalculator : MonoBehaviour
         charactersText.text = charactersTextString;
 
         string institutionTextString = "";
-        foreach (Institution ins in data.institutionList)
+        foreach (Scheme ins in data.schemeList)
         {
             institutionTextString += ins.name + " has TotP: " + ins.totalPower + "\n";
             institutionTextString += ins.namedOwnerPower + " from " + ins.GetOwnerCharacters().Count + " named Executives;\n";
@@ -209,11 +209,11 @@ public class PowerCalculator : MonoBehaviour
 
     // HELPER FUNCTIONS
 
-    Institution FindMostPowerfulInstitution()
+    Scheme FindMostPowerfulInstitution()
     {
         float highestPower = 0;
-        Institution highestIns = null;
-        foreach (Institution ins in DataController.Instance.institutionList)
+        Scheme highestIns = null;
+        foreach (Scheme ins in DataController.Instance.schemeList)
         {
             if (ins.totalPower > highestPower)
             {
