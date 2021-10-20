@@ -26,7 +26,8 @@ public class UIController : MonoBehaviour
     public Toggle toggleShowRelations;
     public Slider sliderCardWidth;
     public Slider sliderCardHeight;
-    public TextMeshProUGUI textSelectedObject;
+    public TextMeshProUGUI textPrimarySelectedObject;
+    public TextMeshProUGUI textSecondarySelectedObject;
     public GameObject focusViewSwitch;
     public GameObject focusViewLabel;
     public Image imageToggleColorCharacter;
@@ -34,6 +35,7 @@ public class UIController : MonoBehaviour
     public Image imageToggleColorScheme;
     public Image imageToggleColorRelation;
     public SwitchManager focusSwitch;
+    public GameObject actionWindow;
     [Header ("Startup - Objects")]
     public bool enableToggleCharactersOnStart;
     public bool enableToggleMaterialsOnStart;
@@ -50,6 +52,8 @@ public class UIController : MonoBehaviour
     public Color32 colorViewCardScheme;
     public Color32 colorViewCardRelation;
     public Color32 colorViewCardSelected;
+    public Color32 colorSelectButtonNormal;
+    public Color32 colorSelectButtonSecondary;
 
 
    // [HideInInspector] 
@@ -57,8 +61,12 @@ public class UIController : MonoBehaviour
     [HideInInspector] 
     public List<ObjectViewCard> cardListFocusView = new List<ObjectViewCard>();
     [HideInInspector] 
-    public DataObject selectedObject = null;
+    public DataObject primarySelectedObject = null;
+    [HideInInspector] 
+    public DataObject secondarySelectedObject = null;
     bool focusViewMode = false;
+    
+    bool secondarySelectMode = false;
 
 
     enum SortMode { ID, Relations, Power}
@@ -73,8 +81,10 @@ public class UIController : MonoBehaviour
         panelRegularView.SetActive(true);
         panelFocusView.SetActive(false);
         focusViewSwitch.SetActive(false);
-        focusViewLabel.SetActive(false); 
-        textSelectedObject.gameObject.SetActive(false);
+        focusViewLabel.SetActive(false);
+        actionWindow.SetActive(false); 
+        textPrimarySelectedObject.gameObject.SetActive(false);
+        textSecondarySelectedObject.gameObject.SetActive(false);
         panelRegularViewGrid.GetComponent<GridLayoutGroup>().cellSize = new Vector2(sliderCardWidth.value, sliderCardHeight.value);
         panelFocusViewGridOwners.GetComponent<GridLayoutGroup>().cellSize = new Vector2(sliderCardWidth.value, sliderCardHeight.value);
         panelFocusViewGridCoops.GetComponent<GridLayoutGroup>().cellSize = new Vector2(sliderCardWidth.value, sliderCardHeight.value);
@@ -87,16 +97,24 @@ public class UIController : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F))
-            if (selectedObject != null)
-            {
-                //if (focusViewMode == false)
-                //    focusSwitch.isOn = true;
-                //else
-                //    focusSwitch.isOn = false;
-
-                //focusSwitch.UpdateUI();
+            if (primarySelectedObject != null)
                 focusSwitch.AnimateSwitch();
-            } 
+        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.LeftControl) ||
+           Input.GetKeyDown(KeyCode.RightShift) || Input.GetKeyDown(KeyCode.RightControl) ||
+           Input.GetKeyDown(KeyCode.LeftCommand) || Input.GetKeyDown(KeyCode.RightCommand))
+        {
+            secondarySelectMode = true;
+            foreach (ObjectViewCard card in cardListRegular)            
+                card.SetSelectButtonColor(colorSelectButtonSecondary);
+        }
+        if (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftControl) ||
+        Input.GetKeyUp(KeyCode.RightShift) || Input.GetKeyUp(KeyCode.RightControl) ||
+        Input.GetKeyUp(KeyCode.LeftCommand) || Input.GetKeyUp(KeyCode.RightCommand))
+        {
+            secondarySelectMode = false;
+            foreach (ObjectViewCard card in cardListRegular)
+                card.SetSelectButtonColor(colorSelectButtonNormal);
+        }
     }
     // Called from DataController when done creating
     public void RunStartupToggles()
@@ -117,7 +135,7 @@ public class UIController : MonoBehaviour
         if (focusViewMode == false)
             RecreateRegularViewCards();
         else if (focusViewMode == true)
-            RecreateFocusViewCards(); 
+            RecreateFocusViewCards();
     }
 
     void RecreateRegularViewCards()
@@ -165,12 +183,12 @@ public class UIController : MonoBehaviour
         // add base card
         GameObject cardObj = Instantiate(cardPrefab, panelFocusViewGridCoops.GetComponent<Transform>());
         ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
-        card.LoadDataObject(selectedObject);
+        card.LoadDataObject(primarySelectedObject);
         card.SetSelectedStatus(true);
         cardListFocusView.Add(card);
 
         List<DataObject> relatedObjects = new List<DataObject>();
-        foreach (DataObject obj in data.GetRelatedObjectsToObject(selectedObject))        
+        foreach (DataObject obj in data.GetRelatedObjectsToObject(primarySelectedObject))        
             if (obj.dataType != DataObject.DataType.Relation)
             {
                 if (toggleCharacter.isOn == false && obj.dataType == DataObject.DataType.Character ||
@@ -194,23 +212,20 @@ public class UIController : MonoBehaviour
         foreach (DataObject obj in relatedObjects)
         {
             Transform rt = null;
-            if (data.IsFirstObjectOwnerOfSecondObject(selectedObject, obj) == true)
+            if (data.IsFirstObjectOwnerOfSecondObject(primarySelectedObject, obj) == true)
                 rt = panelFocusViewGridOwnees.GetComponent<Transform>();
-            else if (data.IsFirstObjectCoopWithSecondObject(selectedObject, obj) == true)
+            else if (data.IsFirstObjectCoopWithSecondObject(primarySelectedObject, obj) == true)
                 rt = panelFocusViewGridCoops.GetComponent<Transform>();
-            else if (data.IsFirstObjectOwneeOfSecondObject(selectedObject, obj) == true)
+            else if (data.IsFirstObjectOwneeOfSecondObject(primarySelectedObject, obj) == true)
                 rt = panelFocusViewGridOwners.GetComponent<Transform>();
             else
-                Debug.LogWarning("Strange! " + selectedObject.ID + " found no focusview-position for " + obj.ID); 
+                Debug.LogWarning("Strange! " + primarySelectedObject.ID + " found no focusview-position for " + obj.ID); 
 
             GameObject cardObject = Instantiate(cardPrefab, rt);
             ObjectViewCard cardCard = cardObject.GetComponent<ObjectViewCard>();
             cardCard.LoadDataObject(obj);
             cardListFocusView.Add(cardCard);
-        }
-
-         
-
+        } 
         foreach (ObjectViewCard carrd in cardListFocusView)
             carrd.SetBodyColor();
     }
@@ -313,11 +328,19 @@ public class UIController : MonoBehaviour
     {
         SelectObject(clickedLink.linkedObject);
     }
+    public void ClickSelectButton(ObjectViewCard card)
+    {
+        if (secondarySelectMode == true)        
+            SecondarySelectObject(card.containedObject);
+        else
+           SelectObject(card.containedObject);
+
+    }
     public void SelectObject(DataObject dataObject)
     {
-        selectedObject = dataObject;
-        textSelectedObject.gameObject.SetActive(true); 
-        textSelectedObject.text = "SELECTED:\n" + dataObject.ID + " - "+ dataObject.name;
+        primarySelectedObject = dataObject;
+        textPrimarySelectedObject.gameObject.SetActive(true); 
+        textPrimarySelectedObject.text = "PRIMARY: " + dataObject.ID + " - "+ dataObject.name;
         ObjectViewCard viewCard = null;
         foreach (ObjectViewCard card in cardListRegular)
         {
@@ -332,7 +355,17 @@ public class UIController : MonoBehaviour
 
         focusViewSwitch.SetActive(true);
         focusViewLabel.SetActive(true);
+        actionWindow.SetActive(true);
         foreach (ObjectViewCard carrd in cardListFocusView)
             carrd.SetBodyColor();
+
+        actionWindow.GetComponent<ActionWindow>().UpdateActionWindow();
+    }
+    public void SecondarySelectObject(DataObject dataObject)
+    {
+        textSecondarySelectedObject.gameObject.SetActive(true); 
+        secondarySelectedObject = dataObject;
+        textSecondarySelectedObject.text = "SECONDARY: " + dataObject.ID + " - " + dataObject.name; 
+        actionWindow.GetComponent<ActionWindow>().UpdateActionWindow();
     }
 }

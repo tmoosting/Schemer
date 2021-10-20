@@ -8,7 +8,8 @@ public class DataController : MonoBehaviour
 
     [Header("Assigns")]
     public DataLinker linker;
-    public Button autoCreateButton; 
+    public Button autoCreateButton;
+    public PowerCalculator powerCalculator;
 
     [Header("Options")]
     public bool scanDatabaseAtStart;
@@ -36,6 +37,7 @@ public class DataController : MonoBehaviour
         if (scanUnityObjectsAtStart == true)
              ScanCreatedObjects();
         UIController.Instance.RunStartupToggles();
+        powerCalculator.CalculatePowers();
     }
     void AutoCreate()
     { 

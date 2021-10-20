@@ -23,13 +23,14 @@ public class PowerCalculator : MonoBehaviour
     public void ClickCalculateButton()
     {
         CalculatePowers();
-        UpdatePowerTexts();
+ //       UpdatePowerTexts();
     }
   
 
-    void CalculatePowers()
+    public void CalculatePowers()
     {
         ResetPowerValues();
+
         foreach (Character cha in data.characterList)
             CalculateCharacterPowerPotential(cha);
 
@@ -175,36 +176,6 @@ public class PowerCalculator : MonoBehaviour
 
 
 
-    public void UpdatePowerTexts()
-    {
-        string charactersTextString = "";
-        foreach (Character cha in data.characterList)
-            charactersTextString += cha.name + " has PotP: " + cha.powerPotential + ", MatP: " + cha.materialPower + ", TotP: " + cha.totalPower + "\n";
-        charactersText.text = charactersTextString;
-
-        string institutionTextString = "";
-        foreach (Scheme ins in data.schemeList)
-        {
-            institutionTextString += ins.name + " has TotP: " + ins.totalPower + "\n";
-            institutionTextString += ins.namedOwnerPower + " from " + ins.GetOwnerCharacters().Count + " named Executives;\n";
-            institutionTextString += ins.namedCooperativePower + " from " + ins.GetCooperativeCharacters().Count + " named Enforcers;\n";
-            institutionTextString += ins.namedOwneePower + " from " + ins.GetOwneeCharacters().Count + " named Attendants;\n";
-            institutionTextString += ins.genericOwnerPower + " from " + ins.genericOwnerCount + " generic Executives;\n";
-            institutionTextString += ins.genericCooperativePower + " from " + ins.genericCooperativeCount + " generic Enforcers;\n";
-            institutionTextString += ins.genericOwneePower + " from " + ins.genericOwneeCount + " generic Attendants;\n\n";
-        }
-        institutionsText.text = institutionTextString;
-
-        string highscoreTextString = "";
-        highscoreTextString += "Most powerful Institution: " + FindMostPowerfulInstitution().name + " at " + FindMostPowerfulInstitution().totalPower + "\n";
-        highscoreTextString += "Most powerful Character: " + FindMostPowerfulCharacter().name + " at " + FindMostPowerfulCharacter().totalPower + "\n";
-        //foreach (Institution ins in data.institutionList)
-        //    highscoreTextString += "Most powerful Character in " + ins.name +
-        //        ": " + ins.GetMostPowerfulMember().name + " at " + 
-        //        ins.GetMostPowerfulMember().totalPower + "\n";
-
-        highscoresText.text = highscoreTextString;
-    }
 
 
     // HELPER FUNCTIONS
@@ -238,4 +209,45 @@ public class PowerCalculator : MonoBehaviour
         }
         return highestCha;
     }
+
+
+
+
+
+
+
+
+
+
+
+    //public void UpdatePowerTexts()
+    //{
+    //    string charactersTextString = "";
+    //    foreach (Character cha in data.characterList)
+    //        charactersTextString += cha.name + " has PotP: " + cha.powerPotential + ", MatP: " + cha.materialPower + ", TotP: " + cha.totalPower + "\n";
+    //    charactersText.text = charactersTextString;
+
+    //    string institutionTextString = "";
+    //    foreach (Scheme ins in data.schemeList)
+    //    {
+    //        institutionTextString += ins.name + " has TotP: " + ins.totalPower + "\n";
+    //        institutionTextString += ins.namedOwnerPower + " from " + ins.GetOwnerCharacters().Count + " named Executives;\n";
+    //        institutionTextString += ins.namedCooperativePower + " from " + ins.GetCooperativeCharacters().Count + " named Enforcers;\n";
+    //        institutionTextString += ins.namedOwneePower + " from " + ins.GetOwneeCharacters().Count + " named Attendants;\n";
+    //        institutionTextString += ins.genericOwnerPower + " from " + ins.genericOwnerCount + " generic Executives;\n";
+    //        institutionTextString += ins.genericCooperativePower + " from " + ins.genericCooperativeCount + " generic Enforcers;\n";
+    //        institutionTextString += ins.genericOwneePower + " from " + ins.genericOwneeCount + " generic Attendants;\n\n";
+    //    }
+    //    institutionsText.text = institutionTextString;
+
+    //    string highscoreTextString = "";
+    //    highscoreTextString += "Most powerful Institution: " + FindMostPowerfulInstitution().name + " at " + FindMostPowerfulInstitution().totalPower + "\n";
+    //    highscoreTextString += "Most powerful Character: " + FindMostPowerfulCharacter().name + " at " + FindMostPowerfulCharacter().totalPower + "\n";
+    //    //foreach (Institution ins in data.institutionList)
+    //    //    highscoreTextString += "Most powerful Character in " + ins.name +
+    //    //        ": " + ins.GetMostPowerfulMember().name + " at " + 
+    //    //        ins.GetMostPowerfulMember().totalPower + "\n";
+
+    //    highscoresText.text = highscoreTextString;
+    //}
 }

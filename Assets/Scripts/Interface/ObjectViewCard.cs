@@ -11,6 +11,8 @@ public class ObjectViewCard : MonoBehaviour
 
     public TextMeshProUGUI titleText;
     public Button selectButton;
+    public TextMeshProUGUI selectButtonText;
+    public Image selectButtonImage;
     public Transform listParent;
     public Image selectionImage;
     public Image mainImage;
@@ -27,7 +29,12 @@ public class ObjectViewCard : MonoBehaviour
      
     public void ClickSelectButton()
     {
-        UIController.Instance.SelectObject(containedObject);
+        UIController.Instance.ClickSelectButton(this);
+    }
+    public void SetSelectButtonColor(Color32 color)
+    {
+        selectButtonText.color = color;
+        selectButtonImage.color = color;
     }
     public void SetSelectedStatus(bool selected)
     {
@@ -54,7 +61,7 @@ public class ObjectViewCard : MonoBehaviour
             LoadSchemeObject((Scheme)dataObject);
         if (dataObject.dataType == DataObject.DataType.Relation)
             LoadRelationObject((Relation)dataObject);
-        SetSelectedStatus(containedObject == UIController.Instance.selectedObject);
+        SetSelectedStatus(containedObject == UIController.Instance.primarySelectedObject);
     }
 
    
@@ -207,9 +214,9 @@ public class ObjectViewCard : MonoBehaviour
         else if (containedObject.dataType == DataObject.DataType.Relation)
             color = UIController.Instance.colorViewCardRelation; 
         selectionImage.color = color;
-   //     mainImage.color = color; 
-        if (UIController.Instance.selectedObject == containedObject)
-            selectionImage.color = selectionColor; 
+        //     mainImage.color = color; 
+        if (UIController.Instance.primarySelectedObject == containedObject)
+            selectionImage.color = UIController.Instance.colorViewCardSelected; 
     }
 
     public int GetRelationAmount()
