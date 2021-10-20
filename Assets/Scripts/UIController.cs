@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; 
+using TMPro;
+using Michsky.UI.ModernUIPack;
 
 public class UIController : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class UIController : MonoBehaviour
     public Image imageToggleColorMaterial;
     public Image imageToggleColorScheme;
     public Image imageToggleColorRelation;
+    public SwitchManager focusSwitch;
     [Header ("Startup - Objects")]
     public bool enableToggleCharactersOnStart;
     public bool enableToggleMaterialsOnStart;
@@ -50,10 +52,17 @@ public class UIController : MonoBehaviour
     public Color32 colorViewCardSelected;
 
 
-    [HideInInspector] public List<ObjectViewCard> cardListRegular = new List<ObjectViewCard>();
-    [HideInInspector] public List<ObjectViewCard> cardListFocusView = new List<ObjectViewCard>();
-    [HideInInspector] public DataObject selectedObject;
+   // [HideInInspector] 
+    public List<ObjectViewCard> cardListRegular = new List<ObjectViewCard>();
+    [HideInInspector] 
+    public List<ObjectViewCard> cardListFocusView = new List<ObjectViewCard>();
+    [HideInInspector] 
+    public DataObject selectedObject = null;
     bool focusViewMode = false;
+
+
+    enum SortMode { ID, Relations, Power}
+    SortMode currentSortMode;
 
     private void Awake()
     {
@@ -64,7 +73,7 @@ public class UIController : MonoBehaviour
         panelRegularView.SetActive(true);
         panelFocusView.SetActive(false);
         focusViewSwitch.SetActive(false);
-   //     focusViewLabel.SetActive(false); 
+        focusViewLabel.SetActive(false); 
         textSelectedObject.gameObject.SetActive(false);
         panelRegularViewGrid.GetComponent<GridLayoutGroup>().cellSize = new Vector2(sliderCardWidth.value, sliderCardHeight.value);
         panelFocusViewGridOwners.GetComponent<GridLayoutGroup>().cellSize = new Vector2(sliderCardWidth.value, sliderCardHeight.value);
@@ -75,7 +84,20 @@ public class UIController : MonoBehaviour
         imageToggleColorScheme.color = colorViewCardScheme;
         imageToggleColorRelation.color = colorViewCardRelation;
     }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+            if (selectedObject != null)
+            {
+                //if (focusViewMode == false)
+                //    focusSwitch.isOn = true;
+                //else
+                //    focusSwitch.isOn = false;
 
+                //focusSwitch.UpdateUI();
+                focusSwitch.AnimateSwitch();
+            } 
+    }
     // Called from DataController when done creating
     public void RunStartupToggles()
     {
@@ -101,45 +123,45 @@ public class UIController : MonoBehaviour
     void RecreateRegularViewCards()
     {
         ClearObjectCards(false);
+        List<DataObject> cardObjects = new List<DataObject>(); 
+
         if (toggleCharacter.isOn)
-            foreach (Character cha in data.characterList)
-            {
-                GameObject cardObj = Instantiate(cardPrefab, panelRegularViewGrid.GetComponent<Transform>());
-                ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
-                card.LoadDataObject(cha);
-                cardListRegular.Add(card);
-            }
+            foreach (Character cha in data.characterList)           
+                cardObjects.Add(cha);
         if (toggleMaterial.isOn)
             foreach (Material mat in data.materialList)
-            {
-                GameObject cardObj = Instantiate(cardPrefab, panelRegularViewGrid.GetComponent<Transform>());
-                ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
-                card.LoadDataObject(mat);
-                cardListRegular.Add(card);
-            }
+                cardObjects.Add(mat);
         if (toggleInstitution.isOn)
             foreach (Scheme ins in data.schemeList)
-            {
-                GameObject cardObj = Instantiate(cardPrefab, panelRegularViewGrid.GetComponent<Transform>());
-                ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
-                card.LoadDataObject(ins);
-                cardListRegular.Add(card);
-            }
+                cardObjects.Add(ins);
         if (toggleRelation.isOn)
             foreach (Relation rel in data.relationList)
-            {
-                GameObject cardObj = Instantiate(cardPrefab, panelRegularViewGrid.GetComponent<Transform>());
-                ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
-                card.LoadDataObject(rel);
-                cardListRegular.Add(card);
-            }
-        foreach (ObjectViewCard card in cardListRegular)        
+                cardObjects.Add(rel);
+         
+
+        if (currentSortMode == SortMode.Relations)
+            cardObjects.Sort(SortByRelationAmount);
+        else if (currentSortMode == SortMode.Power)
+            cardObjects.Sort(SortByPower);
+
+
+        foreach (DataObject dataObject in cardObjects)
+        {
+            GameObject cardObj = Instantiate(cardPrefab, panelRegularViewGrid.GetComponent<Transform>());
+            ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
+            card.LoadDataObject(dataObject);
             card.SetBodyColor();
-        
+            cardListRegular.Add(card); 
+        }
+
+         
+
     }
+    
     void RecreateFocusViewCards()
     {
         ClearObjectCards(true);
+
         // add base card
         GameObject cardObj = Instantiate(cardPrefab, panelFocusViewGridCoops.GetComponent<Transform>());
         ObjectViewCard card = cardObj.GetComponent<ObjectViewCard>();
@@ -147,9 +169,8 @@ public class UIController : MonoBehaviour
         card.SetSelectedStatus(true);
         cardListFocusView.Add(card);
 
-      
-        foreach (DataObject obj in data.GetRelatedObjectsToObject(selectedObject))
-        {
+        List<DataObject> relatedObjects = new List<DataObject>();
+        foreach (DataObject obj in data.GetRelatedObjectsToObject(selectedObject))        
             if (obj.dataType != DataObject.DataType.Relation)
             {
                 if (toggleCharacter.isOn == false && obj.dataType == DataObject.DataType.Character ||
@@ -160,30 +181,49 @@ public class UIController : MonoBehaviour
                     // exclude unselected object types, so do nothing here
                 }
                 else
-                {
-                    Transform rt = null;
-                    if (data.IsFirstObjectOwnerOfSecondObject(selectedObject, obj) == true)
-                        rt = panelFocusViewGridOwnees.GetComponent<Transform>();
-                    else if (data.IsFirstObjectCoopWithSecondObject(selectedObject, obj) == true)
-                        rt = panelFocusViewGridCoops.GetComponent<Transform>();
-                    else if (data.IsFirstObjectOwneeOfSecondObject(selectedObject, obj) == true)
-                        rt = panelFocusViewGridOwners.GetComponent<Transform>();
-                    else
-                        Debug.LogWarning("Strange! " + selectedObject.ID + " found no focusview-position for " + obj.ID);
+                    relatedObjects.Add(obj); 
+                
+            }
+
+        if (currentSortMode == SortMode.Relations)
+            relatedObjects.Sort(SortByRelationAmount);
+        else if (currentSortMode == SortMode.Power)
+            relatedObjects.Sort(SortByPower);
 
 
-                    GameObject cardObject = Instantiate(cardPrefab, rt);
-                    ObjectViewCard cardCard = cardObject.GetComponent<ObjectViewCard>();
-                    cardCard.LoadDataObject(obj);
-                    cardListFocusView.Add(cardCard);
-                }
-            }  
+        foreach (DataObject obj in relatedObjects)
+        {
+            Transform rt = null;
+            if (data.IsFirstObjectOwnerOfSecondObject(selectedObject, obj) == true)
+                rt = panelFocusViewGridOwnees.GetComponent<Transform>();
+            else if (data.IsFirstObjectCoopWithSecondObject(selectedObject, obj) == true)
+                rt = panelFocusViewGridCoops.GetComponent<Transform>();
+            else if (data.IsFirstObjectOwneeOfSecondObject(selectedObject, obj) == true)
+                rt = panelFocusViewGridOwners.GetComponent<Transform>();
+            else
+                Debug.LogWarning("Strange! " + selectedObject.ID + " found no focusview-position for " + obj.ID); 
+
+            GameObject cardObject = Instantiate(cardPrefab, rt);
+            ObjectViewCard cardCard = cardObject.GetComponent<ObjectViewCard>();
+            cardCard.LoadDataObject(obj);
+            cardListFocusView.Add(cardCard);
         }
+
+         
+
         foreach (ObjectViewCard carrd in cardListFocusView)
             carrd.SetBodyColor();
     }
+    int SortByRelationAmount(DataObject obj1, DataObject obj2)
+    {
+        return DataController.Instance.GetRelationAmount(obj2).CompareTo(DataController.Instance.GetRelationAmount(obj1));
+    }
+    int SortByPower(DataObject obj1, DataObject obj2)
+    {
+        return DataController.Instance.GetTotalPower(obj2).CompareTo(DataController.Instance.GetTotalPower(obj1));
 
-     
+    }
+
     void ClearObjectCards(bool focusView)
     {
         if (focusView == false)
@@ -201,6 +241,33 @@ public class UIController : MonoBehaviour
 
 
     }
+
+
+    public void SortCardsByAlphabet(bool enabled)
+    { 
+        if (enabled)
+        {
+            currentSortMode = SortMode.ID;
+            ReloadObjectCards();
+        } 
+    }
+    public void SortCardsByRelationAmount(bool enabled)
+    {
+        if (enabled)
+        {
+            currentSortMode = SortMode.Relations;
+            ReloadObjectCards();
+        } 
+    }
+    public void SortCardsByTotalPower(bool enabled)
+    {
+        if (enabled)
+        {
+            currentSortMode = SortMode.Power;
+            ReloadObjectCards();
+        } 
+    }
+
 
     public void ToggleRegularView ( )
     {

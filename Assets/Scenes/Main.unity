@@ -1575,7 +1575,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -63.524963}
+  m_AnchoredPosition: {x: 0, y: -63.524902}
   m_SizeDelta: {x: 0, y: -127.05}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &127895050
@@ -1904,8 +1904,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 204957501}
         m_TargetAssemblyTypeName: UIController, Assembly-CSharp
-        m_MethodName: ReloadObjectCards
-        m_Mode: 1
+        m_MethodName: SortCardsByRelationAmount
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2243,6 +2243,7 @@ MonoBehaviour:
   imageToggleColorMaterial: {fileID: 1124829722}
   imageToggleColorScheme: {fileID: 2142332997}
   imageToggleColorRelation: {fileID: 825457107}
+  focusSwitch: {fileID: 1268520401}
   enableToggleCharactersOnStart: 1
   enableToggleMaterialsOnStart: 0
   enableToggleInstitutionsOnStart: 0
@@ -2255,10 +2256,10 @@ MonoBehaviour:
     rgba: 4281148185
   colorViewCardCharacter:
     serializedVersion: 2
-    rgba: 4283161836
+    rgba: 4281905881
   colorViewCardMaterial:
     serializedVersion: 2
-    rgba: 4293522289
+    rgba: 4291808097
   colorViewCardScheme:
     serializedVersion: 2
     rgba: 4294017754
@@ -2866,6 +2867,8 @@ GameObject:
   - component: {fileID: 276333391}
   - component: {fileID: 276333393}
   - component: {fileID: 276333392}
+  - component: {fileID: 276333395}
+  - component: {fileID: 276333394}
   m_Layer: 5
   m_Name: Label - Include
   m_TagString: Untagged
@@ -2989,6 +2992,49 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 276333390}
   m_CullTransparentMesh: 0
+--- !u!61 &276333394
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276333390}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 78.56, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 181.73, y: 41.82}
+  m_EdgeRadius: 0
+--- !u!114 &276333395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276333390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc333752d5e30940b12fed7b2e9381b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toggleList:
+  - {fileID: 1577701973}
+  - {fileID: 707405020}
+  - {fileID: 241709509}
+  - {fileID: 1741828995}
 --- !u!1 &291247076
 GameObject:
   m_ObjectHideFlags: 0
@@ -3762,8 +3808,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 204957501}
         m_TargetAssemblyTypeName: UIController, Assembly-CSharp
-        m_MethodName: ReloadObjectCards
-        m_Mode: 1
+        m_MethodName: SortCardsByTotalPower
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4925,7 +4971,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: POT. POWER
+  m_text: '# RELATIONS'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4bd810f1cbcb0f446a8f5a31453e243f, type: 2}
   m_sharedMaterial: {fileID: 21539420542967178, guid: 4bd810f1cbcb0f446a8f5a31453e243f, type: 2}
@@ -5651,8 +5697,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 204957501}
         m_TargetAssemblyTypeName: UIController, Assembly-CSharp
-        m_MethodName: ReloadObjectCards
-        m_Mode: 1
+        m_MethodName: SortCardsByAlphabet
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -5661,7 +5707,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_IsOn: 0
+  m_IsOn: 1
 --- !u!222 &649997111
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6438,6 +6484,8 @@ GameObject:
   - component: {fileID: 725021671}
   - component: {fileID: 725021673}
   - component: {fileID: 725021672}
+  - component: {fileID: 725021675}
+  - component: {fileID: 725021674}
   m_Layer: 5
   m_Name: Label - Detail
   m_TagString: Untagged
@@ -6561,6 +6609,48 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 725021670}
   m_CullTransparentMesh: 0
+--- !u!61 &725021674
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725021670}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 64, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 140.7, y: 44.9}
+  m_EdgeRadius: 0
+--- !u!114 &725021675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725021670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc333752d5e30940b12fed7b2e9381b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toggleList:
+  - {fileID: 1637287147}
+  - {fileID: 1183476182}
+  - {fileID: 1856353283}
 --- !u!1 &750750721
 GameObject:
   m_ObjectHideFlags: 0
@@ -7702,7 +7792,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ALPHABET
+  m_text: ID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4bd810f1cbcb0f446a8f5a31453e243f, type: 2}
   m_sharedMaterial: {fileID: 21539420542967178, guid: 4bd810f1cbcb0f446a8f5a31453e243f, type: 2}
@@ -11013,7 +11103,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1428042587
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11032,7 +11122,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 759, y: -1}
+  m_AnchoredPosition: {x: 475.7, y: -1}
   m_SizeDelta: {x: 289.37, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1428042588
@@ -11732,7 +11822,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 861055254}
   m_HandleRect: {fileID: 861055253}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

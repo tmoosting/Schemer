@@ -102,6 +102,33 @@ public class DataController : MonoBehaviour
 
     // --------------- GET FUNCTIONS
 
+    public int GetRelationAmount(DataObject dataObject)
+    {
+        int returnCount = 0;
+        foreach (Relation relation in relationList)        
+            if (relation.primaryDataObject == dataObject || relation.secondaryDataObject == dataObject)
+                returnCount++;
+        return returnCount;
+    }
+    public int GetTotalPower(DataObject dataObject)
+    {
+        if (dataObject.dataType == DataObject.DataType.Character)
+        {
+            Character cha = (Character)dataObject;
+            return (int)cha.totalPower;
+        }
+        else if (dataObject.dataType == DataObject.DataType.Material)
+        {
+            Material mat = (Material)dataObject;
+            return (int)mat.powerPotential;
+        }
+        else if (dataObject.dataType == DataObject.DataType.Scheme)
+        {
+            Scheme sch = (Scheme)dataObject;
+            return (int)sch.totalPower;
+        }
+        else return 0; // for relation
+    }
     public List<Relation> GetRelationsThatIncludeObject(DataObject dataObject)
     {
         List<Relation> returnList = new List<Relation>();

@@ -20,11 +20,11 @@ public class ObjectViewCard : MonoBehaviour
     public GameObject textPrefab;
     public GameObject linkPrefab;
     List<GameObject> textPrefabList = new List<GameObject>();
-    List<GameObject> linkPrefabList = new List<GameObject>();
+    List<GameObject> linkPrefabList = new List<GameObject>(); 
 
     [HideInInspector] public bool clickable = true;
 
-    
+     
     public void ClickSelectButton()
     {
         UIController.Instance.SelectObject(containedObject);
@@ -33,14 +33,13 @@ public class ObjectViewCard : MonoBehaviour
     {
         if (selected == true)
         {
-            selectButton.gameObject.SetActive(false);
-            selectionImage.color = selectionColor;
+            selectButton.gameObject.SetActive(false); 
         }
         else
         {
-            selectButton.gameObject.SetActive(true); 
-        } 
-        
+            selectButton.gameObject.SetActive(true);  
+        }
+        SetBodyColor();
     }
 
     // Delegator
@@ -212,4 +211,10 @@ public class ObjectViewCard : MonoBehaviour
         if (UIController.Instance.selectedObject == containedObject)
             selectionImage.color = selectionColor; 
     }
+
+    public int GetRelationAmount()
+    {
+        return DataController.Instance.GetRelationAmount(containedObject);
+    }
+   
 }
