@@ -11,8 +11,7 @@ public class DataChanger : MonoBehaviour
 
     public void RemoveDataObject(DataObject dataObject)
     {
-
-        List<Relation> destroyedRelations = DataController.Instance.GetRelationsThatIncludeObject(dataObject);
+        List<Relation> destroyedRelations = DataController.Instance.GetRelationsThatIncludeObject(dataObject);  
         List<ObjectViewCard> destroyedCards = new List<ObjectViewCard>();
 
         foreach (ObjectViewCard card in UIController.Instance.cardListRegular)
@@ -45,6 +44,13 @@ public class DataChanger : MonoBehaviour
         if (dataObject == UIController.Instance.primarySelectedObject)
             UIController.Instance.DeselectPrimarySelectionObject();
 
+        // check for relationless material leftover
+        List<Material> destroyedMaterials = new List<Material>();
+        if (dataObject.dataType == DataObject.DataType.Scheme)               
+           destroyedMaterials = DataController.Instance.GetMaterialsOwnedByScheme((Scheme)dataObject);        
+        
+
+
         if (dataObject.dataType == DataObject.DataType.Character)
             DataController.Instance.characterList.Remove((Character)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Material)
@@ -56,11 +62,21 @@ public class DataChanger : MonoBehaviour
             DestroyRelation(relation);
 
         UIController.Instance.ReloadObjectCards();
+
+        if (dataObject.dataType == DataObject.DataType.Scheme)
+            if (destroyedMaterials.Count > 0)
+                   foreach (Material material in destroyedMaterials)
+                    RemoveDataObject(material);
+
+       
     }
+   
     public void DestroyRelation(Relation relation)
     {
         DataController.Instance.relationList.Remove(relation);
     }
+
+     
 
 
     public void TransferMaterialOwnership(DataObject oldOwner, DataObject newOwner, Material transferredMaterial)
@@ -70,6 +86,20 @@ public class DataChanger : MonoBehaviour
 
         // Create new ownership relation
         DataController.Instance.CreateRelation(Relation.RelationType.Ownership, newOwner, transferredMaterial);
+        UIController.Instance.ReloadObjectCards();
+    }
+
+    public void TransferSchemeOwnership(DataObject oldOwner, DataObject newOwner, Scheme transferredScheme)
+    {
+        // Destroy previous ownership relation
+        DestroyRelation(DataController.Instance.GetRelationWithTheseTwoDataObjects(oldOwner, transferredScheme));
+
+        // Destroy previous relation between new owner and scheme, if any
+        if (DataController.Instance.GetRelationWithTheseTwoDataObjects(newOwner, transferredScheme) != null)
+            DestroyRelation(DataController.Instance.GetRelationWithTheseTwoDataObjects(newOwner, transferredScheme));
+
+        // Create new ownership relation
+        DataController.Instance.CreateRelation(Relation.RelationType.Ownership, newOwner, transferredScheme);
         UIController.Instance.ReloadObjectCards();
     }
 
@@ -95,74 +125,117 @@ public class DataChanger : MonoBehaviour
         // otherwise, if owner is ownee of a scheme, go to that scheme; 
         // otherwise, material is destroyed! 
 
-        List<Material> ownedMaterials = data.GetCharacterOwnedMaterials(character);
-        List<Scheme> ownedSchemes = data.GetCharacterOwnedSchemes(character);
+        // Things to pass on
+        List<Material> distributeMaterials = data.GetMaterialsOwnedByCharacter(character);
+        List<Scheme> distributeSchemes = data.GetSchemesOwnedByCharacter(character);
+
+        // Is CHA owner, coop or owned vs one or multiple SCH?
+        List<Scheme> ownedSchemeList = data.GetSchemesOwnedByCharacter(character);
+        List<Scheme> coopSchemeList = data.GetSchemesCoopedByCharacter(character);
+        List<Scheme> owneeSchemeList = data.GetSchemesOwningCharacter(character);
 
         // Does CHA own any MAT? 
-        if (ownedMaterials.Count != 0)
+        if (distributeMaterials.Count != 0)
         {
-            foreach (Material mat in ownedMaterials)
+            foreach (Material mat in distributeMaterials)
             {
-
-                // Is CHA owner of one or multiple SCH?
-                List<Scheme> ownedSchemeList = data.GetCharacterOwnedSchemes(character);
-                List<Scheme> coopSchemeList = data.GetCharacterCoopSchemes(character);
-                List<Scheme> ownerSchemeList = data.GetCharacterOwningSchemes(character);
-
-                // Zero Owned SCH
+                // Character owns zero SCH
                 if (ownedSchemeList.Count == 0)
                 {
-                    // Zero Coop SCH
+                    // Character Coops zero SCH
                     if (coopSchemeList.Count == 0)
                     {
-                        // Zero Owning SCH
-                        if (ownerSchemeList.Count == 0)
+                        // Character is owned by zero SCH
+                        if (owneeSchemeList.Count == 0)
                         {
                             RemoveDataObject(mat);
                         }
-                        else if (ownerSchemeList.Count == 1)
+                        // Character is owned by one SCH
+                        else if (owneeSchemeList.Count == 1)
                         {
-                            TransferMaterialOwnership(character, ownerSchemeList[0], mat);
+                            TransferMaterialOwnership(character, owneeSchemeList[0], mat);
                         }
-                        else if (ownerSchemeList.Count > 1)
+                        else if (owneeSchemeList.Count > 1)
                         {
+                            // Character is owned by multiple SCH
                             // GIVE TO STRONGEST
-                            TransferMaterialOwnership(character, data.GetMostPowerfulDataObjectFromSchemeList(ownerSchemeList), mat);
+                            TransferMaterialOwnership(character, data.GetMostPowerfulDataObjectFromSchemeList(owneeSchemeList), mat);
                         }
                     }
+                    // Character Coops one SCH
                     else if (coopSchemeList.Count == 1)
                     {
                         TransferMaterialOwnership(character, coopSchemeList[0], mat);
                     }
+                    // Character Coops multiple SCH
                     if (coopSchemeList.Count > 1)
                     {
                         TransferMaterialOwnership(character, data.GetMostPowerfulDataObjectFromSchemeList(coopSchemeList), mat);
                     }
                 }
-                // One Owned SCH
+                // Character owns one SCH
                 else if (ownedSchemeList.Count == 1)
                 {
+                    // give material to SCH
                     TransferMaterialOwnership(character, ownedSchemeList[0], mat);
                 }
-                // Multiple Owned SCH
+                // Character owns multiple SCH
                 else if (ownedSchemeList.Count > 1)
                 {
+                    // give material to strongest of those SCH
                     TransferMaterialOwnership(character, data.GetMostPowerfulDataObjectFromSchemeList(ownedSchemeList), mat);
                 }
             }
         }
 
 
-        // Scheme: ownership goes to next-most-powerful cooper. 
-        // If no coopers, to most pwoerful scheme owner. if no scheme owners, to most powerful ownee
-        if (ownedSchemes.Count != 0)
+        // Owned Schemes: ownership goes to next-most-powerful owner, othwerise cooper, otherwise ownee
+        // if none of those exist, then the scheme becomes anyway empty, so disband
+        // ALTOPTION: pass control, before passing to ownees, to either other SCHs owned by CHA or SCHs that coop/own CHA
+        if (distributeSchemes.Count != 0)
         {
-            foreach (Scheme sch in ownedSchemes)
+            foreach (Scheme distSch in distributeSchemes)
             {
-
+                List<Character> otherOwners = data.GetSchemeOwnerCharacters(distSch);
+                List<Character> otherCoops = data.GetSchemeCoopCharacters(distSch);
+                List<Character> otherOwnees = data.GetSchemeOwneeCharacters(distSch);
+                otherOwners.Remove(character);
+                if (otherOwners.Count> 1 )
+                {
+                    TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherOwners), distSch);
+                } 
+                else if  (otherOwners.Count == 1)
+                {
+                    TransferSchemeOwnership(character, otherOwners[0], distSch);
+                }
+                else if (otherOwners.Count == 0)
+                {
+                    if (otherCoops.Count > 1)
+                    {
+                        TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherCoops), distSch);
+                    }
+                    else if (otherCoops.Count == 1)
+                    {
+                        TransferSchemeOwnership(character, otherCoops[0], distSch);
+                    }
+                    else if (otherCoops.Count == 0)
+                    {
+                        if (otherOwnees.Count > 1)
+                        {
+                            TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherOwnees), distSch);
+                        }
+                        else if (otherOwnees.Count == 1)
+                        {
+                            TransferSchemeOwnership(character, otherOwnees[0], distSch);
+                        }
+                        else if (otherOwnees.Count == 0)
+                        {
+                            RemoveDataObject (distSch);
+                        }
+                    }
+                }
             }
         }
-
         RemoveDataObject(character);
     }
 
