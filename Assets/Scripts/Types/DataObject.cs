@@ -9,4 +9,6 @@ public class DataObject
 
     public enum DataType { Character, Material, Scheme, Relation }
     public DataType dataType;
+
+    public float totalPower;
 }

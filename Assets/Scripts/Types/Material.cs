@@ -16,14 +16,15 @@ public class Material : DataObject
     {
         Land, // Constructive, order of magnitude
         City,
+        Town,
         Village,
         Estate,
         Building,
-        BigTool,
-        SmallTool,
-        BigArms,    // Destructive, order of magnitude
+        Tool,
+        WarMachine,    // Destructive, order of magnitude
         Fortification,
-        SmallArms
+        SmallArms,
+        Nugget // Exchange Unit
     }
     public MaterialType materialType;
     public MaterialSubtype materialSubtype;
@@ -37,7 +38,7 @@ public class Material : DataObject
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
 
     // Calculated In Runtime
-    public float powerPotential;
+ //   public float totalPower;  now set in DataObject parent
 
 
     // CONSTRUCTOR --- DATABASE

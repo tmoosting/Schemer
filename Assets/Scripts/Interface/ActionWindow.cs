@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Michsky.UI.ModernUIPack;
 
 public class ActionWindow : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class ActionWindow : MonoBehaviour
     public TextMeshProUGUI claimText;
     public TextMeshProUGUI breakNeutralText;
     public TextMeshProUGUI breakHostileText;
+    public CustomDropdown giftDropdown;
 
      
     public void UpdateActionWindow()
@@ -35,15 +37,18 @@ public class ActionWindow : MonoBehaviour
         else if (primaryType == DataObject.DataType.Material)
             str1 += "DESTROY ";
         else if (primaryType == DataObject.DataType.Scheme)
-            str1 += "DISBAND ";
+            str1 += "DISBAND ";     
+        else if (primaryType == DataObject.DataType.Relation)
+            str1 += "REMOVE ";
         str1 += ui.primarySelectedObject.ID;
         destroyText.text = str1;
 
         // GIFT
-        if (primaryType != DataObject.DataType.Material)
+        if (primaryType != DataObject.DataType.Material && primaryType != DataObject.DataType.Relation)
         {
             giftButton.gameObject.SetActive(true);
             giftText.gameObject.SetActive(true);
+            giftDropdown.gameObject.SetActive(true);
             giftText.text = "GIFT TO " + ui.primarySelectedObject.ID;
             // TODO: gift elements and logic
         }
@@ -51,6 +56,7 @@ public class ActionWindow : MonoBehaviour
         {
             giftButton.gameObject.SetActive(false);
             giftText.gameObject.SetActive(false);
+            giftDropdown.gameObject.SetActive(false);
         }
 
         if (ui.secondarySelectedObject != null)
@@ -122,46 +128,29 @@ public class ActionWindow : MonoBehaviour
 
     public void ClickDestroyButton()
     {
-
+        DataController.Instance.changer.KillDataObject(UIController.Instance.primarySelectedObject);
     }
 
     public void ClickGiftButton()
     {
-
+        DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);
     }
 
     public void ClickClaimButton()
     {
-
+        DataController.Instance.changer.ChangeMaterialOwnership(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
     }
 
     public void ClickBreakNeutralButton()
     {
-
+        DataController.Instance.changer.BreakCooperationNeutral(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
     }
 
     public void ClickBreakHostileButton()
     {
-
+        DataController.Instance.changer.BreakCooperationHostile(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
     }
-    // SINGLE DEPENDENT 
-
-    // KILL / DESTROY
-    // CHA / SCH / MAT
-
-
-    // DUO DEPENDENT
-
-    // BREAK COOP
-    // CHA-SCH      INS-INS
-
-    // TRANSFER OWNERSHIP
-    // CHA-CHA    CHA-SCH   SCH-SCH
-
-
-
-
-
+   
 
 
 

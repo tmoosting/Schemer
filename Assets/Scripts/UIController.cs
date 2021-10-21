@@ -35,7 +35,7 @@ public class UIController : MonoBehaviour
     public Image imageToggleColorScheme;
     public Image imageToggleColorRelation;
     public SwitchManager focusSwitch;
-    public GameObject actionWindow;
+    public ActionWindow actionWindow;
     [Header ("Startup - Objects")]
     public bool enableToggleCharactersOnStart;
     public bool enableToggleMaterialsOnStart;
@@ -82,7 +82,7 @@ public class UIController : MonoBehaviour
         panelFocusView.SetActive(false);
         focusViewSwitch.SetActive(false);
         focusViewLabel.SetActive(false);
-        actionWindow.SetActive(false); 
+        actionWindow.gameObject.SetActive(false); 
         textPrimarySelectedObject.gameObject.SetActive(false);
         textSecondarySelectedObject.gameObject.SetActive(false);
         panelRegularViewGrid.GetComponent<GridLayoutGroup>().cellSize = new Vector2(sliderCardWidth.value, sliderCardHeight.value);
@@ -355,17 +355,28 @@ public class UIController : MonoBehaviour
 
         focusViewSwitch.SetActive(true);
         focusViewLabel.SetActive(true);
-        actionWindow.SetActive(true);
+        actionWindow.gameObject.SetActive(true);
         foreach (ObjectViewCard carrd in cardListFocusView)
             carrd.SetBodyColor();
 
-        actionWindow.GetComponent<ActionWindow>().UpdateActionWindow();
+        actionWindow.UpdateActionWindow();
     }
     public void SecondarySelectObject(DataObject dataObject)
     {
         textSecondarySelectedObject.gameObject.SetActive(true); 
         secondarySelectedObject = dataObject;
         textSecondarySelectedObject.text = "SECONDARY: " + dataObject.ID + " - " + dataObject.name; 
-        actionWindow.GetComponent<ActionWindow>().UpdateActionWindow();
+        actionWindow.UpdateActionWindow();
+    }
+    public void DeselectPrimarySelectionObject()
+    {
+        if (focusViewMode == true)
+            focusSwitch.AnimateSwitch();
+        primarySelectedObject = null;
+        textPrimarySelectedObject.gameObject.SetActive(false); 
+        focusViewSwitch.SetActive(false);
+        focusViewLabel.SetActive(false);
+        actionWindow.gameObject.SetActive(false);
+ 
     }
 }

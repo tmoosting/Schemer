@@ -25,7 +25,7 @@ public class ObjectViewCard : MonoBehaviour
     List<GameObject> linkPrefabList = new List<GameObject>(); 
 
     [HideInInspector] public bool clickable = true;
-
+    [HideInInspector] public string cardName;
      
     public void ClickSelectButton()
     {
@@ -52,6 +52,7 @@ public class ObjectViewCard : MonoBehaviour
     // Delegator
     public void LoadDataObject(DataObject dataObject)
     {
+        cardName = "CardFor" + dataObject.ID;
         containedObject = dataObject; 
         if (dataObject.dataType == DataObject.DataType.Character)
             LoadCharacterObject((Character)dataObject);
@@ -82,7 +83,7 @@ public class ObjectViewCard : MonoBehaviour
         {
             CreateTextObject("Pow.Potential: "+ character.powerPotential);
             CreateTextObject("Pow.Material: "+ character.materialPower);
-            CreateTextObject("Pow.Institual: "+ character.institutionalPower);
+            CreateTextObject("Pow.Schemes: "+ character.schemesPower);
             CreateTextObject("Pow.Total: "+ character.totalPower);
             CreateTextObject("----------------------------");
         }
@@ -122,7 +123,7 @@ public class ObjectViewCard : MonoBehaviour
         }
         if (UIController.Instance.toggleShowPower.isOn)
         {
-            CreateTextObject("Pow.Potential: " + material.powerPotential);
+            CreateTextObject("Pow.Potential: " + material.totalPower);
             CreateTextObject("----------------------------");
         }
         if (UIController.Instance.toggleShowRelations.isOn)

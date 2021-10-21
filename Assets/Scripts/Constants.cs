@@ -15,27 +15,29 @@ public class Constants : MonoBehaviour
         Instance = this;
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Land, SUBTYPE_VALUE_LAND); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.City, SUBTYPE_VALUE_CITY); 
+        materialSubtypeBaseValues.Add(Material.MaterialSubtype.Town, SUBTYPE_VALUE_TOWN); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Village, SUBTYPE_VALUE_VILLAGE); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Estate, SUBTYPE_VALUE_ESTATE); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Building, SUBTYPE_VALUE_BUILDING); 
-        materialSubtypeBaseValues.Add(Material.MaterialSubtype.BigTool, SUBTYPE_VALUE_BIGTOOL); 
-        materialSubtypeBaseValues.Add(Material.MaterialSubtype.SmallTool, SUBTYPE_VALUE_SMALLTOOL);  
-        materialSubtypeBaseValues.Add(Material.MaterialSubtype.BigArms, SUBTYPE_VALUE_BIGARMS); 
+        materialSubtypeBaseValues.Add(Material.MaterialSubtype.Tool, SUBTYPE_VALUE_TOOL); 
+        materialSubtypeBaseValues.Add(Material.MaterialSubtype.WarMachine, SUBTYPE_VALUE_WARMACHINE); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Fortification, SUBTYPE_VALUE_FORTIFICATION); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.SmallArms, SUBTYPE_VALUE_SMALLARMS);  
+        materialSubtypeBaseValues.Add(Material.MaterialSubtype.Nugget, SUBTYPE_VALUE_NUGGET);  
     } 
 
     // Base Values      
     public float SUBTYPE_VALUE_LAND = 1500f;
     public float SUBTYPE_VALUE_CITY = 800f;
+    public float SUBTYPE_VALUE_TOWN = 450;
     public float SUBTYPE_VALUE_VILLAGE = 250f;
     public float SUBTYPE_VALUE_ESTATE = 150f;
     public float SUBTYPE_VALUE_BUILDING = 50f;
-    public float SUBTYPE_VALUE_BIGTOOL = 30f;
-    public float SUBTYPE_VALUE_SMALLTOOL = 10f;
-    public float SUBTYPE_VALUE_BIGARMS = 200f;
+    public float SUBTYPE_VALUE_TOOL = 15f;
+    public float SUBTYPE_VALUE_WARMACHINE = 200f;
     public float SUBTYPE_VALUE_FORTIFICATION = 150f;
     public float SUBTYPE_VALUE_SMALLARMS = 30f;
+    public float SUBTYPE_VALUE_NUGGET = 1f;
 
 
 

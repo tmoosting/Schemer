@@ -8,6 +8,7 @@ public class DataController : MonoBehaviour
 
     [Header("Assigns")]
     public DataLinker linker;
+    public DataChanger changer;
     public Button autoCreateButton;
     public PowerCalculator powerCalculator;
 
@@ -15,7 +16,7 @@ public class DataController : MonoBehaviour
     public bool scanDatabaseAtStart;
     public bool scanUnityObjectsAtStart; 
 
-    [HideInInspector]  public List<Character> characterList = new List<Character>();
+      public List<Character> characterList = new List<Character>();
     [HideInInspector]  public List<Material> materialList = new List<Material>();
     [HideInInspector]  public List<Scheme> schemeList = new List<Scheme>();
     [HideInInspector]  public List<Relation> relationList = new List<Relation>();
@@ -104,6 +105,9 @@ public class DataController : MonoBehaviour
 
     // --------------- GET FUNCTIONS
 
+
+
+    // --------------- GET NUMERIC
     public int GetRelationAmount(DataObject dataObject)
     {
         int returnCount = 0;
@@ -122,7 +126,7 @@ public class DataController : MonoBehaviour
         else if (dataObject.dataType == DataObject.DataType.Material)
         {
             Material mat = (Material)dataObject;
-            return (int)mat.powerPotential;
+            return (int)mat.totalPower;
         }
         else if (dataObject.dataType == DataObject.DataType.Scheme)
         {
@@ -131,6 +135,135 @@ public class DataController : MonoBehaviour
         }
         else return 0; // for relation
     }
+
+    public DataObject GetMostPowerfulDataObjectFromDataObjectList (List<DataObject> contenders)
+    {
+        float highestPower = 0f;
+        DataObject returnObject = null;
+        foreach (DataObject obj in contenders)        
+            if (obj.totalPower > highestPower)
+            {
+                highestPower = obj.totalPower;
+                returnObject = obj;
+            }        
+        return returnObject;
+    }
+    public DataObject GetMostPowerfulDataObjectFromCharacterList(List<Character> contenders)
+    {
+        float highestPower = 0f;
+        DataObject returnObject = null;
+        foreach (DataObject obj in contenders)
+            if (obj.totalPower > highestPower)
+            {
+                highestPower = obj.totalPower;
+                returnObject = obj;
+            }
+        return returnObject;
+    }
+    public DataObject GetMostPowerfulDataObjectFromSchemeList(List<Scheme> contenders)
+    {
+        float highestPower = 0f;
+        DataObject returnObject = null;
+        foreach (DataObject obj in contenders)
+            if (obj.totalPower > highestPower)
+            {
+                highestPower = obj.totalPower;
+                returnObject = obj;
+            }
+        return returnObject;
+    }
+    // --------------- GET OWNERSHIP
+
+    public List<Material> GetCharacterOwnedMaterials(Character character)
+    {
+        List<Material> returnList = new List<Material>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == character)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
+                        returnList.Add((Material)rel.secondaryDataObject);
+        return returnList;
+    }
+    public List<Scheme> GetCharacterOwnedSchemes(Character character)
+    {
+        List<Scheme> returnList = new List<Scheme>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == character)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
+                        returnList.Add((Scheme)rel.secondaryDataObject);
+        return returnList;
+    }
+    public List<Scheme> GetCharacterCoopSchemes(Character character)
+    {
+        List<Scheme> returnList = new List<Scheme>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Cooperative)
+            {
+                if (rel.primaryDataObject == character && rel.secondaryDataObject.dataType == DataObject.DataType.Scheme) 
+                    returnList.Add((Scheme)rel.secondaryDataObject);
+                if (rel.secondaryDataObject == character && rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                    returnList.Add((Scheme)rel.primaryDataObject); 
+            }                 
+        return returnList;
+    }
+    public List<Scheme> GetCharacterOwningSchemes(Character character)
+    {
+        List<Scheme> returnList = new List<Scheme>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.secondaryDataObject == character)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                        returnList.Add((Scheme)rel.primaryDataObject);
+        return returnList;
+    }
+
+
+    public List<Material> GetSchemeOwnedMaterials(Scheme scheme)
+    {
+        List<Material> returnList = new List<Material>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
+                        returnList.Add((Material)rel.secondaryDataObject);
+        return returnList;
+    }
+    public List<Scheme> GetSchemeOwnedSchemes(Scheme scheme)
+    {
+        List<Scheme> returnList = new List<Scheme>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
+                        returnList.Add((Scheme)rel.secondaryDataObject);
+        return returnList;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public Relation GetRelationWithTheseTwoDataObjects(DataObject primaryObject, DataObject secondaryObject)
+    {
+        Relation returnRelation = null;
+        foreach (Relation relation in relationList)        
+            if (relation.primaryDataObject == primaryObject && relation.secondaryDataObject == secondaryObject ||
+                relation.primaryDataObject == secondaryObject && relation.secondaryDataObject == primaryObject)            
+                       returnRelation = relation;
+
+        return returnRelation;
+    }
+
+
     public List<Relation> GetRelationsThatIncludeObject(DataObject dataObject)
     {
         List<Relation> returnList = new List<Relation>();

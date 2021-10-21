@@ -23,7 +23,8 @@ public class PowerCalculator : MonoBehaviour
     public void ClickCalculateButton()
     {
         CalculatePowers();
- //       UpdatePowerTexts();
+        //       UpdatePowerTexts();
+        UIController.Instance.ReloadObjectCards();
     }
   
 
@@ -41,10 +42,10 @@ public class PowerCalculator : MonoBehaviour
             CalculateCharacterOwnedMaterialPower(cha);
 
         foreach (Scheme ins in data.schemeList)
-            CalculateInstitutionPower(ins);
+            CalculateSchemesPower(ins);
 
         foreach (Character cha in data.characterList)
-            CalculatePowerFromInstitutions(cha);
+            CalculatePowerFromSchemes(cha);
     }
 
    
@@ -62,10 +63,11 @@ public class PowerCalculator : MonoBehaviour
     {
         float calculatedPower = 0f;
         calculatedPower += constants.materialSubtypeBaseValues[material.materialSubtype];
+        calculatedPower += material.bonusPower;
         calculatedPower += material.bonusFear;
         calculatedPower += material.bonusCharisma;
         calculatedPower += material.bonusSkill;
-        material.powerPotential += calculatedPower;
+        material.totalPower += calculatedPower;
     }
     void CalculateCharacterOwnedMaterialPower(Character character)
     {
@@ -75,71 +77,71 @@ public class PowerCalculator : MonoBehaviour
                 if (rel.primaryDataObject == character && rel.secondaryDataObject.dataType == DataObject.DataType.Material)
                 {
                     Material mat = (Material)rel.secondaryDataObject;
-                    matPower += mat.powerPotential; 
+                    matPower += mat.totalPower; 
                 }
 
         character.materialPower = matPower;
         character.totalPower += character.materialPower;
     }
-    void CalculateInstitutionPower(Scheme institution)
+    void CalculateSchemesPower(Scheme scheme)
     {  
-        foreach (Character cha in institution.GetOwnerCharacters())
+        foreach (Character cha in scheme.GetSchemeOwnerCharacters())
         {
-            institution.namedOwnerPower += cha.powerPotential;
-            institution.namedOwnerPower += cha.materialPower;
+            scheme.namedOwnerPower += cha.powerPotential;
+            scheme.namedOwnerPower += cha.materialPower;
         }
-        foreach (Character cha in institution.GetCooperativeCharacters())
+        foreach (Character cha in scheme.GetCooperativeCharacters())
         {
-            institution.namedCooperativePower += cha.powerPotential;
-            institution.namedCooperativePower += cha.materialPower;
+            scheme.namedCooperativePower += cha.powerPotential;
+            scheme.namedCooperativePower += cha.materialPower;
         }
-        foreach (Character cha in institution.GetOwneeCharacters())
+        foreach (Character cha in scheme.GetOwneeCharacters())
         {
-            institution.namedOwneePower += cha.powerPotential;
-            institution.namedOwneePower += cha.materialPower;
+            scheme.namedOwneePower += cha.powerPotential;
+            scheme.namedOwneePower += cha.materialPower;
         }
 
-        institution.genericOwnerPower += institution.genericOwnerCount * constants.GENERIC_OWNER_AVERAGE_POWER_POTENTIAL;
-        institution.genericCooperativePower += institution.genericCooperativeCount * constants.GENERIC_COOPERATIVE_AVERAGE_POWER_POTENTIAL;
-        institution.genericOwneePower += institution.genericOwneeCount * constants.GENERIC_OWNEE_AVERAGE_POWER_POTENTIAL;
+        scheme.genericOwnerPower += scheme.genericOwnerCount * constants.GENERIC_OWNER_AVERAGE_POWER_POTENTIAL;
+        scheme.genericCooperativePower += scheme.genericCooperativeCount * constants.GENERIC_COOPERATIVE_AVERAGE_POWER_POTENTIAL;
+        scheme.genericOwneePower += scheme.genericOwneeCount * constants.GENERIC_OWNEE_AVERAGE_POWER_POTENTIAL;
 
         float calcPower =
-            institution.namedOwnerPower + institution.namedCooperativePower + institution.namedOwneePower +
-               institution.genericOwnerPower + institution.genericCooperativePower + institution.genericOwneePower;
+            scheme.namedOwnerPower + scheme.namedCooperativePower + scheme.namedOwneePower +
+               scheme.genericOwnerPower + scheme.genericCooperativePower + scheme.genericOwneePower;
 
         
-        foreach (Material mat in institution.GetOwnedMaterials())
-            calcPower += mat.powerPotential;
+        foreach (Material mat in scheme.GetOwnedMaterials())
+            calcPower += mat.totalPower;
 
-        institution.totalPower += calcPower;
+        scheme.totalPower += calcPower;
     }
 
 
-    void CalculatePowerFromInstitutions(Character character)
+    void CalculatePowerFromSchemes(Character character)
     {
         float calcPower = 0f;
-        foreach (Scheme ins in data.schemeList)
+        foreach (Scheme sch in data.schemeList)
         {
-            if (ins.GetOwnerCharacters().Contains(character))
+            if (sch.GetSchemeOwnerCharacters().Contains(character))
             { 
-                if (ins.GetOwnerCharacters()[0] == character)
+                if (sch.GetSchemeOwnerCharacters()[0] == character)
                 {
-                    calcPower += (ins.totalPower * constants.PRIMARY_OWNER_POWERSHARE);
-                    calcPower += ins.totalPower / ins.GetMemberCharacters().Count; 
+                    calcPower += (sch.totalPower * constants.PRIMARY_OWNER_POWERSHARE);
+                    calcPower += sch.totalPower / sch.GetMemberCharacters().Count; 
                 }
                 else
                 {
-                    calcPower += (ins.totalPower * (1f- constants.PRIMARY_OWNER_POWERSHARE) / ins.GetOwnerCharacters().Count - 1);
-                    calcPower += ins.totalPower / ins.GetMemberCharacters().Count; 
+                    calcPower += (sch.totalPower * (1f- constants.PRIMARY_OWNER_POWERSHARE) / sch.GetSchemeOwnerCharacters().Count - 1);
+                    calcPower += sch.totalPower / sch.GetMemberCharacters().Count; 
                 }
             }
-            else if (ins.GetMemberCharacters().Contains(character))
+            else if (sch.GetMemberCharacters().Contains(character))
             {
-                calcPower += ins.totalPower / ins.GetMemberCharacters().Count; 
-            }        
+                calcPower += sch.totalPower / sch.GetMemberCharacters().Count; 
+            }
         }
-       character.institutionalPower = calcPower;
-       character.totalPower += character.institutionalPower;
+       character.schemesPower = calcPower;
+       character.totalPower += character.schemesPower;
     }
 
 
@@ -150,12 +152,12 @@ public class PowerCalculator : MonoBehaviour
         {
             cha.powerPotential = 0f;
             cha.materialPower = 0f;
-            cha.institutionalPower = 0f;
+            cha.schemesPower = 0f;
             cha.totalPower = 0f;
         }
         foreach (Material mat in data.materialList)
         {
-            mat.powerPotential = 0f;
+            mat.totalPower = 0f;
         }
         foreach (Scheme ins in data.schemeList)
         {

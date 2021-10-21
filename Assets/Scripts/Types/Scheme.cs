@@ -25,8 +25,7 @@ public class Scheme : DataObject
     public float genericOwnerPower = 0f;
     public float genericCooperativePower = 0f;
     public float genericOwneePower = 0f;
-    public float materialPower = 0f;
-    public float totalPower = 0f;
+    public float materialPower = 0f; 
 
 
 
@@ -91,7 +90,7 @@ public class Scheme : DataObject
     {
         return data.GetSchemeCharacters(this);
     }
-    public List<Character> GetOwnerCharacters()
+    public List<Character> GetSchemeOwnerCharacters()
     {
         List<Character> charList = data.GetSchemeCharacters(this);
         List<Character> returnList = new List<Character>();
@@ -99,7 +98,8 @@ public class Scheme : DataObject
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.primaryDataObject.dataType == DataType.Character)
                     if (charList.Contains((Character)rel.primaryDataObject))
-                        returnList.Add((Character)rel.primaryDataObject);
+                        if (rel.secondaryDataObject == this)
+                             returnList.Add((Character)rel.primaryDataObject);
         return returnList;
     }
     public List<Character> GetCooperativeCharacters()
