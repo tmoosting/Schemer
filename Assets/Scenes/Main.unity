@@ -2842,7 +2842,7 @@ MonoBehaviour:
   focusSwitch: {fileID: 1268520401}
   actionWindow: {fileID: 1361346755}
   enableToggleCharactersOnStart: 1
-  enableToggleMaterialsOnStart: 0
+  enableToggleMaterialsOnStart: 1
   enableToggleInstitutionsOnStart: 1
   enableToggleRelationsOnStart: 0
   enableToggleDatabaseInfoOnStart: 1
@@ -3929,6 +3929,7 @@ MonoBehaviour:
   changer: {fileID: 2091321584}
   autoCreateButton: {fileID: 346640120}
   powerCalculator: {fileID: 97675124}
+  verifyRelationsAtStart: 1
   scanDatabaseAtStart: 0
   scanUnityObjectsAtStart: 0
 --- !u!4 &300965294

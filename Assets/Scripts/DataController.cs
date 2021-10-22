@@ -13,6 +13,7 @@ public class DataController : MonoBehaviour
     public PowerCalculator powerCalculator;
 
     [Header("Options")]
+    public bool verifyRelationsAtStart;
     public bool scanDatabaseAtStart;
     public bool scanUnityObjectsAtStart; 
 
@@ -37,13 +38,16 @@ public class DataController : MonoBehaviour
             linker.DatabaseTestScan(false);
         if (scanUnityObjectsAtStart == true)
              ScanCreatedObjects();
+        if (verifyRelationsAtStart == true)
+            VerifyDuplicateRelations();
         UIController.Instance.RunStartupToggles();
         powerCalculator.CalculatePowers();
     }
     void AutoCreate()
     { 
         CreateObjectsFromDatabase(); 
-        CreateRelationsFromObjects(); 
+        CreateRelationsFromObjects();
+      
     }
 
   
@@ -91,7 +95,24 @@ public class DataController : MonoBehaviour
         foreach (Character cha in characterList)
             cha.CreateCharacterRelations();
         foreach (Scheme ins in schemeList)
-            ins.CreateSchemeRelations(); 
+            ins.CreateSchemeRelations();
+
+      
+    }
+    void VerifyDuplicateRelations()
+    {
+        // check ownership duplicates for mat
+        List<Material> foundOwnedMaterials = new List<Material>();
+
+        foreach (Relation rel in relationList)        
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
+                {
+                    if (foundOwnedMaterials.Contains((Material)rel.secondaryDataObject))
+                        Debug.LogWarning("Found a duplicate material: " + rel.secondaryDataObject.name);
+                    else
+                        foundOwnedMaterials.Add((Material)rel.secondaryDataObject);                    
+                }
     }
 
     // Called from Cha,Mat,Ins constructors
@@ -174,6 +195,43 @@ public class DataController : MonoBehaviour
     }
     // --------------- GET OWNERSHIP
 
+    public List<Character> GetCharactersOwningScheme(Scheme scheme)
+    {
+        List<Character> returnList = new List<Character>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.secondaryDataObject == scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Character)
+                        returnList.Add((Character)rel.primaryDataObject);
+        return returnList;
+    }   
+   
+    public List<Character> GetCharactersCoopedByScheme(Scheme scheme)
+    {
+        List<Character> returnList = new List<Character>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Cooperative)
+            {
+                if (rel.secondaryDataObject == scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Character)
+                        returnList.Add((Character)rel.primaryDataObject);
+                if (rel.primaryDataObject == scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Character)
+                        returnList.Add((Character)rel.secondaryDataObject);
+            }
+                
+        return returnList;
+    }
+    public List<Character> GetCharactersOwnedByScheme(Scheme scheme)
+    {
+        List<Character> returnList = new List<Character>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Character)
+                        returnList.Add((Character)rel.secondaryDataObject);
+        return returnList;
+    }
     public List<Material> GetMaterialsOwnedByCharacter(Character character)
     {
         List<Material> returnList = new List<Material>();
@@ -226,7 +284,11 @@ public class DataController : MonoBehaviour
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.primaryDataObject == scheme)
                     if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
+                    {
+                        Debug.Log("rel " + rel.name);
                         returnList.Add((Material)rel.secondaryDataObject);
+                    } 
+
         return returnList;
     }
     public List<Scheme> GetSchemesOwnedByScheme(Scheme scheme)
@@ -239,8 +301,31 @@ public class DataController : MonoBehaviour
                         returnList.Add((Scheme)rel.secondaryDataObject);
         return returnList;
     }
-
-
+    public List<Scheme> GetSchemesCoopedByScheme(Scheme scheme)
+    {
+        List<Scheme> returnList = new List<Scheme>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Cooperative)
+            {
+                if (rel.primaryDataObject == scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
+                        returnList.Add((Scheme)rel.secondaryDataObject);
+                if (rel.secondaryDataObject == scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                        returnList.Add((Scheme)rel.primaryDataObject);
+            } 
+        return returnList;
+    }
+    public List<Scheme> GetSchemesOwningScheme(Scheme scheme)
+    {
+        List<Scheme> returnList = new List<Scheme>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.secondaryDataObject == scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                        returnList.Add((Scheme)rel.primaryDataObject);
+        return returnList;
+    }
 
 
 

@@ -7,75 +7,7 @@ public class DataChanger : MonoBehaviour
 
 
 
-    // GENERAL FUNCTIONS
-
-    public void RemoveDataObject(DataObject dataObject)
-    {
-        List<Relation> destroyedRelations = DataController.Instance.GetRelationsThatIncludeObject(dataObject);  
-        List<ObjectViewCard> destroyedCards = new List<ObjectViewCard>();
-
-        foreach (ObjectViewCard card in UIController.Instance.cardListRegular)
-        {
-            if (card.containedObject == dataObject)
-                destroyedCards.Add(card);
-            else if (card.containedObject.dataType == DataObject.DataType.Relation)
-            {
-                Relation rel = (Relation)card.containedObject;
-                if (destroyedRelations.Contains(rel))
-                    destroyedCards.Add(card);
-            }
-        }
-        foreach (ObjectViewCard card in UIController.Instance.cardListFocusView)
-        {
-            if (card.containedObject == dataObject)
-                destroyedCards.Add(card);
-            else if (card.containedObject.dataType == DataObject.DataType.Relation)
-            {
-                if (destroyedRelations.Contains((Relation)card.containedObject))
-                    destroyedCards.Add(card);
-            }
-        }
-        foreach (ObjectViewCard card in destroyedCards)
-        {
-            card.containedObject = null;
-            UIController.Instance.cardListFocusView.Remove(card);
-            Destroy(card.gameObject);
-        }
-        if (dataObject == UIController.Instance.primarySelectedObject)
-            UIController.Instance.DeselectPrimarySelectionObject();
-
-        // check for relationless material leftover
-        List<Material> destroyedMaterials = new List<Material>();
-        if (dataObject.dataType == DataObject.DataType.Scheme)               
-           destroyedMaterials = DataController.Instance.GetMaterialsOwnedByScheme((Scheme)dataObject);        
-        
-
-
-        if (dataObject.dataType == DataObject.DataType.Character)
-            DataController.Instance.characterList.Remove((Character)dataObject);
-        else if (dataObject.dataType == DataObject.DataType.Material)
-            DataController.Instance.materialList.Remove((Material)dataObject);
-        else if (dataObject.dataType == DataObject.DataType.Scheme)
-            DataController.Instance.schemeList.Remove((Scheme)dataObject);
-
-        foreach (Relation relation in destroyedRelations)
-            DestroyRelation(relation);
-
-        UIController.Instance.ReloadObjectCards();
-
-        if (dataObject.dataType == DataObject.DataType.Scheme)
-            if (destroyedMaterials.Count > 0)
-                   foreach (Material material in destroyedMaterials)
-                    RemoveDataObject(material);
-
-       
-    }
-   
-    public void DestroyRelation(Relation relation)
-    {
-        DataController.Instance.relationList.Remove(relation);
-    }
-
+    // GENERAL FUNCTIONS 
      
 
 
@@ -109,14 +41,125 @@ public class DataChanger : MonoBehaviour
     // ACTION FUNCTIONS
 
     public void KillDataObject(DataObject dataObject)
-    {
-        // 1. Character gets destroyed
+    { 
         if (dataObject.dataType == DataObject.DataType.Character)
             KillCharacter((Character)dataObject);
-
-
+        else if (dataObject.dataType == DataObject.DataType.Material)
+            RemoveDataObject((Material)dataObject);
+        else if (dataObject.dataType == DataObject.DataType.Scheme)
+            DisbandScheme((Scheme)dataObject);
+        else if (dataObject.dataType == DataObject.DataType.Relation)
+            DestroyRelation((Relation)dataObject);
     }
+    public void DisbandScheme(Scheme scheme)
+    {
+        DataController data = DataController.Instance;
 
+
+        // Characters owned by scheme: nothing happens
+        // Materials owned by scheme: passed to CHA owner; otherwise to SCH owner; to CHA coop; to SCH coop; to CHA ownee; to SCH ownee
+        // Schemes owned by schenme: nothing happens
+        // Destroy all RELs associated with scheme
+
+        List<Material> distributeMaterials = data.GetMaterialsOwnedByScheme(scheme);
+        List<Character> ownerCharactersList = data.GetCharactersOwningScheme(scheme);
+        List<Scheme> ownerSchemeList = data.GetSchemesOwningScheme(scheme);
+        List<Character> coopCharacterList = data.GetCharactersCoopedByScheme(scheme);
+        List<Scheme> coopSchemeList = data.GetSchemesCoopedByScheme(scheme);
+        List<Character> ownedCharacterList = data.GetCharactersOwnedByScheme(scheme);
+        List<Scheme> ownedSchemeList = data.GetSchemesOwnedByScheme(scheme);
+
+        Debug.Log("as sch " + scheme.name + " is destroyed, it has  " + distributeMaterials.Count + " MATs to distribute");
+        if (distributeMaterials.Count != 0)
+        {
+            foreach (Material mat in distributeMaterials)
+            {
+                Debug.Log("mat " + mat.name);
+
+                if (ownerCharactersList.Count > 1)
+                {
+                    Debug.Log("! ");
+                    TransferMaterialOwnership(scheme, data.GetMostPowerfulDataObjectFromCharacterList(ownerCharactersList), mat);
+                }
+                else if (ownerCharactersList.Count == 1)
+                {
+                    Debug.Log("! ");
+                    TransferMaterialOwnership(scheme, ownerCharactersList[0], mat);
+                }
+                else if (ownerCharactersList.Count == 0)
+                {
+                    if (ownerSchemeList.Count > 1)
+                    {
+                        Debug.Log("! ");
+                        TransferMaterialOwnership(scheme, data.GetMostPowerfulDataObjectFromSchemeList(ownerSchemeList), mat);
+                    }
+                    else if (ownerSchemeList.Count == 1)
+                    {
+                    Debug.Log("! ");
+                        TransferMaterialOwnership(scheme, ownerSchemeList[0], mat);
+                    }
+                    else if (ownerSchemeList.Count == 0)
+                    {
+                        if (coopCharacterList.Count > 1)
+                        {
+                    Debug.Log("! ");
+                            TransferMaterialOwnership(scheme, data.GetMostPowerfulDataObjectFromCharacterList(coopCharacterList), mat);
+                        }
+                        else if (coopCharacterList.Count == 1)
+                        {
+                    Debug.Log("! ");
+                            TransferMaterialOwnership(scheme, coopCharacterList[0], mat);
+                        }
+                        else if (coopCharacterList.Count == 0)
+                        {
+                            if (coopSchemeList.Count > 1)
+                            {
+                    Debug.Log("! ");
+                                TransferMaterialOwnership(scheme, data.GetMostPowerfulDataObjectFromSchemeList(coopSchemeList), mat);
+                            }
+                            else if (coopSchemeList.Count == 1)
+                            {
+                    Debug.Log("! ");
+                                TransferMaterialOwnership(scheme, coopSchemeList[0], mat);
+                            }
+                            else if (coopSchemeList.Count == 0)
+                            {
+                                if (ownedCharacterList.Count > 1)
+                                {
+                    Debug.Log("! ");
+                                    TransferMaterialOwnership(scheme, data.GetMostPowerfulDataObjectFromCharacterList(ownedCharacterList), mat);
+                                }
+                                else if (ownedCharacterList.Count == 1)
+                                {
+                    Debug.Log("! ");
+                                    TransferMaterialOwnership(scheme, ownedCharacterList[0], mat);
+                                }
+                                else if (ownedCharacterList.Count == 0)
+                                {
+                                    if (ownedSchemeList.Count > 1)
+                                    {
+                    Debug.Log("! ");
+                                        TransferMaterialOwnership(scheme, data.GetMostPowerfulDataObjectFromSchemeList(ownedSchemeList), mat);
+                                    }
+                                    else if (ownedSchemeList.Count == 1)
+                                    {
+                    Debug.Log("! ");
+                                        TransferMaterialOwnership(scheme, ownedSchemeList[0], mat);
+                                    }
+                                    else if (ownedSchemeList.Count == 0)
+                                    { 
+                    Debug.Log("! ");
+                                        RemoveDataObject(mat);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        RemoveDataObject(scheme);
+    }
     public void KillCharacter(Character character)
     {
         DataController data = DataController.Instance;
@@ -132,7 +175,9 @@ public class DataChanger : MonoBehaviour
         // Is CHA owner, coop or owned vs one or multiple SCH?
         List<Scheme> ownedSchemeList = data.GetSchemesOwnedByCharacter(character);
         List<Scheme> coopSchemeList = data.GetSchemesCoopedByCharacter(character);
-        List<Scheme> owneeSchemeList = data.GetSchemesOwningCharacter(character);
+        List<Scheme> ownerSchemeList = data.GetSchemesOwningCharacter(character);
+
+        List<Scheme> schemesToDestroy = new List<Scheme>();
 
         // Does CHA own any MAT? 
         if (distributeMaterials.Count != 0)
@@ -146,20 +191,20 @@ public class DataChanger : MonoBehaviour
                     if (coopSchemeList.Count == 0)
                     {
                         // Character is owned by zero SCH
-                        if (owneeSchemeList.Count == 0)
+                        if (ownerSchemeList.Count == 0)
                         {
                             RemoveDataObject(mat);
                         }
                         // Character is owned by one SCH
-                        else if (owneeSchemeList.Count == 1)
+                        else if (ownerSchemeList.Count == 1)
                         {
-                            TransferMaterialOwnership(character, owneeSchemeList[0], mat);
+                            TransferMaterialOwnership(character, ownerSchemeList[0], mat);
                         }
-                        else if (owneeSchemeList.Count > 1)
+                        else if (ownerSchemeList.Count > 1)
                         {
                             // Character is owned by multiple SCH
                             // GIVE TO STRONGEST
-                            TransferMaterialOwnership(character, data.GetMostPowerfulDataObjectFromSchemeList(owneeSchemeList), mat);
+                            TransferMaterialOwnership(character, data.GetMostPowerfulDataObjectFromSchemeList(ownerSchemeList), mat);
                         }
                     }
                     // Character Coops one SCH
@@ -230,13 +275,17 @@ public class DataChanger : MonoBehaviour
                         }
                         else if (otherOwnees.Count == 0)
                         {
-                            RemoveDataObject (distSch);
+                            schemesToDestroy.Add(distSch);
                         }
                     }
                 }
             }
         }
         RemoveDataObject(character);
+        foreach (Scheme scheme in schemesToDestroy)
+        {
+            KillDataObject(scheme);
+        }
     }
 
     public void GiftMaterial(DataObject receiverObject, string materialSubtype)
@@ -269,5 +318,95 @@ public class DataChanger : MonoBehaviour
 
     }
 
+
+
+
+
+
+
+
+
+
+    // REMOVAL
+
+
+    public void RemoveDataObject(DataObject dataObject)
+    {
+        List<Relation> destroyedRelations = DataController.Instance.GetRelationsThatIncludeObject(dataObject);
+        List<ObjectViewCard> destroyedCards = new List<ObjectViewCard>();
+
+        foreach (ObjectViewCard card in UIController.Instance.cardListRegular)
+        {
+            if (card != null)
+            {
+                if (card.containedObject != null)
+                {
+                    if (card.containedObject == dataObject)
+                        destroyedCards.Add(card);
+                    else if (card.containedObject.dataType == DataObject.DataType.Relation)
+                    {
+                        Relation rel = (Relation)card.containedObject;
+                        if (destroyedRelations.Contains(rel))
+                            destroyedCards.Add(card);
+                    }
+                }
+            } 
+        }
+        foreach (ObjectViewCard card in UIController.Instance.cardListFocusView)
+        {
+            if (card != null)
+            {
+                if (card.containedObject != null)
+                {
+                    if (card.containedObject == dataObject)
+                        destroyedCards.Add(card);
+                    else if (card.containedObject.dataType == DataObject.DataType.Relation)
+                    {
+                        if (destroyedRelations.Contains((Relation)card.containedObject))
+                            destroyedCards.Add(card);
+                    }
+                }
+            } 
+        }
+        foreach (ObjectViewCard card in destroyedCards)
+        {
+            card.containedObject = null;
+            UIController.Instance.cardListFocusView.Remove(card);
+            Destroy(card.gameObject);
+        }
+        if (dataObject == UIController.Instance.primarySelectedObject)
+            UIController.Instance.DeselectPrimarySelectionObject();
+
+        //// check for relationless material leftover
+        //List<Material> destroyedMaterials = new List<Material>();
+        //if (dataObject.dataType == DataObject.DataType.Scheme)
+        //    destroyedMaterials = DataController.Instance.GetMaterialsOwnedByScheme((Scheme)dataObject);
+
+
+
+        if (dataObject.dataType == DataObject.DataType.Character)
+            DataController.Instance.characterList.Remove((Character)dataObject);
+        else if (dataObject.dataType == DataObject.DataType.Material)
+            DataController.Instance.materialList.Remove((Material)dataObject);
+        else if (dataObject.dataType == DataObject.DataType.Scheme)
+            DataController.Instance.schemeList.Remove((Scheme)dataObject);
+
+        foreach (Relation relation in destroyedRelations)
+            DestroyRelation(relation);
+
+        UIController.Instance.ReloadObjectCards();
+
+        //if (dataObject.dataType == DataObject.DataType.Scheme)
+        //    if (destroyedMaterials.Count > 0)
+        //        foreach (Material material in destroyedMaterials)
+        //            RemoveDataObject(material);
+
+
+    }
+
+    public void DestroyRelation(Relation relation)
+    {
+        DataController.Instance.relationList.Remove(relation);
+    }
 
 }
