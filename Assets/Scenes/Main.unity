@@ -1283,6 +1283,8 @@ GameObject:
   - component: {fileID: 80868249}
   - component: {fileID: 80868251}
   - component: {fileID: 80868250}
+  - component: {fileID: 80868253}
+  - component: {fileID: 80868252}
   m_Layer: 5
   m_Name: LabelFocusView
   m_TagString: Untagged
@@ -1406,6 +1408,45 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 80868248}
   m_CullTransparentMesh: 0
+--- !u!61 &80868252
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80868248}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -66.8, y: -20.49}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 196.5, y: 33.4}
+  m_EdgeRadius: 0
+--- !u!114 &80868253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80868248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c997004de0117d48bf89eb3654a656d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  focusSwitch: {fileID: 1268520401}
 --- !u!1 &85420181
 GameObject:
   m_ObjectHideFlags: 0
@@ -2815,32 +2856,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d60da95f4bd8c5344afe33064e3c2d0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 6495820695503618324, guid: 25aa38271081bbe42bdd28e7ff855e84, type: 3}
-  panelRegularView: {fileID: 1013042549}
-  panelRegularViewGrid: {fileID: 2138397187}
-  panelFocusView: {fileID: 109536118}
-  panelFocusViewGridOwners: {fileID: 1143777865}
-  panelFocusViewGridCoops: {fileID: 684366684}
-  panelFocusViewGridOwnees: {fileID: 291247076}
-  toggleCharacter: {fileID: 1577701973}
-  toggleMaterial: {fileID: 707405020}
-  toggleInstitution: {fileID: 241709509}
-  toggleRelation: {fileID: 1741828995}
-  toggleShowDatabase: {fileID: 1637287147}
-  toggleShowPower: {fileID: 1183476182}
-  toggleShowRelations: {fileID: 1856353283}
-  sliderCardWidth: {fileID: 1282875147}
-  sliderCardHeight: {fileID: 418423435}
-  textPrimarySelectedObject: {fileID: 1675167134}
-  textSecondarySelectedObject: {fileID: 1414921167}
-  focusViewSwitch: {fileID: 1268520395}
-  focusViewLabel: {fileID: 80868248}
-  imageToggleColorCharacter: {fileID: 1120504690}
-  imageToggleColorMaterial: {fileID: 1124829722}
-  imageToggleColorScheme: {fileID: 2142332997}
-  imageToggleColorRelation: {fileID: 825457107}
-  focusSwitch: {fileID: 1268520401}
-  actionWindow: {fileID: 1361346755}
+  showRelationsInFocusMode: 1
   enableToggleCharactersOnStart: 1
   enableToggleMaterialsOnStart: 1
   enableToggleInstitutionsOnStart: 1
@@ -2872,6 +2888,32 @@ MonoBehaviour:
   colorSelectButtonSecondary:
     serializedVersion: 2
     rgba: 4294770669
+  cardPrefab: {fileID: 6495820695503618324, guid: 25aa38271081bbe42bdd28e7ff855e84, type: 3}
+  panelRegularView: {fileID: 1013042549}
+  panelRegularViewGrid: {fileID: 2138397187}
+  panelFocusView: {fileID: 109536118}
+  panelFocusViewGridOwners: {fileID: 1143777865}
+  panelFocusViewGridCoops: {fileID: 684366684}
+  panelFocusViewGridOwnees: {fileID: 291247076}
+  toggleCharacter: {fileID: 1577701973}
+  toggleMaterial: {fileID: 707405020}
+  toggleInstitution: {fileID: 241709509}
+  toggleRelation: {fileID: 1741828995}
+  toggleShowDatabase: {fileID: 1637287147}
+  toggleShowPower: {fileID: 1183476182}
+  toggleShowRelations: {fileID: 1856353283}
+  sliderCardWidth: {fileID: 1282875147}
+  sliderCardHeight: {fileID: 418423435}
+  textPrimarySelectedObject: {fileID: 1675167134}
+  textSecondarySelectedObject: {fileID: 1414921167}
+  focusViewSwitch: {fileID: 1268520395}
+  focusViewLabel: {fileID: 80868248}
+  imageToggleColorCharacter: {fileID: 1120504690}
+  imageToggleColorMaterial: {fileID: 1124829722}
+  imageToggleColorScheme: {fileID: 2142332997}
+  imageToggleColorRelation: {fileID: 825457107}
+  focusSwitch: {fileID: 1268520401}
+  actionWindow: {fileID: 1361346755}
   cardListRegular: []
   cardListFocusView: []
 --- !u!4 &204957502
@@ -3925,13 +3967,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b6831345cecef64b872fbe068f5f67c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sweepUnownedMaterials: 1
+  sweepUnownedSchemes: 1
+  verifyRelationsAtStart: 1
+  scanDatabaseAtStart: 0
+  scanUnityObjectsAtStart: 0
   linker: {fileID: 1311455655}
   changer: {fileID: 2091321584}
   autoCreateButton: {fileID: 346640120}
   powerCalculator: {fileID: 97675124}
-  verifyRelationsAtStart: 1
-  scanDatabaseAtStart: 0
-  scanUnityObjectsAtStart: 0
 --- !u!4 &300965294
 Transform:
   m_ObjectHideFlags: 0

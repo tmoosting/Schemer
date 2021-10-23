@@ -6,16 +6,21 @@ public class DataController : MonoBehaviour
 {
     public static DataController Instance;
 
+
+    [Header("Options")]
+    public bool sweepUnownedMaterials;
+    public bool sweepUnownedSchemes;
+    public bool verifyRelationsAtStart;
+    public bool scanDatabaseAtStart;
+    public bool scanUnityObjectsAtStart;
+    
+
     [Header("Assigns")]
     public DataLinker linker;
     public DataChanger changer;
     public Button autoCreateButton;
     public PowerCalculator powerCalculator;
 
-    [Header("Options")]
-    public bool verifyRelationsAtStart;
-    public bool scanDatabaseAtStart;
-    public bool scanUnityObjectsAtStart; 
 
       public List<Character> characterList = new List<Character>();
     [HideInInspector]  public List<Material> materialList = new List<Material>();
@@ -242,6 +247,16 @@ public class DataController : MonoBehaviour
                         returnList.Add((Material)rel.secondaryDataObject);
         return returnList;
     }
+    public List<Material> GetMaterialsOwnedByScheme(Scheme scheme)
+    {
+        List<Material> returnList = new List<Material>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)                    
+                        returnList.Add((Material)rel.secondaryDataObject);
+        return returnList;
+    }
     public List<Scheme> GetSchemesOwnedByCharacter(Character character)
     {
         List<Scheme> returnList = new List<Scheme>();
@@ -277,20 +292,7 @@ public class DataController : MonoBehaviour
     }
 
 
-    public List<Material> GetMaterialsOwnedByScheme(Scheme scheme)
-    {
-        List<Material> returnList = new List<Material>();
-        foreach (Relation rel in relationList)
-            if (rel.relationType == Relation.RelationType.Ownership)
-                if (rel.primaryDataObject == scheme)
-                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
-                    {
-                        Debug.Log("rel " + rel.name);
-                        returnList.Add((Material)rel.secondaryDataObject);
-                    } 
-
-        return returnList;
-    }
+  
     public List<Scheme> GetSchemesOwnedByScheme(Scheme scheme)
     {
         List<Scheme> returnList = new List<Scheme>();
@@ -387,6 +389,7 @@ public class DataController : MonoBehaviour
         }
         return returnList;
     }
+   
     public Character GetCharacterWithName(string name)
     {
         Character character = null;

@@ -9,6 +9,27 @@ public class UIController : MonoBehaviour
 {
     public static UIController Instance;
     DataController data;
+    [Header("Options")]
+    public bool showRelationsInFocusMode;
+    [Header("Startup - Objects")]
+    public bool enableToggleCharactersOnStart;
+    public bool enableToggleMaterialsOnStart;
+    public bool enableToggleInstitutionsOnStart;
+    public bool enableToggleRelationsOnStart;
+    [Header("Startup - Details")]
+    public bool enableToggleDatabaseInfoOnStart;
+    public bool enableTogglePowerValuesOnStart;
+    public bool enableToggleRelationDetailsOnStart;
+    [Header("ViewCards")]
+    public Color32 colorViewCardDefault;
+    public Color32 colorViewCardCharacter;
+    public Color32 colorViewCardMaterial;
+    public Color32 colorViewCardScheme;
+    public Color32 colorViewCardRelation;
+    public Color32 colorViewCardSelected;
+    public Color32 colorSelectButtonNormal;
+    public Color32 colorSelectButtonSecondary;
+
     [Header("Assigns")]
     public GameObject cardPrefab;
     public GameObject panelRegularView;
@@ -36,27 +57,9 @@ public class UIController : MonoBehaviour
     public Image imageToggleColorRelation;
     public SwitchManager focusSwitch;
     public ActionWindow actionWindow;
-    [Header ("Startup - Objects")]
-    public bool enableToggleCharactersOnStart;
-    public bool enableToggleMaterialsOnStart;
-    public bool enableToggleInstitutionsOnStart;
-    public bool enableToggleRelationsOnStart;
-    [Header("Startup - Details")]
-    public bool enableToggleDatabaseInfoOnStart;
-    public bool enableTogglePowerValuesOnStart;
-    public bool enableToggleRelationDetailsOnStart;
-    [Header("ViewCards")]
-    public Color32 colorViewCardDefault;
-    public Color32 colorViewCardCharacter;
-    public Color32 colorViewCardMaterial;
-    public Color32 colorViewCardScheme;
-    public Color32 colorViewCardRelation;
-    public Color32 colorViewCardSelected;
-    public Color32 colorSelectButtonNormal;
-    public Color32 colorSelectButtonSecondary;
 
 
-   // [HideInInspector] 
+    [HideInInspector] 
     public List<ObjectViewCard> cardListRegular = new List<ObjectViewCard>();
     [HideInInspector] 
     public List<ObjectViewCard> cardListFocusView = new List<ObjectViewCard>();
@@ -147,8 +150,8 @@ public class UIController : MonoBehaviour
             foreach (Character cha in data.characterList)           
                 cardObjects.Add(cha);
         if (toggleMaterial.isOn)
-            foreach (Material mat in data.materialList)
-                cardObjects.Add(mat);
+            foreach (Material mat in data.materialList) 
+                cardObjects.Add(mat); 
         if (toggleInstitution.isOn)
             foreach (Scheme ins in data.schemeList)
                 cardObjects.Add(ins);
@@ -188,20 +191,38 @@ public class UIController : MonoBehaviour
         cardListFocusView.Add(card);
 
         List<DataObject> relatedObjects = new List<DataObject>();
-        foreach (DataObject obj in data.GetRelatedObjectsToObject(primarySelectedObject))        
-            if (obj.dataType != DataObject.DataType.Relation)
-            {
-                if (toggleCharacter.isOn == false && obj.dataType == DataObject.DataType.Character ||
-              toggleMaterial.isOn == false && obj.dataType == DataObject.DataType.Material ||
-              toggleInstitution.isOn == false && obj.dataType == DataObject.DataType.Scheme ||
-              toggleRelation.isOn == false && obj.dataType == DataObject.DataType.Relation)
+        if (primarySelectedObject.dataType != DataObject.DataType.Relation)
+        {
+            foreach (DataObject obj in data.GetRelatedObjectsToObject(primarySelectedObject))
+                if (showRelationsInFocusMode == false && obj.dataType == DataObject.DataType.Relation)
                 {
-                    // exclude unselected object types, so do nothing here
+                    // do nothing because relation excluded is enabled
                 }
                 else
-                    relatedObjects.Add(obj); 
-                
-            }
+                {
+                    if (toggleCharacter.isOn == false && obj.dataType == DataObject.DataType.Character ||
+                 toggleMaterial.isOn == false && obj.dataType == DataObject.DataType.Material ||
+                 toggleInstitution.isOn == false && obj.dataType == DataObject.DataType.Scheme ||
+                 toggleRelation.isOn == false && obj.dataType == DataObject.DataType.Relation)
+                    {
+                        // exclude unselected object types, so do nothing here
+                    }
+                    else
+                        relatedObjects.Add(obj);
+                }
+        }
+        else
+        {
+            Relation rel = (Relation)primarySelectedObject;
+            relatedObjects.Add(rel.primaryDataObject);
+            relatedObjects.Add(rel.secondaryDataObject);
+        }
+            
+      
+
+
+
+
 
         if (currentSortMode == SortMode.Relations)
             relatedObjects.Sort(SortByRelationAmount);
@@ -218,6 +239,16 @@ public class UIController : MonoBehaviour
                 rt = panelFocusViewGridCoops.GetComponent<Transform>();
             else if (data.IsFirstObjectOwneeOfSecondObject(primarySelectedObject, obj) == true)
                 rt = panelFocusViewGridOwners.GetComponent<Transform>();
+            else if (obj.dataType == DataObject.DataType.Relation)
+                rt = panelFocusViewGridOwnees.GetComponent<Transform>();
+            else if (primarySelectedObject.dataType == DataObject.DataType.Relation)
+            {
+                Relation rel = (Relation)primarySelectedObject;
+                if (obj == rel.primaryDataObject)
+                    rt = panelFocusViewGridOwners.GetComponent<Transform>();
+                else if (obj == rel.secondaryDataObject)
+                    rt = panelFocusViewGridOwnees.GetComponent<Transform>(); 
+            } 
             else
                 Debug.LogWarning("Strange! " + primarySelectedObject.ID + " found no focusview-position for " + obj.ID); 
 
