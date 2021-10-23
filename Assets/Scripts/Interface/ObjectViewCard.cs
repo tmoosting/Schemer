@@ -156,6 +156,7 @@ public class ObjectViewCard : MonoBehaviour
             CreateTextObject("Pow.GenerCoops: " + scheme.genericCooperativePower); 
             CreateTextObject("Pow.GenerOwnees: " + scheme.genericOwnerPower); 
             CreateTextObject("Pow.Material: " + scheme.materialPower); 
+            CreateTextObject("Pow.Cooperation: " + scheme.cooperationPower); 
             CreateTextObject("Pow.Total: " + scheme.totalPower);
             CreateTextObject("----------------------------");
         }

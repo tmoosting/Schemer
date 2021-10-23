@@ -2857,6 +2857,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showRelationsInFocusMode: 1
+  createKillEffect: 1
+  createGiftEffect: 1
   enableToggleCharactersOnStart: 1
   enableToggleMaterialsOnStart: 1
   enableToggleInstitutionsOnStart: 1
@@ -2914,6 +2916,8 @@ MonoBehaviour:
   imageToggleColorRelation: {fileID: 825457107}
   focusSwitch: {fileID: 1268520401}
   actionWindow: {fileID: 1361346755}
+  explosionPrefab: {fileID: 7855376134781479289, guid: 66f0fc2fa0310c84483db92cf4d0233c, type: 3}
+  giftPrefab: {fileID: 3315662998726822224, guid: 8d11653854c766e40bc7c87ab1c26dee, type: 3}
   cardListRegular: []
   cardListFocusView: []
 --- !u!4 &204957502
@@ -4015,6 +4019,7 @@ MonoBehaviour:
   SUBTYPE_VALUE_FORTIFICATION: 150
   SUBTYPE_VALUE_SMALLARMS: 30
   SUBTYPE_VALUE_NUGGET: 1
+  SCHEME_COOPERATION_POWER_PERCENTAGE_BONUS: 0.1
   PRIMARY_OWNER_POWERSHARE: 0.5
   GENERIC_OWNER_AVERAGE_POWER_POTENTIAL: 120
   GENERIC_COOPERATIVE_AVERAGE_POWER_POTENTIAL: 100
@@ -6294,6 +6299,8 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420033}
+  - component: {fileID: 519420030}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -6309,6 +6316,102 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
+--- !u!82 &519420030
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -6366,6 +6469,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e40015f52b26d9144a1b355d670f6cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  killAudio: {fileID: 8300000, guid: 18dd6f5899b753d43a0d8cc3c927e105, type: 3}
+  giftAudio: {fileID: 8300000, guid: d80dab2d3cbbd324bb75949256803219, type: 3}
 --- !u!1001 &534874578
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21095,7 +21212,7 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 200, y: 200}
-  m_Spacing: {x: 3, y: 8}
+  m_Spacing: {x: 3, y: 11}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!222 &2138397191

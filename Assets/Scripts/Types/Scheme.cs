@@ -26,6 +26,7 @@ public class Scheme : DataObject
     public float genericCooperativePower = 0f;
     public float genericOwneePower = 0f;
     public float materialPower = 0f; 
+    public float cooperationPower = 0f; 
 
 
 

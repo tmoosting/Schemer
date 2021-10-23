@@ -40,12 +40,21 @@ public class PowerCalculator : MonoBehaviour
             CalculateCharacterOwnedMaterialPower(cha);
 
         foreach (Scheme ins in data.schemeList)
-            CalculateSchemesPower(ins);
+            AddSchemePowerFromCharacters(ins);
+
+        foreach (Scheme ins in data.schemeList)
+            AddSchemePowerFromMaterials(ins);
+
+        foreach (Scheme ins in data.schemeList)
+            CalculateSchemePowerFromCooperations(ins);
+
+        foreach (Scheme ins in data.schemeList)
+            AddSchemePowerFromCooperations(ins);
 
         foreach (Character cha in data.characterList)
-            CalculatePowerFromSchemes(cha);
-
-        UIController.Instance.ReloadObjectCards();
+            AddCharacterPowerFromSchemes(cha);
+         
+           UIController.Instance.ReloadObjectCards();
     }
 
    
@@ -83,7 +92,7 @@ public class PowerCalculator : MonoBehaviour
         character.materialPower = matPower;
         character.totalPower += character.materialPower;
     }
-    void CalculateSchemesPower(Scheme scheme)
+    void AddSchemePowerFromCharacters(Scheme scheme)
     {  
         foreach (Character cha in scheme.GetSchemeOwnerCharacters())
         {
@@ -107,17 +116,31 @@ public class PowerCalculator : MonoBehaviour
 
         float calcPower =
             scheme.namedOwnerPower + scheme.namedCooperativePower + scheme.namedOwneePower +
-               scheme.genericOwnerPower + scheme.genericCooperativePower + scheme.genericOwneePower;
-
-        
-        foreach (Material mat in scheme.GetOwnedMaterials())
-            calcPower += mat.totalPower;
+               scheme.genericOwnerPower + scheme.genericCooperativePower + scheme.genericOwneePower; 
 
         scheme.totalPower += calcPower;
     }
+    void AddSchemePowerFromMaterials(Scheme scheme)
+    { 
+        float calcPower = 0f;
 
-
-    void CalculatePowerFromSchemes(Character character)
+        foreach (Material mat in scheme.GetOwnedMaterials())
+            calcPower += mat.totalPower;
+        scheme.materialPower = calcPower;
+        scheme.totalPower += calcPower;
+    }
+    void CalculateSchemePowerFromCooperations(Scheme scheme)
+    {
+        float calcPower = 0f;
+        foreach (Scheme coopScheme in DataController.Instance.GetSchemesCoopedByScheme(scheme)) 
+            calcPower += (coopScheme.totalPower * Constants.Instance.SCHEME_COOPERATION_POWER_PERCENTAGE_BONUS); 
+        scheme.cooperationPower = calcPower;        
+    }
+    void AddSchemePowerFromCooperations(Scheme scheme)
+    {        
+        scheme.totalPower += scheme.cooperationPower;
+    }
+    void AddCharacterPowerFromSchemes(Character character)
     {
         float calcPower = 0f;
         foreach (Scheme sch in data.schemeList)

@@ -11,6 +11,8 @@ public class UIController : MonoBehaviour
     DataController data;
     [Header("Options")]
     public bool showRelationsInFocusMode;
+    public bool createKillEffect;
+    public bool createGiftEffect;
     [Header("Startup - Objects")]
     public bool enableToggleCharactersOnStart;
     public bool enableToggleMaterialsOnStart;
@@ -57,6 +59,8 @@ public class UIController : MonoBehaviour
     public Image imageToggleColorRelation;
     public SwitchManager focusSwitch;
     public ActionWindow actionWindow;
+    public GameObject explosionPrefab;
+    public GameObject giftPrefab;
 
 
     [HideInInspector] 
@@ -135,7 +139,70 @@ public class UIController : MonoBehaviour
         toggleRelation.isOn = enableToggleRelationsOnStart; 
     }
 
+    public void PlayExplosionAtObject(DataObject dataObject)
+    {
+        if (createKillEffect == true)
+        {
+            bool playExplosion = false;
+            ObjectViewCard card = null;
+            if (focusViewMode == true)
+                foreach (ObjectViewCard card1 in cardListFocusView)
+                    if (card1.containedObject == dataObject)
+                    {
+                        card = card1;
+                        playExplosion = true;
+                    }
+            if (focusViewMode == false)
+                foreach (ObjectViewCard card1 in cardListRegular)
+                    if (card1.containedObject == dataObject)
+                    {
+                        card = card1;
+                        playExplosion = true;
+                    }
+            if (playExplosion == true)
+            {
+                GameObject obj = Instantiate(explosionPrefab);
+                obj.transform.position = card.transform.position;
+                ParticleSystem particles = obj.GetComponent<ParticleSystem>();
+                SoundController.Instance.PlayKillAudio();
 
+                particles.Play();
+
+            }
+        } 
+      }
+    public void PlayGiftSparksAtObject(DataObject dataObject)
+    {
+        if (createKillEffect == true)
+        {
+            bool playEffect = false;
+            ObjectViewCard card = null;
+            if (focusViewMode == true)
+                foreach (ObjectViewCard card1 in cardListFocusView)
+                    if (card1.containedObject == dataObject)
+                    {
+                        card = card1;
+                        playEffect = true;
+                    }
+            if (focusViewMode == false)
+                foreach (ObjectViewCard card1 in cardListRegular)
+                    if (card1.containedObject == dataObject)
+                    {
+                        card = card1;
+                        playEffect = true;
+                    }
+            if (playEffect == true)
+            {
+                GameObject obj = Instantiate(giftPrefab);
+                obj.transform.position = card.transform.position;
+                ParticleSystem particles = obj.GetComponent<ParticleSystem>();
+                SoundController.Instance.PlayGiftAudio();
+
+                particles.Play();
+
+            }
+        }
+    }
     public void ReloadObjectCards()
     { 
         data = DataController.Instance; 

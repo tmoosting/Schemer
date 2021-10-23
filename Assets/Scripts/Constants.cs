@@ -58,6 +58,7 @@ public class Constants : MonoBehaviour
 
 
     // Power Calculation
+    public float SCHEME_COOPERATION_POWER_PERCENTAGE_BONUS = 0.1f;
     public float PRIMARY_OWNER_POWERSHARE = 0.5f;
     public float GENERIC_OWNER_AVERAGE_POWER_POTENTIAL = 120f;
     public float GENERIC_COOPERATIVE_AVERAGE_POWER_POTENTIAL = 100f;

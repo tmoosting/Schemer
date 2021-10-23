@@ -7,7 +7,7 @@ public class DataChanger : MonoBehaviour
 
     bool transferringMaterial = false;
 
-
+    bool limitReloadCardObject = false;
 
 
 
@@ -15,6 +15,7 @@ public class DataChanger : MonoBehaviour
 
     public void KillDataObject(DataObject dataObject)
     { 
+
         if (dataObject.dataType == DataObject.DataType.Character)
             KillCharacter((Character)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Material)
@@ -23,7 +24,8 @@ public class DataChanger : MonoBehaviour
             KillScheme((Scheme)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Relation)
             RemoveDataObject((Relation)dataObject);
-        DataController.Instance.powerCalculator.CalculatePowers();
+        if (limitReloadCardObject == false)
+            DataController.Instance.powerCalculator.CalculatePowers();
     }
    
    
@@ -31,8 +33,10 @@ public class DataChanger : MonoBehaviour
     public void GiftMaterial(DataObject receiverObject, string materialSubtype)
     {
         Material.MaterialSubtype subType = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), materialSubtype);
+        UIController.Instance.PlayGiftSparksAtObject(receiverObject);
         DataController.Instance.CreateStandardMaterial(subType, receiverObject);
-        DataController.Instance.powerCalculator.CalculatePowers();
+        if (limitReloadCardObject == false)
+            DataController.Instance.powerCalculator.CalculatePowers();
     }
 
     public void ClaimDataObject(DataObject receiverObject,  DataObject claimedObject)
@@ -87,8 +91,9 @@ public class DataChanger : MonoBehaviour
                 }
             }
         }
-        DataController.Instance.powerCalculator.CalculatePowers();
-        UIController.Instance.ReloadObjectCards();
+        if (limitReloadCardObject == false)
+            DataController.Instance.powerCalculator.CalculatePowers();
+     
     }
 
     public void CreateCooperation(DataObject primaryObject, DataObject secondaryObject)
@@ -127,8 +132,9 @@ public class DataChanger : MonoBehaviour
 
         // create new one
         DataController.Instance.CreateRelation(Relation.RelationType.Cooperative, primaryObject, secondaryObject);
-        DataController.Instance.powerCalculator.CalculatePowers();
-        UIController.Instance.ReloadObjectCards();
+        if (limitReloadCardObject == false)
+            DataController.Instance.powerCalculator.CalculatePowers();
+     
     }
 
     public void BreakCooperationNeutral(DataObject primaryObject, DataObject secondaryObject)
@@ -139,8 +145,9 @@ public class DataChanger : MonoBehaviour
             Debug.LogWarning("Why do " + primaryObject.ID + " and  " + secondaryObject.ID + " have a non-coop REL?: " + relation.ID);
 
         RemoveDataObject(relation);
-        DataController.Instance.powerCalculator.CalculatePowers();
-        UIController.Instance.ReloadObjectCards();
+        if (limitReloadCardObject == false)
+            DataController.Instance.powerCalculator.CalculatePowers();
+    
     }
 
 
@@ -157,8 +164,9 @@ public class DataChanger : MonoBehaviour
         StealCooperativePower(primaryObject, secondaryObject);
 
         RemoveDataObject(relation);
-        DataController.Instance.powerCalculator.CalculatePowers();
-        UIController.Instance.ReloadObjectCards();
+        if (limitReloadCardObject == false)
+            DataController.Instance.powerCalculator.CalculatePowers();
+       
     }
 
     void StealCooperativePower (DataObject stealer, DataObject victim)
@@ -180,8 +188,8 @@ public class DataChanger : MonoBehaviour
         DataController.Instance.CreateRelation(Relation.RelationType.Ownership, newOwner, transferredMaterial);
 
         transferringMaterial = false;
-
-        UIController.Instance.ReloadObjectCards();
+        if (limitReloadCardObject == false)
+            UIController.Instance.ReloadObjectCards();
     }
   
 
@@ -198,10 +206,10 @@ public class DataChanger : MonoBehaviour
         DataController.Instance.CreateRelation(Relation.RelationType.Ownership, newOwner, transferredScheme);
 
         if (demoteOldOwner == true)        
-            DataController.Instance.CreateRelation(Relation.RelationType.Cooperative, oldOwner, transferredScheme); 
-        
+            DataController.Instance.CreateRelation(Relation.RelationType.Cooperative, oldOwner, transferredScheme);
 
-        UIController.Instance.ReloadObjectCards();
+        if (limitReloadCardObject == false)
+            UIController.Instance.ReloadObjectCards();
     }
 
 
@@ -504,7 +512,8 @@ public class DataChanger : MonoBehaviour
         foreach (Relation relation in destroyedRelations)
             RemoveDataObject(relation);
 
-        UIController.Instance.ReloadObjectCards();
+        if (limitReloadCardObject == false)
+            UIController.Instance.ReloadObjectCards();
 
         //if (dataObject.dataType == DataObject.DataType.Scheme)
         //    if (destroyedMaterials.Count > 0)

@@ -128,7 +128,7 @@ public class ActionWindow : MonoBehaviour
                     breakNeutralButton.gameObject.SetActive(false);
                     breakHostileButton.gameObject.SetActive(false);
                     breakCoopText.gameObject.SetActive(false);
-                    createCoopText.text = "CREATE COOP: " + ui.primarySelectedObject.ID + " WITH " + ui.secondarySelectedObject.ID;
+                    createCoopText.text = "CREATE COOP: " + ui.primarySelectedObject.ID + " - " + ui.secondarySelectedObject.ID;
                 }
                 else if (coopRelationExists == true)
                 {
@@ -138,7 +138,7 @@ public class ActionWindow : MonoBehaviour
                     breakNeutralButton.gameObject.SetActive(true);
                 //    breakHostileButton.gameObject.SetActive(true);
                     breakCoopText.gameObject.SetActive(true);
-                    breakCoopText.text = "BREAK COOP:"+  ui.primarySelectedObject.ID + " WITH " + ui.secondarySelectedObject.ID;
+                    breakCoopText.text = "BREAK COOP: "+  ui.primarySelectedObject.ID + " - " + ui.secondarySelectedObject.ID;
                 } 
             }
         }
@@ -164,8 +164,9 @@ public class ActionWindow : MonoBehaviour
 
     public void ClickDestroyButton()
     {
+        UIController.Instance.PlayExplosionAtObject(UIController.Instance.primarySelectedObject);
         DataController.Instance.changer.KillDataObject(UIController.Instance.primarySelectedObject);
-        UpdateActionWindow();
+    //    UpdateActionWindow();
     }
 
     public void ClickGiftButton()
