@@ -22,9 +22,7 @@ public class PowerCalculator : MonoBehaviour
 
     public void ClickCalculateButton()
     {
-        CalculatePowers();
-        //       UpdatePowerTexts();
-        UIController.Instance.ReloadObjectCards();
+        CalculatePowers(); 
     }
   
 
@@ -46,6 +44,8 @@ public class PowerCalculator : MonoBehaviour
 
         foreach (Character cha in data.characterList)
             CalculatePowerFromSchemes(cha);
+
+        UIController.Instance.ReloadObjectCards();
     }
 
    

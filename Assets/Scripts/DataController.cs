@@ -27,9 +27,12 @@ public class DataController : MonoBehaviour
     [HideInInspector]  public List<Scheme> schemeList = new List<Scheme>();
     [HideInInspector]  public List<Relation> relationList = new List<Relation>();
 
+    // template for manual material create
+    Dictionary<string, string> materialDictionaryTemplate = new Dictionary<string, string>();
 
     // Private 
     int createdRelationsAmount = 0;
+    int createdMaterialAmount = 0;
 
 
     private void Awake()
@@ -51,12 +54,8 @@ public class DataController : MonoBehaviour
     void AutoCreate()
     { 
         CreateObjectsFromDatabase(); 
-        CreateRelationsFromObjects();
-      
+        CreateRelationsFromObjects();      
     }
-
-  
-   
 
     void CreateObjectsFromDatabase()
     {
@@ -68,7 +67,11 @@ public class DataController : MonoBehaviour
             foreach (string field in linker.GetFieldNamesForTable("Character"))            
                 fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Character", field, id));            
             characterList.Add(new Character(fieldNamesAndValues));
-        } 
+        }
+
+        foreach (string field in linker.GetFieldNamesForTable("Material"))
+            materialDictionaryTemplate.Add(field, "");
+
         foreach (string id in linker.GetIDValuesForTable("Material"))
         {
             Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
@@ -101,7 +104,6 @@ public class DataController : MonoBehaviour
             cha.CreateCharacterRelations();
         foreach (Scheme ins in schemeList)
             ins.CreateSchemeRelations();
-
       
     }
     void VerifyDuplicateRelations()
@@ -128,6 +130,33 @@ public class DataController : MonoBehaviour
         relationList.Add(relation);
     }
 
+    // standard means no attribute bonuses
+    public void CreateStandardMaterial(Material.MaterialSubtype subType, DataObject owner)
+    {
+        createdMaterialAmount++;
+        Dictionary<string, string> creationDict = new Dictionary<string, string>();
+        foreach (string keyString in materialDictionaryTemplate.Keys)
+            creationDict.Add(keyString, "");
+
+        string idString = "";
+        if (createdMaterialAmount <= 9)
+            idString = "MATC00" + createdMaterialAmount;
+        else if (createdMaterialAmount <= 99)
+            idString = "MATC0" + createdMaterialAmount;
+        else
+            idString = "MATC" + createdMaterialAmount;
+
+        creationDict["ID"] = idString;
+        creationDict["Name"] = subType.ToString()+ createdMaterialAmount.ToString();
+        creationDict["Subtype"] = subType.ToString();
+        creationDict["Type"] = Constants.Instance.materialTyping[subType].ToString(); 
+
+        Material material = new Material(creationDict);
+        material.totalPower = Constants.Instance.materialSubtypeBaseValues[subType];
+        materialList.Add(material);
+        CreateRelation(Relation.RelationType.Ownership, owner, material); 
+    }
+  
 
     // --------------- GET FUNCTIONS
 
@@ -200,6 +229,54 @@ public class DataController : MonoBehaviour
     }
     // --------------- GET OWNERSHIP
 
+    public DataObject GetOwnerOfMaterial(Material material)
+    {
+        DataObject returnObject = null;
+        foreach (Relation rel in relationList)        
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.secondaryDataObject == material)
+                    returnObject = rel.primaryDataObject;
+        return returnObject;        
+    }
+    public Character GetCharacterOwnerOfScheme(Scheme scheme)
+    {
+        Character returnObject = null;
+        List<Character> owners = new List<Character>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.secondaryDataObject == scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Character)
+                       owners.Add((Character)rel.primaryDataObject);
+
+        float highestPower = 0f;
+        foreach (Character cha in owners)        
+            if (cha.totalPower > highestPower)
+            {
+                highestPower = cha.totalPower;
+                returnObject = cha;
+            } 
+        return returnObject;
+    }
+    public Scheme GetSchemeOwnerOfScheme(Scheme scheme)
+    {
+        Scheme returnObject = null;
+        List<Scheme> owners = new List<Scheme>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.secondaryDataObject == scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                        owners.Add((Scheme)rel.primaryDataObject);
+
+        float highestPower = 0f;
+        foreach (Scheme sch in owners)
+            if (sch.totalPower > highestPower)
+            {
+                highestPower = sch.totalPower;
+                returnObject = sch;
+            }
+        return returnObject;
+    }
+  
     public List<Character> GetCharactersOwningScheme(Scheme scheme)
     {
         List<Character> returnList = new List<Character>();
@@ -236,6 +313,45 @@ public class DataController : MonoBehaviour
                     if (rel.secondaryDataObject.dataType == DataObject.DataType.Character)
                         returnList.Add((Character)rel.secondaryDataObject);
         return returnList;
+    }
+    public Character GetNextSchemeOwnerCharacter (Scheme scheme)
+    {
+        Character returnCharacter = null;
+        // find next most powerful member in coop, then ownees as owner
+        if (GetCharactersOwningScheme(scheme).Count > 1)
+        {
+            float highestPower = 0f;
+            foreach (Character character in GetCharactersOwningScheme(scheme))            
+                if (character.totalPower > highestPower)                
+                    if (GetCharacterOwnerOfScheme(scheme) != character)
+                    {
+                        highestPower = character.totalPower;
+                        returnCharacter = character;
+                    }  
+        }
+        else if (GetCharactersCoopedByScheme(scheme).Count != 0)
+        {
+            float highestPower = 0f;
+            foreach (Character character in GetCharactersCoopedByScheme(scheme))
+                if (character.totalPower > highestPower)
+                {
+                    highestPower = character.totalPower;
+                    returnCharacter = character;
+                }
+        }
+        else if (GetCharactersOwnedByScheme(scheme).Count != 0)
+        {
+            float highestPower = 0f;
+            foreach (Character character in GetCharactersOwnedByScheme(scheme))
+                if (character.totalPower > highestPower)
+                {
+                    highestPower = character.totalPower;
+                    returnCharacter = character;
+                }
+        }
+        else
+            Debug.LogWarning("Could not find next owner for Scheme: " + scheme.name);
+        return returnCharacter;
     }
     public List<Material> GetMaterialsOwnedByCharacter(Character character)
     {
@@ -485,9 +601,15 @@ public class DataController : MonoBehaviour
 
 
 
-
-
-
+    public bool DoesRelationExistBetweenObjects(DataObject primaryObject, DataObject secondaryObject)
+    {
+        bool returnBool = false;
+        foreach (Relation rel in relationList)
+            if ((rel.primaryDataObject == primaryObject && rel.secondaryDataObject == secondaryObject) ||
+               (rel.primaryDataObject == secondaryObject && rel.secondaryDataObject == primaryObject))
+                returnBool = true;
+        return returnBool;
+    }
 
     public bool IsFirstObjectOwnerOfSecondObject (DataObject firstObject, DataObject secondObject)
     {

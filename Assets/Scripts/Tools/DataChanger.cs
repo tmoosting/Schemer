@@ -8,38 +8,6 @@ public class DataChanger : MonoBehaviour
     bool transferringMaterial = false;
 
 
-    // GENERAL FUNCTIONS 
-     
-
-
-    public void TransferMaterialOwnership(DataObject oldOwner, DataObject newOwner, Material transferredMaterial)
-    {
-        transferringMaterial = true;
-        // Destroy previous ownership relation
-        DestroyRelation(DataController.Instance.GetRelationWithTheseTwoDataObjects(oldOwner, transferredMaterial));
-
-        // Create new ownership relation
-        DataController.Instance.CreateRelation(Relation.RelationType.Ownership, newOwner, transferredMaterial);
-
-        transferringMaterial = false;
-
-        UIController.Instance.ReloadObjectCards();
-    }
-
-    public void TransferSchemeOwnership(DataObject oldOwner, DataObject newOwner, Scheme transferredScheme)
-    {
-        // Destroy previous ownership relation
-        DestroyRelation(DataController.Instance.GetRelationWithTheseTwoDataObjects(oldOwner, transferredScheme));
-
-        // Destroy previous relation between new owner and scheme, if any
-        if (DataController.Instance.GetRelationWithTheseTwoDataObjects(newOwner, transferredScheme) != null)
-            DestroyRelation(DataController.Instance.GetRelationWithTheseTwoDataObjects(newOwner, transferredScheme));
-
-        // Create new ownership relation
-        DataController.Instance.CreateRelation(Relation.RelationType.Ownership, newOwner, transferredScheme);
-        UIController.Instance.ReloadObjectCards();
-    }
-
 
 
 
@@ -55,6 +23,7 @@ public class DataChanger : MonoBehaviour
             KillScheme((Scheme)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Relation)
             RemoveDataObject((Relation)dataObject);
+        DataController.Instance.powerCalculator.CalculatePowers();
     }
    
    
@@ -62,31 +31,177 @@ public class DataChanger : MonoBehaviour
     public void GiftMaterial(DataObject receiverObject, string materialSubtype)
     {
         Material.MaterialSubtype subType = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), materialSubtype);
-            
-        // create standard material object of that subtype (determine type from it)
-        // create ownership relation
+        DataController.Instance.CreateStandardMaterial(subType, receiverObject);
+        DataController.Instance.powerCalculator.CalculatePowers();
     }
 
-    public void ChangeMaterialOwnership(DataObject receiverObject,  DataObject material)
+    public void ClaimDataObject(DataObject receiverObject,  DataObject claimedObject)
     {
-        // destroy relation that indicated ownership of material;
-        // create relation for new ownership
+        // what if scheme claims its only owner? 
+        if (claimedObject.dataType == DataObject.DataType.Character && receiverObject.dataType == DataObject.DataType.Scheme)
+        {
+            if (DataController.Instance.GetCharactersOwningScheme((Scheme)receiverObject).Count ==1)
+            {
+                if (DataController.Instance.GetCharactersOwningScheme((Scheme)receiverObject)[0] == (Character)claimedObject)
+                {                  
+                    DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Scheme)receiverObject);
 
+                    // destroy prev relation
+                    RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(nextOwner, receiverObject));
 
+                    // create new one
+                    DataController.Instance.CreateRelation(Relation.RelationType.Ownership, nextOwner, receiverObject);              
+                    
+                } 
+                DataController.Instance.CreateRelation(Relation.RelationType.Ownership, receiverObject, claimedObject);
+            }
+            else            
+                DataController.Instance.CreateRelation(Relation.RelationType.Ownership, receiverObject, claimedObject); 
+        }
+        else if (claimedObject.dataType == DataObject.DataType.Character)
+        { 
+            DataController.Instance.CreateRelation(Relation.RelationType.Ownership, receiverObject, claimedObject); 
+        }
+        else if (claimedObject.dataType == DataObject.DataType.Material)
+        {
+            Material claimedMaterial = (Material)claimedObject;
+            DataObject oldOwner = DataController.Instance.GetOwnerOfMaterial(claimedMaterial);
+            TransferMaterialOwnership(oldOwner, receiverObject, claimedMaterial);
+        }
+        else if (claimedObject.dataType == DataObject.DataType.Scheme)
+        {
+            Scheme claimedScheme = (Scheme)claimedObject;
+            if (receiverObject.dataType == DataObject.DataType.Character)
+            {
+                DataObject oldOwner = DataController.Instance.GetCharacterOwnerOfScheme(claimedScheme);
+                TransferSchemeOwnership(oldOwner, receiverObject, claimedScheme, true);
+            }
+            else if (receiverObject.dataType == DataObject.DataType.Scheme)
+            {
+                DataObject oldOwner = DataController.Instance.GetSchemeOwnerOfScheme(claimedScheme);
+                if (oldOwner != null)
+                     TransferSchemeOwnership(oldOwner, receiverObject, claimedScheme, true);
+                else
+                {
+                    DataController.Instance.CreateRelation(Relation.RelationType.Ownership, receiverObject, claimedScheme); 
+                }
+            }
+        }
+        DataController.Instance.powerCalculator.CalculatePowers();
+        UIController.Instance.ReloadObjectCards();
+    }
 
+    public void CreateCooperation(DataObject primaryObject, DataObject secondaryObject)
+    {
+        DataController data = DataController.Instance;
+        // if primary owns secondary, create new ownership IF primary is character
+        if (data.IsFirstObjectOwnerOfSecondObject(primaryObject, secondaryObject) == true)
+        {
+            if  (primaryObject.dataType == DataObject.DataType.Character)
+            {
+                // secobj is sch because cha-cha not enabled in action window
+                DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Scheme)secondaryObject);
+                // destroy new owner's prev relation
+                RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(nextOwner, secondaryObject));
+                // create new owner relation
+                DataController.Instance.CreateRelation(Relation.RelationType.Ownership, nextOwner, secondaryObject);
+            }            
+        }
+
+        // else if secondary owns primary
+        else if (data.IsFirstObjectOwnerOfSecondObject(secondaryObject, primaryObject) == true)
+        {
+            if (secondaryObject.dataType == DataObject.DataType.Character)
+            {
+                // secobj is sch because cha-cha not enabled in action window
+                DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Scheme)primaryObject);
+                // destroy new owner's prev relation
+                RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(nextOwner, primaryObject));
+                // create new owner relation
+                DataController.Instance.CreateRelation(Relation.RelationType.Ownership, nextOwner, primaryObject);
+            }
+        }
+        // destroy prev relation if one already exists
+        if (data.DoesRelationExistBetweenObjects(primaryObject, secondaryObject) == true)
+            RemoveDataObject(data.GetRelationWithTheseTwoDataObjects(primaryObject, secondaryObject));
+
+        // create new one
+        DataController.Instance.CreateRelation(Relation.RelationType.Cooperative, primaryObject, secondaryObject);
+        DataController.Instance.powerCalculator.CalculatePowers();
+        UIController.Instance.ReloadObjectCards();
     }
 
     public void BreakCooperationNeutral(DataObject primaryObject, DataObject secondaryObject)
     {
         // destroy relevant relation
+        Relation relation = DataController.Instance.GetRelationWithTheseTwoDataObjects(primaryObject, secondaryObject);
+        if (relation.relationType != Relation.RelationType.Cooperative)
+            Debug.LogWarning("Why do " + primaryObject.ID + " and  " + secondaryObject.ID + " have a non-coop REL?: " + relation.ID);
 
+        RemoveDataObject(relation);
+        DataController.Instance.powerCalculator.CalculatePowers();
+        UIController.Instance.ReloadObjectCards();
     }
 
+
+    // DEPRECATED FOR NOW - USE MANUAL CLAIM-MATERIAL
     public void BreakCooperationHostile(DataObject primaryObject, DataObject secondaryObject)
     {
         // destroy relevant relation
         // some way to grab power / material for primaryObject
 
+        Relation relation = DataController.Instance.GetRelationWithTheseTwoDataObjects(primaryObject, secondaryObject);
+        if (relation.relationType != Relation.RelationType.Cooperative)
+            Debug.LogWarning("Why do " + primaryObject.ID + " and  " + secondaryObject.ID + " have a non-coop REL?: " + relation.ID);
+
+        StealCooperativePower(primaryObject, secondaryObject);
+
+        RemoveDataObject(relation);
+        DataController.Instance.powerCalculator.CalculatePowers();
+        UIController.Instance.ReloadObjectCards();
+    }
+
+    void StealCooperativePower (DataObject stealer, DataObject victim)
+    {
+        Debug.Log(stealer.ID + " steals from " + victim.ID);
+    } 
+ 
+
+
+    // PURPOSE FUNCTIONS 
+
+    public void TransferMaterialOwnership(DataObject oldOwner, DataObject newOwner, Material transferredMaterial)
+    {
+        transferringMaterial = true;
+        // Destroy previous ownership relation
+        RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(oldOwner, transferredMaterial));
+
+        // Create new ownership relation
+        DataController.Instance.CreateRelation(Relation.RelationType.Ownership, newOwner, transferredMaterial);
+
+        transferringMaterial = false;
+
+        UIController.Instance.ReloadObjectCards();
+    }
+  
+
+    public void TransferSchemeOwnership(DataObject oldOwner, DataObject newOwner, Scheme transferredScheme, bool demoteOldOwner)
+    {
+        // Destroy previous ownership relation
+        RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(oldOwner, transferredScheme));
+
+        // Destroy previous relation between new owner and scheme, if any
+        if (DataController.Instance.GetRelationWithTheseTwoDataObjects(newOwner, transferredScheme) != null)
+            RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(newOwner, transferredScheme));
+
+        // Create new ownership relation
+        DataController.Instance.CreateRelation(Relation.RelationType.Ownership, newOwner, transferredScheme);
+
+        if (demoteOldOwner == true)        
+            DataController.Instance.CreateRelation(Relation.RelationType.Cooperative, oldOwner, transferredScheme); 
+        
+
+        UIController.Instance.ReloadObjectCards();
     }
 
 
@@ -179,31 +294,31 @@ public class DataChanger : MonoBehaviour
                 otherOwners.Remove(character);
                 if (otherOwners.Count > 1)
                 {
-                    TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherOwners), distSch);
+                    TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherOwners), distSch, false);
                 }
                 else if (otherOwners.Count == 1)
                 {
-                    TransferSchemeOwnership(character, otherOwners[0], distSch);
+                    TransferSchemeOwnership(character, otherOwners[0], distSch, false);
                 }
                 else if (otherOwners.Count == 0)
                 {
                     if (otherCoops.Count > 1)
                     {
-                        TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherCoops), distSch);
+                        TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherCoops), distSch, false);
                     }
                     else if (otherCoops.Count == 1)
                     { 
-                        TransferSchemeOwnership(character, otherCoops[0], distSch);
+                        TransferSchemeOwnership(character, otherCoops[0], distSch, false);
                     }
                     else if (otherCoops.Count == 0)
                     {
                         if (otherOwnees.Count > 1)
                         {
-                            TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherOwnees), distSch);
+                            TransferSchemeOwnership(character, data.GetMostPowerfulDataObjectFromCharacterList(otherOwnees), distSch, false);
                         }
                         else if (otherOwnees.Count == 1)
                         {
-                            TransferSchemeOwnership(character, otherOwnees[0], distSch);
+                            TransferSchemeOwnership(character, otherOwnees[0], distSch, false);
                         }
                         else if (otherOwnees.Count == 0)
                         {
@@ -387,7 +502,7 @@ public class DataChanger : MonoBehaviour
          
 
         foreach (Relation relation in destroyedRelations)
-            DestroyRelation(relation);
+            RemoveDataObject(relation);
 
         UIController.Instance.ReloadObjectCards();
 
@@ -427,10 +542,6 @@ public class DataChanger : MonoBehaviour
         foreach (Scheme sch in sweepedSchemes)
             RemoveDataObject(sch);
     }
-    public void DestroyRelation(Relation relation)
-    {
-         RemoveDataObject(relation);
-      //   DataController.Instance.relationList.Remove(relation);
-    }
+   
 
 }

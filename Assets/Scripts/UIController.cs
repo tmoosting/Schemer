@@ -109,6 +109,8 @@ public class UIController : MonoBehaviour
             secondarySelectMode = true;
             foreach (ObjectViewCard card in cardListRegular)            
                 card.SetSelectButtonColor(colorSelectButtonSecondary);
+            foreach (ObjectViewCard card in cardListFocusView)
+                card.SetSelectButtonColor(colorSelectButtonSecondary);
         }
         if (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftControl) ||
         Input.GetKeyUp(KeyCode.RightShift) || Input.GetKeyUp(KeyCode.RightControl) ||
@@ -116,6 +118,8 @@ public class UIController : MonoBehaviour
         {
             secondarySelectMode = false;
             foreach (ObjectViewCard card in cardListRegular)
+                card.SetSelectButtonColor(colorSelectButtonNormal);
+            foreach (ObjectViewCard card in cardListFocusView)
                 card.SetSelectButtonColor(colorSelectButtonNormal);
         }
     }
@@ -133,7 +137,7 @@ public class UIController : MonoBehaviour
 
 
     public void ReloadObjectCards()
-    {
+    { 
         data = DataController.Instance; 
         if (focusViewMode == false)
             RecreateRegularViewCards();
@@ -369,6 +373,7 @@ public class UIController : MonoBehaviour
     }
     public void SelectObject(DataObject dataObject)
     {
+        
         primarySelectedObject = dataObject;
         textPrimarySelectedObject.gameObject.SetActive(true); 
         textPrimarySelectedObject.text = "PRIMARY: " + dataObject.ID + " - "+ dataObject.name;
@@ -390,7 +395,10 @@ public class UIController : MonoBehaviour
         foreach (ObjectViewCard carrd in cardListFocusView)
             carrd.SetBodyColor();
 
-        actionWindow.UpdateActionWindow();
+        if (dataObject == secondarySelectedObject)
+            DeselectSecondarySelectionObject();
+        else   // because update included in deselectsecondary function 
+          actionWindow.UpdateActionWindow();
     }
     public void SecondarySelectObject(DataObject dataObject)
     {
@@ -407,7 +415,12 @@ public class UIController : MonoBehaviour
         textPrimarySelectedObject.gameObject.SetActive(false); 
         focusViewSwitch.SetActive(false);
         focusViewLabel.SetActive(false);
-        actionWindow.gameObject.SetActive(false);
- 
+        actionWindow.gameObject.SetActive(false); 
+    }
+    public void DeselectSecondarySelectionObject()
+    { 
+        secondarySelectedObject = null;
+        textSecondarySelectedObject.gameObject.SetActive(false);
+        actionWindow.UpdateActionWindow();
     }
 }

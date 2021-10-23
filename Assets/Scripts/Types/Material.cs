@@ -41,7 +41,7 @@ public class Material : DataObject
  //   public float totalPower;  now set in DataObject parent
 
 
-    // CONSTRUCTOR --- DATABASE
+    // CONSTRUCTOR --- DATABASE and MANUAL
     public Material(Dictionary<string, string> dict)
     {
         data = DataController.Instance;
@@ -65,12 +65,5 @@ public class Material : DataObject
     }
 
 
-    // CONSTRUCTOR --- AUTOCREATE
-    public Material(string id, MaterialType type, MaterialSubtype subType)
-    {
-        this.ID = id;
-        dataType = DataType.Material; 
-        materialType = type;
-        materialSubtype = subType;
-    }
+   
 }

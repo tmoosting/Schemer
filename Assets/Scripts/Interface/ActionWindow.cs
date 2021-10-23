@@ -13,13 +13,14 @@ public class ActionWindow : MonoBehaviour
     public Button destroyButton;
     public Button giftButton;
     public Button claimButton;
+    public Button createCoopButton;
     public Button breakNeutralButton;
     public Button breakHostileButton;
     public TextMeshProUGUI destroyText;
     public TextMeshProUGUI giftText;
     public TextMeshProUGUI claimText;
-    public TextMeshProUGUI breakNeutralText;
-    public TextMeshProUGUI breakHostileText;
+    public TextMeshProUGUI createCoopText; 
+    public TextMeshProUGUI breakCoopText;
     public CustomDropdown giftDropdown;
 
      
@@ -66,15 +67,31 @@ public class ActionWindow : MonoBehaviour
 
             if (primaryType == DataObject.DataType.Character && secondaryType == DataObject.DataType.Character)
             {
-                //disable
+                //disable, cha cannot own cha
                 claimButton.gameObject.SetActive(false);
                 claimText.gameObject.SetActive(false);
             }
             else if (primaryType == DataObject.DataType.Character || primaryType == DataObject.DataType.Scheme)
             {
-                claimButton.gameObject.SetActive(true);
-                claimText.gameObject.SetActive(true);
-                claimText.text = ui.primarySelectedObject.ID + " CLAIMS " + ui.secondarySelectedObject.ID;
+                // check that ownership does not already exist
+                bool existingOwnership = false;
+                foreach (Relation rel in DataController.Instance.relationList)   
+                    if (rel.relationType == Relation.RelationType.Ownership)
+                        if (rel.primaryDataObject == ui.primarySelectedObject && rel.secondaryDataObject == ui.secondarySelectedObject)
+                            existingOwnership = true;
+                
+                if (existingOwnership == false)
+                {
+                    claimButton.gameObject.SetActive(true);
+                    claimText.gameObject.SetActive(true);
+                    claimText.text = ui.primarySelectedObject.ID + " CLAIMS " + ui.secondarySelectedObject.ID;
+                }
+                else
+                {
+                    claimButton.gameObject.SetActive(false);
+                    claimText.gameObject.SetActive(true);
+                    claimText.text = ui.primarySelectedObject.ID + " ALREADY OWNS " + ui.secondarySelectedObject.ID;
+                }
             }
             else
             {
@@ -83,38 +100,57 @@ public class ActionWindow : MonoBehaviour
                 claimText.gameObject.SetActive(false);
             }
 
+            // CREATECOOP
             // BREAKNEUTRAL 
             // BREAKHOSTILE
 
             if ((primaryType == DataObject.DataType.Character && secondaryType == DataObject.DataType.Character) ||
                 primaryType == DataObject.DataType.Material || secondaryType == DataObject.DataType.Material)
             {
-                //disable
+                //disable, none of these configurations allowed for either create or break
+                createCoopButton.gameObject.SetActive(false);
+                createCoopButton.gameObject.SetActive(false);
                 breakNeutralButton.gameObject.SetActive(false);
                 breakHostileButton.gameObject.SetActive(false);
-                breakNeutralText.gameObject.SetActive(false);
-                breakHostileText.gameObject.SetActive(false);
-
+                createCoopText.gameObject.SetActive(false);
+                breakCoopText.gameObject.SetActive(false); 
             }
             else
             {
-                // all other cases viable
-                breakNeutralButton.gameObject.SetActive(true);
-                breakHostileButton.gameObject.SetActive(true);
-                breakNeutralText.gameObject.SetActive(true);
-                breakHostileText.gameObject.SetActive(true);
-                breakNeutralText.text = ui.primarySelectedObject.ID + " BREAK NEUTRAL WITH " + ui.secondarySelectedObject.ID;
-                breakHostileText.text = ui.primarySelectedObject.ID + " BREAK HOSTILE WITH " + ui.secondarySelectedObject.ID;
+
+                bool coopRelationExists = DataController.Instance.IsFirstObjectCoopWithSecondObject(ui.primarySelectedObject, ui.secondarySelectedObject);
+               
+                if (coopRelationExists == false)
+                {
+                    // CREATE  
+                    createCoopButton.gameObject.SetActive(true);
+                    createCoopText.gameObject.SetActive(true);
+                    breakNeutralButton.gameObject.SetActive(false);
+                    breakHostileButton.gameObject.SetActive(false);
+                    breakCoopText.gameObject.SetActive(false);
+                    createCoopText.text = "CREATE COOP: " + ui.primarySelectedObject.ID + " WITH " + ui.secondarySelectedObject.ID;
+                }
+                else if (coopRelationExists == true)
+                {
+                    // BREAK 
+                    createCoopButton.gameObject.SetActive(false);
+                    createCoopText.gameObject.SetActive(false);
+                    breakNeutralButton.gameObject.SetActive(true);
+                //    breakHostileButton.gameObject.SetActive(true);
+                    breakCoopText.gameObject.SetActive(true);
+                    breakCoopText.text = "BREAK COOP:"+  ui.primarySelectedObject.ID + " WITH " + ui.secondarySelectedObject.ID;
+                } 
             }
         }
         else
         {
             claimButton.gameObject.SetActive(false);
             claimText.gameObject.SetActive(false);
+            createCoopButton.gameObject.SetActive(false);
             breakNeutralButton.gameObject.SetActive(false);
             breakHostileButton.gameObject.SetActive(false);
-            breakNeutralText.gameObject.SetActive(false);
-            breakHostileText.gameObject.SetActive(false);
+            createCoopText.gameObject.SetActive(false);
+            breakCoopText.gameObject.SetActive(false);
         }
      
 
@@ -129,28 +165,37 @@ public class ActionWindow : MonoBehaviour
     public void ClickDestroyButton()
     {
         DataController.Instance.changer.KillDataObject(UIController.Instance.primarySelectedObject);
+        UpdateActionWindow();
     }
 
     public void ClickGiftButton()
     {
         DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);
+        UpdateActionWindow();
     }
 
     public void ClickClaimButton()
     {
-        DataController.Instance.changer.ChangeMaterialOwnership(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
+        DataController.Instance.changer.ClaimDataObject(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
+        UpdateActionWindow();
     }
-
+    public void ClickCreateCoopButton()
+    {
+        DataController.Instance.changer.CreateCooperation(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
+        UpdateActionWindow();
+    }
     public void ClickBreakNeutralButton()
     {
         DataController.Instance.changer.BreakCooperationNeutral(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
+        UpdateActionWindow();
     }
 
     public void ClickBreakHostileButton()
     {
         DataController.Instance.changer.BreakCooperationHostile(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
+        UpdateActionWindow();
     }
-   
+
 
 
 

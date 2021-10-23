@@ -6,13 +6,29 @@ public class Constants : MonoBehaviour
 {
     public static Constants Instance;
 
-  
+
+    public Dictionary<Material.MaterialSubtype, Material.MaterialType> materialTyping = new Dictionary<Material.MaterialSubtype, Material.MaterialType>();
 
     public Dictionary<Material.MaterialSubtype, float> materialSubtypeBaseValues = new Dictionary<Material.MaterialSubtype, float>();
+
+    
 
     private void Awake()
     {
         Instance = this;
+        materialTyping.Add (Material.MaterialSubtype.Land, Material.MaterialType.Constructive);
+        materialTyping.Add( Material.MaterialSubtype.City, Material.MaterialType.Constructive);
+        materialTyping.Add( Material.MaterialSubtype.Town, Material.MaterialType.Constructive);
+        materialTyping.Add( Material.MaterialSubtype.Village, Material.MaterialType.Constructive);
+        materialTyping.Add( Material.MaterialSubtype.Estate, Material.MaterialType.Constructive);
+        materialTyping.Add( Material.MaterialSubtype.Building, Material.MaterialType.Constructive);
+        materialTyping.Add( Material.MaterialSubtype.Tool, Material.MaterialType.Constructive);
+        materialTyping.Add( Material.MaterialSubtype.WarMachine, Material.MaterialType.Destructive);
+        materialTyping.Add( Material.MaterialSubtype.Fortification, Material.MaterialType.Destructive);
+        materialTyping.Add( Material.MaterialSubtype.SmallArms, Material.MaterialType.Destructive);
+        materialTyping.Add( Material.MaterialSubtype.Nugget, Material.MaterialType.Exchange);
+
+
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Land, SUBTYPE_VALUE_LAND); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.City, SUBTYPE_VALUE_CITY); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Town, SUBTYPE_VALUE_TOWN); 
