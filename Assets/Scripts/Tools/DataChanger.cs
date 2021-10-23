@@ -41,6 +41,9 @@ public class DataChanger : MonoBehaviour
 
     public void ClaimDataObject(DataObject receiverObject,  DataObject claimedObject)
     {
+
+        UIController.Instance.PlayGiftSparksAtObject(receiverObject);
+        UIController.Instance.PlayGiftSparksAtObject(claimedObject);
         // what if scheme claims its only owner? 
         if (claimedObject.dataType == DataObject.DataType.Character && receiverObject.dataType == DataObject.DataType.Scheme)
         {
@@ -93,7 +96,7 @@ public class DataChanger : MonoBehaviour
         }
         if (limitReloadCardObject == false)
             DataController.Instance.powerCalculator.CalculatePowers();
-     
+
     }
 
     public void CreateCooperation(DataObject primaryObject, DataObject secondaryObject)
