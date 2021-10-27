@@ -34,7 +34,7 @@ public class Institution : DataObject
     {
         data = DataController.Instance;
         fieldValueDict = dict;
-        base.dataType = DataObject.DataType.Scheme;
+        base.dataType = DataObject.DataType.Institution;
 
         ID = dict["ID"];
         name = dict["Name"];

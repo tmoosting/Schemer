@@ -212,7 +212,7 @@ public class DataController : MonoBehaviour
             Material mat = (Material)dataObject;
             return (int)mat.totalPower;
         }
-        else if (dataObject.dataType == DataObject.DataType.Scheme)
+        else if (dataObject.dataType == DataObject.DataType.Institution)
         {
             Institution sch = (Institution)dataObject;
             return (int)sch.totalPower;
@@ -293,7 +293,7 @@ public class DataController : MonoBehaviour
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.secondaryDataObject == scheme)
-                    if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Institution)
                         owners.Add((Institution)rel.primaryDataObject);
 
         float highestPower = 0f;
@@ -408,7 +408,7 @@ public class DataController : MonoBehaviour
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.primaryDataObject == character)
-                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Institution)
                         returnList.Add((Institution)rel.secondaryDataObject);
         return returnList;
     }
@@ -418,9 +418,9 @@ public class DataController : MonoBehaviour
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Cooperative)
             {
-                if (rel.primaryDataObject == character && rel.secondaryDataObject.dataType == DataObject.DataType.Scheme) 
+                if (rel.primaryDataObject == character && rel.secondaryDataObject.dataType == DataObject.DataType.Institution) 
                     returnList.Add((Institution)rel.secondaryDataObject);
-                if (rel.secondaryDataObject == character && rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                if (rel.secondaryDataObject == character && rel.primaryDataObject.dataType == DataObject.DataType.Institution)
                     returnList.Add((Institution)rel.primaryDataObject); 
             }                 
         return returnList;
@@ -431,7 +431,7 @@ public class DataController : MonoBehaviour
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.secondaryDataObject == character)
-                    if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Institution)
                         returnList.Add((Institution)rel.primaryDataObject);
         return returnList;
     }
@@ -444,7 +444,7 @@ public class DataController : MonoBehaviour
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.primaryDataObject == scheme)
-                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Institution)
                         returnList.Add((Institution)rel.secondaryDataObject);
         return returnList;
     }
@@ -455,10 +455,10 @@ public class DataController : MonoBehaviour
             if (rel.relationType == Relation.RelationType.Cooperative)
             {
                 if (rel.primaryDataObject == scheme)
-                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Institution)
                         returnList.Add((Institution)rel.secondaryDataObject);
                 if (rel.secondaryDataObject == scheme)
-                    if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Institution)
                         returnList.Add((Institution)rel.primaryDataObject);
             } 
         return returnList;
@@ -469,7 +469,7 @@ public class DataController : MonoBehaviour
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.secondaryDataObject == scheme)
-                    if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
+                    if (rel.primaryDataObject.dataType == DataObject.DataType.Institution)
                         returnList.Add((Institution)rel.primaryDataObject);
         return returnList;
     }

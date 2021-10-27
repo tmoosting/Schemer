@@ -6,6 +6,7 @@ public class Character : DataObject
 {
     DataController data;
 
+  
     // From database
     public int age;
     public float fearfulness;
@@ -16,7 +17,7 @@ public class Character : DataObject
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
 
     // Calculated In Runtime
-    public float powerPotential = 0f;
+    public float powerPotential = 10f;
     public float materialPower = 0f;
     public float schemesPower = 0f; 
 

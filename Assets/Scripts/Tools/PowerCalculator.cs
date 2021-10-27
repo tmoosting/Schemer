@@ -6,13 +6,18 @@ using TMPro;
 
 public class PowerCalculator : MonoBehaviour
 {
+    [Header ("Assigns")]
     public Button calculateButton;
     public TextMeshProUGUI charactersText;
     public TextMeshProUGUI institutionsText;
     public TextMeshProUGUI highscoresText;
+
+     
+
     DataController data;
     Constants constants;
-   
+
+
     private void Start()
     {
         data = DataController.Instance;
@@ -61,7 +66,7 @@ public class PowerCalculator : MonoBehaviour
 
     void CalculateCharacterPowerPotential(Character character)
     {  
-        float calculatedPower = 0f;
+        float calculatedPower = Constants.Instance.BASE_CHARACTER_POWER_POTENTIAL;
         calculatedPower += character.fearfulness;
         calculatedPower += character.charisma;
         calculatedPower += character.decisionMaking; 
@@ -110,9 +115,9 @@ public class PowerCalculator : MonoBehaviour
             scheme.namedOwneePower += cha.materialPower;
         }
 
-        scheme.genericOwnerPower += scheme.genericOwnerCount * constants.GENERIC_OWNER_AVERAGE_POWER_POTENTIAL;
-        scheme.genericCooperativePower += scheme.genericCooperativeCount * constants.GENERIC_COOPERATIVE_AVERAGE_POWER_POTENTIAL;
-        scheme.genericOwneePower += scheme.genericOwneeCount * constants.GENERIC_OWNEE_AVERAGE_POWER_POTENTIAL;
+        scheme.genericOwnerPower += scheme.genericOwnerCount * constants.BASE_CHARACTER_POWER_POTENTIAL;
+        scheme.genericCooperativePower += scheme.genericCooperativeCount * constants.BASE_CHARACTER_POWER_POTENTIAL;
+        scheme.genericOwneePower += scheme.genericOwneeCount * constants.BASE_CHARACTER_POWER_POTENTIAL;
 
         float calcPower =
             scheme.namedOwnerPower + scheme.namedCooperativePower + scheme.namedOwneePower +

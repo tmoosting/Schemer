@@ -22,6 +22,8 @@ public class ActionWindow : MonoBehaviour
     public TextMeshProUGUI createCoopText; 
     public TextMeshProUGUI breakCoopText;
     public CustomDropdown giftDropdown;
+    public SwitchManager giftCharactersSwitch;
+    public TextMeshProUGUI giftCharactersLabel;
 
      
     public void UpdateActionWindow()
@@ -37,7 +39,7 @@ public class ActionWindow : MonoBehaviour
             str1 += "KILL ";
         else if (primaryType == DataObject.DataType.Material)
             str1 += "DESTROY ";
-        else if (primaryType == DataObject.DataType.Scheme)
+        else if (primaryType == DataObject.DataType.Institution)
             str1 += "DISBAND ";     
         else if (primaryType == DataObject.DataType.Relation)
             str1 += "REMOVE ";
@@ -51,14 +53,25 @@ public class ActionWindow : MonoBehaviour
             giftButton.gameObject.SetActive(true);
             giftText.gameObject.SetActive(true);
             giftDropdown.gameObject.SetActive(true);
-            giftText.text = "GIFT TO " + ui.primarySelectedObject.ID;
-            // TODO: gift elements and logic
+            giftText.text = "GIFT TO " + ui.primarySelectedObject.ID; 
+            if (primaryType == DataObject.DataType.Institution)
+            { 
+                giftCharactersSwitch.gameObject.SetActive(true);
+                giftCharactersLabel.gameObject.SetActive(true);
+            }
+            else
+            {
+                giftCharactersSwitch.gameObject.SetActive(false);
+                giftCharactersLabel.gameObject.SetActive(false); 
+            }
         }
         else
         {
             giftButton.gameObject.SetActive(false);
             giftText.gameObject.SetActive(false);
             giftDropdown.gameObject.SetActive(false);
+            giftCharactersSwitch.gameObject.SetActive(false);
+            giftCharactersLabel.gameObject.SetActive(false);
         }
 
         if (ui.secondarySelectedObject != null)
@@ -72,7 +85,7 @@ public class ActionWindow : MonoBehaviour
                 claimButton.gameObject.SetActive(false);
                 claimText.gameObject.SetActive(false);
             }
-            else if (primaryType == DataObject.DataType.Character || primaryType == DataObject.DataType.Scheme)
+            else if (primaryType == DataObject.DataType.Character || primaryType == DataObject.DataType.Institution)
             {
                 // check that ownership does not already exist
                 bool existingOwnership = false;
@@ -172,7 +185,17 @@ public class ActionWindow : MonoBehaviour
 
     public void ClickGiftButton()
     {
-        DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);
+        if (UIController.Instance.primarySelectedObject.dataType != DataObject.DataType.Institution)
+        {
+            DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);
+        }
+        else if (UIController.Instance.primarySelectedObject.dataType == DataObject.DataType.Institution)
+        {
+            if (giftCharactersSwitch.isOn == true)            
+                DataController.Instance.changer.GiftMaterialToInstitutionNamedCharacters(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);            
+            else
+                DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);
+        }
         UpdateActionWindow();
     }
 

@@ -58,7 +58,7 @@ public class ObjectViewCard : MonoBehaviour
             LoadCharacterObject((Character)dataObject);
         if (dataObject.dataType == DataObject.DataType.Material)
             LoadMaterialObject((Material)dataObject);
-        if (dataObject.dataType == DataObject.DataType.Scheme)
+        if (dataObject.dataType == DataObject.DataType.Institution)
             LoadSchemeObject((Institution)dataObject);
         if (dataObject.dataType == DataObject.DataType.Relation)
             LoadRelationObject((Relation)dataObject);
@@ -83,7 +83,7 @@ public class ObjectViewCard : MonoBehaviour
         {
             CreateTextObject("Pow.Potential: "+ character.powerPotential);
             CreateTextObject("Pow.Material: "+ character.materialPower);
-            CreateTextObject("Pow.Schemes: "+ character.schemesPower);
+            CreateTextObject("Pow.Instes: "+ character.schemesPower);
             CreateTextObject("Pow.Total: "+ character.totalPower);
             CreateTextObject("----------------------------");
         }
@@ -154,7 +154,7 @@ public class ObjectViewCard : MonoBehaviour
             CreateTextObject("Pow.NamedOwnees: " + scheme.namedOwneePower); 
             CreateTextObject("Pow.GenerOwners: " + scheme.genericOwnerPower); 
             CreateTextObject("Pow.GenerCoops: " + scheme.genericCooperativePower); 
-            CreateTextObject("Pow.GenerOwnees: " + scheme.genericOwnerPower); 
+            CreateTextObject("Pow.GenerOwnees: " + scheme.genericOwneePower); 
             CreateTextObject("Pow.Material: " + scheme.materialPower); 
             CreateTextObject("Pow.Cooperation: " + scheme.cooperationPower); 
             CreateTextObject("Pow.Total: " + scheme.totalPower);
@@ -211,7 +211,7 @@ public class ObjectViewCard : MonoBehaviour
             color = UIController.Instance.colorViewCardCharacter;
         else if (containedObject.dataType == DataObject.DataType.Material)
             color = UIController.Instance.colorViewCardMaterial;
-        else if (containedObject.dataType == DataObject.DataType.Scheme)
+        else if (containedObject.dataType == DataObject.DataType.Institution)
             color = UIController.Instance.colorViewCardScheme;
         else if (containedObject.dataType == DataObject.DataType.Relation)
             color = UIController.Instance.colorViewCardRelation; 

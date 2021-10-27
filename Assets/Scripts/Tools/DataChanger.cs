@@ -20,7 +20,7 @@ public class DataChanger : MonoBehaviour
             KillCharacter((Character)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Material)
             RemoveDataObject((Material)dataObject);
-        else if (dataObject.dataType == DataObject.DataType.Scheme)
+        else if (dataObject.dataType == DataObject.DataType.Institution)
             KillScheme((Institution)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Relation)
             RemoveDataObject((Relation)dataObject);
@@ -38,6 +38,16 @@ public class DataChanger : MonoBehaviour
         if (limitReloadCardObject == false)
             DataController.Instance.powerCalculator.CalculatePowers();
     }
+    public void GiftMaterialToInstitutionNamedCharacters(DataObject receiverInstitution, string materialSubtype)
+    {
+        Material.MaterialSubtype subType = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), materialSubtype);
+        UIController.Instance.PlayGiftSparksAtObject(receiverInstitution);
+        foreach (Character character in DataController.Instance.GetSchemeCharacters((Institution)receiverInstitution))        
+            DataController.Instance.CreateStandardMaterial(subType, character);
+        if (limitReloadCardObject == false)
+            DataController.Instance.powerCalculator.CalculatePowers();
+    }
+
 
     public void ClaimDataObject(DataObject receiverObject,  DataObject claimedObject)
     {
@@ -45,7 +55,7 @@ public class DataChanger : MonoBehaviour
         UIController.Instance.PlayGiftSparksAtObject(receiverObject);
         UIController.Instance.PlayGiftSparksAtObject(claimedObject);
         // what if scheme claims its only owner? 
-        if (claimedObject.dataType == DataObject.DataType.Character && receiverObject.dataType == DataObject.DataType.Scheme)
+        if (claimedObject.dataType == DataObject.DataType.Character && receiverObject.dataType == DataObject.DataType.Institution)
         {
             if (DataController.Instance.GetCharactersOwningScheme((Institution)receiverObject).Count ==1)
             {
@@ -75,7 +85,7 @@ public class DataChanger : MonoBehaviour
             DataObject oldOwner = DataController.Instance.GetOwnerOfMaterial(claimedMaterial);
             TransferMaterialOwnership(oldOwner, receiverObject, claimedMaterial);
         }
-        else if (claimedObject.dataType == DataObject.DataType.Scheme)
+        else if (claimedObject.dataType == DataObject.DataType.Institution)
         {
             Institution claimedScheme = (Institution)claimedObject;
             if (receiverObject.dataType == DataObject.DataType.Character)
@@ -83,7 +93,7 @@ public class DataChanger : MonoBehaviour
                 DataObject oldOwner = DataController.Instance.GetCharacterOwnerOfScheme(claimedScheme);
                 TransferSchemeOwnership(oldOwner, receiverObject, claimedScheme, true);
             }
-            else if (receiverObject.dataType == DataObject.DataType.Scheme)
+            else if (receiverObject.dataType == DataObject.DataType.Institution)
             {
                 DataObject oldOwner = DataController.Instance.GetSchemeOwnerOfScheme(claimedScheme);
                 if (oldOwner != null)
@@ -506,7 +516,7 @@ public class DataChanger : MonoBehaviour
             DataController.Instance.characterList.Remove((Character)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Material)
             DataController.Instance.materialList.Remove((Material)dataObject);
-        else if (dataObject.dataType == DataObject.DataType.Scheme)
+        else if (dataObject.dataType == DataObject.DataType.Institution)
             DataController.Instance.institutionList.Remove((Institution)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Relation) 
             DataController.Instance.relationList.Remove((Relation)dataObject);

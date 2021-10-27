@@ -273,7 +273,7 @@ public class UIController : MonoBehaviour
                 {
                     if (toggleCharacter.isOn == false && obj.dataType == DataObject.DataType.Character ||
                  toggleMaterial.isOn == false && obj.dataType == DataObject.DataType.Material ||
-                 toggleInstitution.isOn == false && obj.dataType == DataObject.DataType.Scheme ||
+                 toggleInstitution.isOn == false && obj.dataType == DataObject.DataType.Institution ||
                  toggleRelation.isOn == false && obj.dataType == DataObject.DataType.Relation)
                     {
                         // exclude unselected object types, so do nothing here

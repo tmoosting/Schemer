@@ -20,7 +20,6 @@ public class Material : DataObject
         Building,
         Tool,
         WarMachine,    // Destructive, order of magnitude
-        Fortification,
         SmallArms,
         Nugget // Exchange Unit
     }
