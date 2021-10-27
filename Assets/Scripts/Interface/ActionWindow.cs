@@ -45,7 +45,8 @@ public class ActionWindow : MonoBehaviour
         destroyText.text = str1;
 
         // GIFT
-        if (primaryType != DataObject.DataType.Material && primaryType != DataObject.DataType.Relation)
+     //   if (primaryType != DataObject.DataType.Material && primaryType != DataObject.DataType.Relation)
+        if (primaryType != DataObject.DataType.Relation)
         {
             giftButton.gameObject.SetActive(true);
             giftText.gameObject.SetActive(true);

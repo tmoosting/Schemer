@@ -224,7 +224,7 @@ public class UIController : MonoBehaviour
             foreach (Material mat in data.materialList) 
                 cardObjects.Add(mat); 
         if (toggleInstitution.isOn)
-            foreach (Scheme ins in data.schemeList)
+            foreach (Institution ins in data.institutionList)
                 cardObjects.Add(ins);
         if (toggleRelation.isOn)
             foreach (Relation rel in data.relationList)
@@ -279,7 +279,17 @@ public class UIController : MonoBehaviour
                         // exclude unselected object types, so do nothing here
                     }
                     else
+                    {
                         relatedObjects.Add(obj);
+                        // Add material-collectionmaterials
+                        if (obj.dataType == DataObject.DataType.Material)
+                        {
+                            Material material = (Material)obj;
+                            if (material.materialCollection.Count > 0)                            
+                                foreach (Material collmat in material.materialCollection)                                
+                                    relatedObjects.Add(collmat);
+                        }
+                    }
                 }
         }
         else
@@ -288,11 +298,7 @@ public class UIController : MonoBehaviour
             relatedObjects.Add(rel.primaryDataObject);
             relatedObjects.Add(rel.secondaryDataObject);
         }
-            
-      
-
-
-
+             
 
 
         if (currentSortMode == SortMode.Relations)
@@ -321,7 +327,9 @@ public class UIController : MonoBehaviour
                     rt = panelFocusViewGridOwnees.GetComponent<Transform>(); 
             } 
             else
-                Debug.LogWarning("Strange! " + primarySelectedObject.ID + " found no focusview-position for " + obj.ID); 
+                rt = panelFocusViewGridOwnees.GetComponent<Transform>();
+
+            //Debug.LogWarning("Strange! " + primarySelectedObject.ID + " found no focusview-position for " + obj.ID); 
 
             GameObject cardObject = Instantiate(cardPrefab, rt);
             ObjectViewCard cardCard = cardObject.GetComponent<ObjectViewCard>();

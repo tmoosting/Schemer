@@ -50,16 +50,16 @@ public class Character : DataObject
             foreach (Material mat in data.materialList)
                 if (mat.ID == memberID)
                     data.CreateRelation(Relation.RelationType.Ownership, this, mat);
-        foreach (string memberID in fieldValueDict["OwnsSchemes"].Split(','))
-            foreach (Scheme ins in data.schemeList)
+        foreach (string memberID in fieldValueDict["OwnsInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
                 if (ins.ID == memberID)
                     data.CreateRelation(Relation.RelationType.Ownership, this, ins);
-        foreach (string memberID in fieldValueDict["CoopsSchemes"].Split(','))
-            foreach (Scheme ins in data.schemeList)
+        foreach (string memberID in fieldValueDict["CoopsInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
                 if (ins.ID == memberID)
                     data.CreateRelation(Relation.RelationType.Cooperative, this, ins);
-        foreach (string memberID in fieldValueDict["OwnedBySchemes"].Split(','))
-            foreach (Scheme ins in data.schemeList)
+        foreach (string memberID in fieldValueDict["OwnedByInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
                 if (ins.ID == memberID)
                     data.CreateRelation(Relation.RelationType.Ownership, ins, this);
     }

@@ -15,9 +15,7 @@ public class Material : DataObject
     public enum MaterialSubtype 
     {
         Land, // Constructive, order of magnitude
-        City,
-        Town,
-        Village,
+        Settlement, // could be more specific: city, town, village
         Estate,
         Building,
         Tool,
@@ -36,6 +34,8 @@ public class Material : DataObject
 
     // From database - meta
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
+
+    public List<Material> materialCollection = new List<Material>();
 
     // Calculated In Runtime
  //   public float totalPower;  now set in DataObject parent
@@ -64,6 +64,22 @@ public class Material : DataObject
             bonusSkill = int.Parse(dict["BonusSkill"]); 
     }
 
+    public void LinkMaterialCollections()
+    {
+        if (fieldValueDict["MaterialCollection"] != "")
+        {
+            foreach (string memberID in fieldValueDict["MaterialCollection"].Split(','))
+            {
+                Material foundMat = DataController.Instance.GetMaterialWithID(memberID);
+                if (foundMat != null)
+                {
+                    materialCollection.Add(foundMat); 
+                    data.CreateRelation(Relation.RelationType.Ownership, this, foundMat);
+                }
+            }
+        } 
+    }
 
-   
+
+
 }

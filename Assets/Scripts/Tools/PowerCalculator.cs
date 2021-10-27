@@ -39,16 +39,16 @@ public class PowerCalculator : MonoBehaviour
         foreach (Character cha in data.characterList)
             CalculateCharacterOwnedMaterialPower(cha);
 
-        foreach (Scheme ins in data.schemeList)
+        foreach (Institution ins in data.institutionList)
             AddSchemePowerFromCharacters(ins);
 
-        foreach (Scheme ins in data.schemeList)
+        foreach (Institution ins in data.institutionList)
             AddSchemePowerFromMaterials(ins);
 
-        foreach (Scheme ins in data.schemeList)
+        foreach (Institution ins in data.institutionList)
             CalculateSchemePowerFromCooperations(ins);
 
-        foreach (Scheme ins in data.schemeList)
+        foreach (Institution ins in data.institutionList)
             AddSchemePowerFromCooperations(ins);
 
         foreach (Character cha in data.characterList)
@@ -92,7 +92,7 @@ public class PowerCalculator : MonoBehaviour
         character.materialPower = matPower;
         character.totalPower += character.materialPower;
     }
-    void AddSchemePowerFromCharacters(Scheme scheme)
+    void AddSchemePowerFromCharacters(Institution scheme)
     {  
         foreach (Character cha in scheme.GetSchemeOwnerCharacters())
         {
@@ -120,7 +120,7 @@ public class PowerCalculator : MonoBehaviour
 
         scheme.totalPower += calcPower;
     }
-    void AddSchemePowerFromMaterials(Scheme scheme)
+    void AddSchemePowerFromMaterials(Institution scheme)
     { 
         float calcPower = 0f;
 
@@ -129,21 +129,21 @@ public class PowerCalculator : MonoBehaviour
         scheme.materialPower = calcPower;
         scheme.totalPower += calcPower;
     }
-    void CalculateSchemePowerFromCooperations(Scheme scheme)
+    void CalculateSchemePowerFromCooperations(Institution scheme)
     {
         float calcPower = 0f;
-        foreach (Scheme coopScheme in DataController.Instance.GetSchemesCoopedByScheme(scheme)) 
+        foreach (Institution coopScheme in DataController.Instance.GetSchemesCoopedByScheme(scheme)) 
             calcPower += (coopScheme.totalPower * Constants.Instance.SCHEME_COOPERATION_POWER_PERCENTAGE_BONUS); 
         scheme.cooperationPower = calcPower;        
     }
-    void AddSchemePowerFromCooperations(Scheme scheme)
+    void AddSchemePowerFromCooperations(Institution scheme)
     {        
         scheme.totalPower += scheme.cooperationPower;
     }
     void AddCharacterPowerFromSchemes(Character character)
     {
         float calcPower = 0f;
-        foreach (Scheme sch in data.schemeList)
+        foreach (Institution sch in data.institutionList)
         {
             if (sch.GetSchemeOwnerCharacters().Contains(character))
             { 
@@ -182,7 +182,7 @@ public class PowerCalculator : MonoBehaviour
         {
             mat.totalPower = 0f;
         }
-        foreach (Scheme ins in data.schemeList)
+        foreach (Institution ins in data.institutionList)
         {
             ins.namedOwnerPower = 0f;
             ins.namedCooperativePower = 0f;
@@ -205,11 +205,11 @@ public class PowerCalculator : MonoBehaviour
 
     // HELPER FUNCTIONS
 
-    Scheme FindMostPowerfulInstitution()
+    Institution FindMostPowerfulInstitution()
     {
         float highestPower = 0;
-        Scheme highestIns = null;
-        foreach (Scheme ins in DataController.Instance.schemeList)
+        Institution highestIns = null;
+        foreach (Institution ins in DataController.Instance.institutionList)
         {
             if (ins.totalPower > highestPower)
             {
@@ -253,7 +253,7 @@ public class PowerCalculator : MonoBehaviour
     //    charactersText.text = charactersTextString;
 
     //    string institutionTextString = "";
-    //    foreach (Scheme ins in data.schemeList)
+    //    foreach (Institution ins in data.schemeList)
     //    {
     //        institutionTextString += ins.name + " has TotP: " + ins.totalPower + "\n";
     //        institutionTextString += ins.namedOwnerPower + " from " + ins.GetOwnerCharacters().Count + " named Executives;\n";

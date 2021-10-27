@@ -17,9 +17,7 @@ public class Constants : MonoBehaviour
     {
         Instance = this;
         materialTyping.Add (Material.MaterialSubtype.Land, Material.MaterialType.Constructive);
-        materialTyping.Add( Material.MaterialSubtype.City, Material.MaterialType.Constructive);
-        materialTyping.Add( Material.MaterialSubtype.Town, Material.MaterialType.Constructive);
-        materialTyping.Add( Material.MaterialSubtype.Village, Material.MaterialType.Constructive);
+        materialTyping.Add( Material.MaterialSubtype.Settlement, Material.MaterialType.Constructive); 
         materialTyping.Add( Material.MaterialSubtype.Estate, Material.MaterialType.Constructive);
         materialTyping.Add( Material.MaterialSubtype.Building, Material.MaterialType.Constructive);
         materialTyping.Add( Material.MaterialSubtype.Tool, Material.MaterialType.Constructive);
@@ -30,9 +28,7 @@ public class Constants : MonoBehaviour
 
 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Land, SUBTYPE_VALUE_LAND); 
-        materialSubtypeBaseValues.Add(Material.MaterialSubtype.City, SUBTYPE_VALUE_CITY); 
-        materialSubtypeBaseValues.Add(Material.MaterialSubtype.Town, SUBTYPE_VALUE_TOWN); 
-        materialSubtypeBaseValues.Add(Material.MaterialSubtype.Village, SUBTYPE_VALUE_VILLAGE); 
+        materialSubtypeBaseValues.Add(Material.MaterialSubtype.Settlement, SUBTYPE_VALUE_SETTLEMENT);  
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Estate, SUBTYPE_VALUE_ESTATE); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Building, SUBTYPE_VALUE_BUILDING); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Tool, SUBTYPE_VALUE_TOOL); 
@@ -44,9 +40,7 @@ public class Constants : MonoBehaviour
 
     // Base Values      
     public float SUBTYPE_VALUE_LAND = 1500f;
-    public float SUBTYPE_VALUE_CITY = 800f;
-    public float SUBTYPE_VALUE_TOWN = 450;
-    public float SUBTYPE_VALUE_VILLAGE = 250f;
+    public float SUBTYPE_VALUE_SETTLEMENT = 600f; 
     public float SUBTYPE_VALUE_ESTATE = 150f;
     public float SUBTYPE_VALUE_BUILDING = 50f;
     public float SUBTYPE_VALUE_TOOL = 15f;

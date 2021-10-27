@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Scheme : DataObject
+public class Institution : DataObject
 {
 
     DataController data;
@@ -30,7 +30,7 @@ public class Scheme : DataObject
 
 
 
-    public Scheme(Dictionary<string, string> dict)
+    public Institution(Dictionary<string, string> dict)
     {
         data = DataController.Instance;
         fieldValueDict = dict;
@@ -49,16 +49,23 @@ public class Scheme : DataObject
 
     public void CreateSchemeRelations()
     {
+        if (fieldValueDict["PrimaryMaterial"] != "")
+        {
+            Material mat = DataController.Instance.GetMaterialWithID(fieldValueDict["PrimaryMaterial"]);
+            if (mat != null)
+                data.CreateRelation(Relation.RelationType.Ownership, this, mat);
+        }
+
         foreach (string memberID in fieldValueDict["OwnsMaterials"].Split(','))
             foreach (Material mat in data.materialList)
                 if (mat.ID == memberID)
                     data.CreateRelation(Relation.RelationType.Ownership, this, mat);
-        foreach (string memberID in fieldValueDict["OwnsSchemes"].Split(','))
-            foreach (Scheme ins in data.schemeList)
+        foreach (string memberID in fieldValueDict["OwnsInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
                 if (ins.ID == memberID)
                     data.CreateRelation(Relation.RelationType.Ownership, this, ins);
-        foreach (string memberID in fieldValueDict["CoopsSchemes"].Split(','))
-            foreach (Scheme ins in data.schemeList)
+        foreach (string memberID in fieldValueDict["CoopsInstitutions"].Split(','))
+            foreach (Institution ins in data.institutionList)
                 if (ins.ID == memberID)
                     data.CreateRelation(Relation.RelationType.Cooperative, this, ins);
     }

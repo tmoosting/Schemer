@@ -21,7 +21,7 @@ public class DataChanger : MonoBehaviour
         else if (dataObject.dataType == DataObject.DataType.Material)
             RemoveDataObject((Material)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Scheme)
-            KillScheme((Scheme)dataObject);
+            KillScheme((Institution)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Relation)
             RemoveDataObject((Relation)dataObject);
         if (limitReloadCardObject == false)
@@ -47,11 +47,11 @@ public class DataChanger : MonoBehaviour
         // what if scheme claims its only owner? 
         if (claimedObject.dataType == DataObject.DataType.Character && receiverObject.dataType == DataObject.DataType.Scheme)
         {
-            if (DataController.Instance.GetCharactersOwningScheme((Scheme)receiverObject).Count ==1)
+            if (DataController.Instance.GetCharactersOwningScheme((Institution)receiverObject).Count ==1)
             {
-                if (DataController.Instance.GetCharactersOwningScheme((Scheme)receiverObject)[0] == (Character)claimedObject)
+                if (DataController.Instance.GetCharactersOwningScheme((Institution)receiverObject)[0] == (Character)claimedObject)
                 {                  
-                    DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Scheme)receiverObject);
+                    DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Institution)receiverObject);
 
                     // destroy prev relation
                     RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(nextOwner, receiverObject));
@@ -77,7 +77,7 @@ public class DataChanger : MonoBehaviour
         }
         else if (claimedObject.dataType == DataObject.DataType.Scheme)
         {
-            Scheme claimedScheme = (Scheme)claimedObject;
+            Institution claimedScheme = (Institution)claimedObject;
             if (receiverObject.dataType == DataObject.DataType.Character)
             {
                 DataObject oldOwner = DataController.Instance.GetCharacterOwnerOfScheme(claimedScheme);
@@ -108,7 +108,7 @@ public class DataChanger : MonoBehaviour
             if  (primaryObject.dataType == DataObject.DataType.Character)
             {
                 // secobj is sch because cha-cha not enabled in action window
-                DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Scheme)secondaryObject);
+                DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Institution)secondaryObject);
                 // destroy new owner's prev relation
                 RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(nextOwner, secondaryObject));
                 // create new owner relation
@@ -122,7 +122,7 @@ public class DataChanger : MonoBehaviour
             if (secondaryObject.dataType == DataObject.DataType.Character)
             {
                 // secobj is sch because cha-cha not enabled in action window
-                DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Scheme)primaryObject);
+                DataObject nextOwner = DataController.Instance.GetNextSchemeOwnerCharacter((Institution)primaryObject);
                 // destroy new owner's prev relation
                 RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(nextOwner, primaryObject));
                 // create new owner relation
@@ -196,7 +196,7 @@ public class DataChanger : MonoBehaviour
     }
   
 
-    public void TransferSchemeOwnership(DataObject oldOwner, DataObject newOwner, Scheme transferredScheme, bool demoteOldOwner)
+    public void TransferSchemeOwnership(DataObject oldOwner, DataObject newOwner, Institution transferredScheme, bool demoteOldOwner)
     {
         // Destroy previous ownership relation
         RemoveDataObject(DataController.Instance.GetRelationWithTheseTwoDataObjects(oldOwner, transferredScheme));
@@ -222,20 +222,20 @@ public class DataChanger : MonoBehaviour
     {
         DataController data = DataController.Instance;
 
-        // Material: if CHA is owner or coop with any schemes, choose the most powerful, transfers to that Scheme; 
+        // Material: if CHA is owner or coop with any schemes, choose the most powerful, transfers to that Institution; 
         // otherwise, if owner is ownee of a scheme, go to that scheme; 
         // otherwise, material is destroyed! 
 
         // Things to pass on
         List<Material> distributeMaterials = data.GetMaterialsOwnedByCharacter(character);
-        List<Scheme> distributeSchemes = data.GetSchemesOwnedByCharacter(character);
+        List<Institution> distributeSchemes = data.GetSchemesOwnedByCharacter(character);
 
         // Is CHA owner, coop or owned vs one or multiple SCH?
-        List<Scheme> ownedSchemeList = data.GetSchemesOwnedByCharacter(character);
-        List<Scheme> coopSchemeList = data.GetSchemesCoopedByCharacter(character);
-        List<Scheme> ownerSchemeList = data.GetSchemesOwningCharacter(character);
+        List<Institution> ownedSchemeList = data.GetSchemesOwnedByCharacter(character);
+        List<Institution> coopSchemeList = data.GetSchemesCoopedByCharacter(character);
+        List<Institution> ownerSchemeList = data.GetSchemesOwningCharacter(character);
 
-        List<Scheme> schemesToDestroy = new List<Scheme>();
+        List<Institution> schemesToDestroy = new List<Institution>();
          
         // Does CHA own any MAT? 
         if (distributeMaterials.Count != 0)
@@ -297,7 +297,7 @@ public class DataChanger : MonoBehaviour
         // ALTOPTION: pass control, before passing to ownees, to either other SCHs owned by CHA or SCHs that coop/own CHA
         if (distributeSchemes.Count != 0)
         {
-            foreach (Scheme distSch in distributeSchemes)
+            foreach (Institution distSch in distributeSchemes)
             {
                 List<Character> otherOwners = data.GetSchemeOwnerCharacters(distSch);
                 List<Character> otherCoops = data.GetSchemeCoopCharacters(distSch);
@@ -340,7 +340,7 @@ public class DataChanger : MonoBehaviour
             }
         }
         RemoveDataObject(character);
-        foreach (Scheme scheme in schemesToDestroy)
+        foreach (Institution scheme in schemesToDestroy)
         {
             KillDataObject(scheme);
         }
@@ -348,7 +348,7 @@ public class DataChanger : MonoBehaviour
 
 
 
-    public void KillScheme(Scheme scheme)
+    public void KillScheme(Institution scheme)
     {
         DataController data = DataController.Instance;
 
@@ -359,11 +359,11 @@ public class DataChanger : MonoBehaviour
 
         List<Material> distributeMaterials = data.GetMaterialsOwnedByScheme(scheme);
         List<Character> ownerCharactersList = data.GetCharactersOwningScheme(scheme);
-        List<Scheme> ownerSchemeList = data.GetSchemesOwningScheme(scheme);
+        List<Institution> ownerSchemeList = data.GetSchemesOwningScheme(scheme);
         List<Character> coopCharacterList = data.GetCharactersCoopedByScheme(scheme);
-        List<Scheme> coopSchemeList = data.GetSchemesCoopedByScheme(scheme);
+        List<Institution> coopSchemeList = data.GetSchemesCoopedByScheme(scheme);
         List<Character> ownedCharacterList = data.GetCharactersOwnedByScheme(scheme);
-        List<Scheme> ownedSchemeList = data.GetSchemesOwnedByScheme(scheme);
+        List<Institution> ownedSchemeList = data.GetSchemesOwnedByScheme(scheme);
          
         if (distributeMaterials.Count != 0)
         {
@@ -497,8 +497,8 @@ public class DataChanger : MonoBehaviour
 
         //// check for relationless material leftover
         //List<Material> destroyedMaterials = new List<Material>();
-        //if (dataObject.dataType == DataObject.DataType.Scheme)
-        //    destroyedMaterials = DataController.Instance.GetMaterialsOwnedByScheme((Scheme)dataObject);
+        //if (dataObject.dataType == DataObject.DataType.Institution)
+        //    destroyedMaterials = DataController.Instance.GetMaterialsOwnedByScheme((Institution)dataObject);
 
 
 
@@ -507,7 +507,7 @@ public class DataChanger : MonoBehaviour
         else if (dataObject.dataType == DataObject.DataType.Material)
             DataController.Instance.materialList.Remove((Material)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Scheme)
-            DataController.Instance.schemeList.Remove((Scheme)dataObject);
+            DataController.Instance.institutionList.Remove((Institution)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Relation) 
             DataController.Instance.relationList.Remove((Relation)dataObject);
          
@@ -518,7 +518,7 @@ public class DataChanger : MonoBehaviour
         if (limitReloadCardObject == false)
             UIController.Instance.ReloadObjectCards();
 
-        //if (dataObject.dataType == DataObject.DataType.Scheme)
+        //if (dataObject.dataType == DataObject.DataType.Institution)
         //    if (destroyedMaterials.Count > 0)
         //        foreach (Material material in destroyedMaterials)
         //            RemoveDataObject(material);
@@ -547,11 +547,11 @@ public class DataChanger : MonoBehaviour
     }  
     void SweepUnownedSchemes()
     {
-        List<Scheme> sweepedSchemes = new List<Scheme> ();
-        foreach (Scheme sch in DataController.Instance.schemeList)        
+        List<Institution> sweepedSchemes = new List<Institution> ();
+        foreach (Institution sch in DataController.Instance.institutionList)        
             if (DataController.Instance.GetRelationsThatIncludeObject(sch).Count == 0)
                 sweepedSchemes.Add(sch);
-        foreach (Scheme sch in sweepedSchemes)
+        foreach (Institution sch in sweepedSchemes)
             RemoveDataObject(sch);
     }
    

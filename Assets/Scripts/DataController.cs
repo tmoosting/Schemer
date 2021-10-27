@@ -24,7 +24,7 @@ public class DataController : MonoBehaviour
 
       public List<Character> characterList = new List<Character>();
     [HideInInspector]  public List<Material> materialList = new List<Material>();
-    [HideInInspector]  public List<Scheme> schemeList = new List<Scheme>();
+    [HideInInspector]  public List<Institution> institutionList = new List<Institution>();
     [HideInInspector]  public List<Relation> relationList = new List<Relation>();
 
     // template for manual material create
@@ -58,9 +58,11 @@ public class DataController : MonoBehaviour
     }
 
     void CreateObjectsFromDatabase()
-    {
-        // create a list of dicts with key: fieldname, value: fieldvalue
+    { 
 
+        // Add database values to dictionaries, then create new objects using dictionary
+
+        // CHARACTER
         foreach (string id in linker.GetIDValuesForTable("Character"))
         {
             Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
@@ -69,25 +71,35 @@ public class DataController : MonoBehaviour
             characterList.Add(new Character(fieldNamesAndValues));
         }
 
+        // MATERIAL
+        // Manual-create template
         foreach (string field in linker.GetFieldNamesForTable("Material"))
             materialDictionaryTemplate.Add(field, "");
 
+        // Create Material Objects
         foreach (string id in linker.GetIDValuesForTable("Material"))
         {
             Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
             foreach (string field in linker.GetFieldNamesForTable("Material"))
                 fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Material", field, id));
             materialList.Add(new Material(fieldNamesAndValues));
-        } 
-     
-        foreach (string id in linker.GetIDValuesForTable("Scheme"))
-        {
-            Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
-            foreach (string field in linker.GetFieldNamesForTable("Scheme"))
-                fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Scheme", field, id));
-            schemeList.Add(new Scheme(fieldNamesAndValues));
         }
 
+        // Link Material-Elements after all are created
+        foreach (Material mat in materialList)        
+            mat.LinkMaterialCollections();
+        
+
+        // INSTITUTIONS
+
+        foreach (string id in linker.GetIDValuesForTable("Institution"))
+        {
+            Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
+            foreach (string field in linker.GetFieldNamesForTable("Institution"))
+                fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Institution", field, id));
+            institutionList.Add(new Institution(fieldNamesAndValues));
+        }
+         
         // DISABLED because no separate relation table for now
         //foreach (string id in linker.GetIDValuesForTable("Relation"))
         //{
@@ -102,7 +114,9 @@ public class DataController : MonoBehaviour
     {
         foreach (Character cha in characterList)
             cha.CreateCharacterRelations();
-        foreach (Scheme ins in schemeList)
+        //foreach (Material mat in materialList)
+        //    mat.CreateMaterialRelations();
+        foreach (Institution ins in institutionList)
             ins.CreateSchemeRelations();
       
     }
@@ -156,11 +170,26 @@ public class DataController : MonoBehaviour
         materialList.Add(material);
         CreateRelation(Relation.RelationType.Ownership, owner, material); 
     }
-  
+
 
     // --------------- GET FUNCTIONS
 
-
+    public Character GetCharacterWithID(string id)
+    {
+        Character character = null;
+        foreach (Character cha in characterList)
+            if (cha.ID == id)
+                character = cha;
+        return character;
+    }
+    public Material GetMaterialWithID(string id)
+    {
+        Material material = null;
+        foreach (Material mat in materialList)
+            if (mat.ID == id)
+                material = mat; 
+        return material;
+    }
 
     // --------------- GET NUMERIC
     public int GetRelationAmount(DataObject dataObject)
@@ -185,7 +214,7 @@ public class DataController : MonoBehaviour
         }
         else if (dataObject.dataType == DataObject.DataType.Scheme)
         {
-            Scheme sch = (Scheme)dataObject;
+            Institution sch = (Institution)dataObject;
             return (int)sch.totalPower;
         }
         else return 0; // for relation
@@ -215,7 +244,7 @@ public class DataController : MonoBehaviour
             }
         return returnObject;
     }
-    public DataObject GetMostPowerfulDataObjectFromSchemeList(List<Scheme> contenders)
+    public DataObject GetMostPowerfulDataObjectFromSchemeList(List<Institution> contenders)
     {
         float highestPower = 0f;
         DataObject returnObject = null;
@@ -238,7 +267,7 @@ public class DataController : MonoBehaviour
                     returnObject = rel.primaryDataObject;
         return returnObject;        
     }
-    public Character GetCharacterOwnerOfScheme(Scheme scheme)
+    public Character GetCharacterOwnerOfScheme(Institution scheme)
     {
         Character returnObject = null;
         List<Character> owners = new List<Character>();
@@ -257,18 +286,18 @@ public class DataController : MonoBehaviour
             } 
         return returnObject;
     }
-    public Scheme GetSchemeOwnerOfScheme(Scheme scheme)
+    public Institution GetSchemeOwnerOfScheme(Institution scheme)
     {
-        Scheme returnObject = null;
-        List<Scheme> owners = new List<Scheme>();
+        Institution returnObject = null;
+        List<Institution> owners = new List<Institution>();
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.secondaryDataObject == scheme)
                     if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
-                        owners.Add((Scheme)rel.primaryDataObject);
+                        owners.Add((Institution)rel.primaryDataObject);
 
         float highestPower = 0f;
-        foreach (Scheme sch in owners)
+        foreach (Institution sch in owners)
             if (sch.totalPower > highestPower)
             {
                 highestPower = sch.totalPower;
@@ -277,7 +306,7 @@ public class DataController : MonoBehaviour
         return returnObject;
     }
   
-    public List<Character> GetCharactersOwningScheme(Scheme scheme)
+    public List<Character> GetCharactersOwningScheme(Institution scheme)
     {
         List<Character> returnList = new List<Character>();
         foreach (Relation rel in relationList)
@@ -288,7 +317,7 @@ public class DataController : MonoBehaviour
         return returnList;
     }   
    
-    public List<Character> GetCharactersCoopedByScheme(Scheme scheme)
+    public List<Character> GetCharactersCoopedByScheme(Institution scheme)
     {
         List<Character> returnList = new List<Character>();
         foreach (Relation rel in relationList)
@@ -304,7 +333,7 @@ public class DataController : MonoBehaviour
                 
         return returnList;
     }
-    public List<Character> GetCharactersOwnedByScheme(Scheme scheme)
+    public List<Character> GetCharactersOwnedByScheme(Institution scheme)
     {
         List<Character> returnList = new List<Character>();
         foreach (Relation rel in relationList)
@@ -314,7 +343,7 @@ public class DataController : MonoBehaviour
                         returnList.Add((Character)rel.secondaryDataObject);
         return returnList;
     }
-    public Character GetNextSchemeOwnerCharacter (Scheme scheme)
+    public Character GetNextSchemeOwnerCharacter (Institution scheme)
     {
         Character returnCharacter = null;
         // find next most powerful member in coop, then ownees as owner
@@ -350,7 +379,7 @@ public class DataController : MonoBehaviour
                 }
         }
         else
-            Debug.LogWarning("Could not find next owner for Scheme: " + scheme.name);
+            Debug.LogWarning("Could not find next owner for Institution: " + scheme.name);
         return returnCharacter;
     }
     public List<Material> GetMaterialsOwnedByCharacter(Character character)
@@ -363,7 +392,7 @@ public class DataController : MonoBehaviour
                         returnList.Add((Material)rel.secondaryDataObject);
         return returnList;
     }
-    public List<Material> GetMaterialsOwnedByScheme(Scheme scheme)
+    public List<Material> GetMaterialsOwnedByScheme(Institution scheme)
     {
         List<Material> returnList = new List<Material>();
         foreach (Relation rel in relationList)
@@ -373,75 +402,75 @@ public class DataController : MonoBehaviour
                         returnList.Add((Material)rel.secondaryDataObject);
         return returnList;
     }
-    public List<Scheme> GetSchemesOwnedByCharacter(Character character)
+    public List<Institution> GetSchemesOwnedByCharacter(Character character)
     {
-        List<Scheme> returnList = new List<Scheme>();
+        List<Institution> returnList = new List<Institution>();
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.primaryDataObject == character)
                     if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
-                        returnList.Add((Scheme)rel.secondaryDataObject);
+                        returnList.Add((Institution)rel.secondaryDataObject);
         return returnList;
     }
-    public List<Scheme> GetSchemesCoopedByCharacter(Character character)
+    public List<Institution> GetSchemesCoopedByCharacter(Character character)
     {
-        List<Scheme> returnList = new List<Scheme>();
+        List<Institution> returnList = new List<Institution>();
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Cooperative)
             {
                 if (rel.primaryDataObject == character && rel.secondaryDataObject.dataType == DataObject.DataType.Scheme) 
-                    returnList.Add((Scheme)rel.secondaryDataObject);
+                    returnList.Add((Institution)rel.secondaryDataObject);
                 if (rel.secondaryDataObject == character && rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
-                    returnList.Add((Scheme)rel.primaryDataObject); 
+                    returnList.Add((Institution)rel.primaryDataObject); 
             }                 
         return returnList;
     }
-    public List<Scheme> GetSchemesOwningCharacter(Character character)
+    public List<Institution> GetSchemesOwningCharacter(Character character)
     {
-        List<Scheme> returnList = new List<Scheme>();
+        List<Institution> returnList = new List<Institution>();
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.secondaryDataObject == character)
                     if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
-                        returnList.Add((Scheme)rel.primaryDataObject);
+                        returnList.Add((Institution)rel.primaryDataObject);
         return returnList;
     }
 
 
   
-    public List<Scheme> GetSchemesOwnedByScheme(Scheme scheme)
+    public List<Institution> GetSchemesOwnedByScheme(Institution scheme)
     {
-        List<Scheme> returnList = new List<Scheme>();
+        List<Institution> returnList = new List<Institution>();
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.primaryDataObject == scheme)
                     if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
-                        returnList.Add((Scheme)rel.secondaryDataObject);
+                        returnList.Add((Institution)rel.secondaryDataObject);
         return returnList;
     }
-    public List<Scheme> GetSchemesCoopedByScheme(Scheme scheme)
+    public List<Institution> GetSchemesCoopedByScheme(Institution scheme)
     {
-        List<Scheme> returnList = new List<Scheme>();
+        List<Institution> returnList = new List<Institution>();
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Cooperative)
             {
                 if (rel.primaryDataObject == scheme)
                     if (rel.secondaryDataObject.dataType == DataObject.DataType.Scheme)
-                        returnList.Add((Scheme)rel.secondaryDataObject);
+                        returnList.Add((Institution)rel.secondaryDataObject);
                 if (rel.secondaryDataObject == scheme)
                     if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
-                        returnList.Add((Scheme)rel.primaryDataObject);
+                        returnList.Add((Institution)rel.primaryDataObject);
             } 
         return returnList;
     }
-    public List<Scheme> GetSchemesOwningScheme(Scheme scheme)
+    public List<Institution> GetSchemesOwningScheme(Institution scheme)
     {
-        List<Scheme> returnList = new List<Scheme>();
+        List<Institution> returnList = new List<Institution>();
         foreach (Relation rel in relationList)
             if (rel.relationType == Relation.RelationType.Ownership)
                 if (rel.secondaryDataObject == scheme)
                     if (rel.primaryDataObject.dataType == DataObject.DataType.Scheme)
-                        returnList.Add((Scheme)rel.primaryDataObject);
+                        returnList.Add((Institution)rel.primaryDataObject);
         return returnList;
     }
 
@@ -506,17 +535,8 @@ public class DataController : MonoBehaviour
         return returnList;
     }
    
-    public Character GetCharacterWithName(string name)
-    {
-        Character character = null;
-
-        foreach (Character cha in characterList)
-            if (cha.name == name)
-                character = cha;
-
-        return character;
-    }
-    public List<Character> GetSchemeCharacters(Scheme scheme)
+  
+    public List<Character> GetSchemeCharacters(Institution scheme)
     {
         List<Character> returnList = new List<Character>();
         foreach (Relation rel in relationList)
@@ -534,7 +554,7 @@ public class DataController : MonoBehaviour
         } 
         return returnList;
     }
-    public List<Character> GetSchemeOwnerCharacters(Scheme scheme)
+    public List<Character> GetSchemeOwnerCharacters(Institution scheme)
     {
         List<Character> returnList = new List<Character>();
         foreach (Relation rel in relationList)        
@@ -544,7 +564,7 @@ public class DataController : MonoBehaviour
                         returnList.Add((Character)rel.primaryDataObject);
         return returnList;
     }
-    public List<Character> GetSchemeCoopCharacters(Scheme scheme)
+    public List<Character> GetSchemeCoopCharacters(Institution scheme)
     {
         List<Character> returnList = new List<Character>();
         foreach (Relation rel in relationList)
@@ -564,7 +584,7 @@ public class DataController : MonoBehaviour
             
         return returnList;
     }
-    public List<Character> GetSchemeOwneeCharacters(Scheme scheme)
+    public List<Character> GetSchemeOwneeCharacters(Institution scheme)
     {
         List<Character> returnList = new List<Character>();
         foreach (Relation rel in relationList)
@@ -574,7 +594,7 @@ public class DataController : MonoBehaviour
                         returnList.Add((Character)rel.secondaryDataObject);
         return returnList;
     }
-    public List<Material> GetSchemeMaterials(Scheme scheme)
+    public List<Material> GetSchemeMaterials(Institution scheme)
     {
         List<Material> returnList = new List<Material>();
         foreach (Relation rel in relationList)        
@@ -585,7 +605,7 @@ public class DataController : MonoBehaviour
         return returnList;
     }  
     
-    public List<Material> GetSchemeCharacterMaterials(Scheme scheme)
+    public List<Material> GetSchemeCharacterMaterials(Institution scheme)
     {
         List<Material> returnList = new List<Material>();
         List<Character> charList = GetSchemeCharacters(scheme); 
@@ -657,8 +677,8 @@ public class DataController : MonoBehaviour
             Debug.Log("Character " + cha.name + " has ID " + cha.ID + " and age " + cha.age);
         foreach (Material mat in materialList)
             Debug.Log("Material " + mat.name + " has ID " + mat.ID + " and type " + mat.materialType);
-        foreach (Scheme ins in schemeList)
-            Debug.Log("Scheme " + ins.name + " has ID " + ins.ID  );
+        foreach (Institution ins in institutionList)
+            Debug.Log("Institution " + ins.name + " has ID " + ins.ID  );
      // DISABLED because no separate relation table for now
         //  foreach (Relation rel in relationList)
        //     Debug.Log("Relation " + rel.name + " has ID " + rel.ID + " and type: "+ rel.relationType + " and active ID: "+ rel.activeDataObject.ID + ", type: "+ rel.activeDataObject.dataType + " and passive ID: "+ rel.passiveDataObject.ID);
@@ -673,7 +693,7 @@ public class DataController : MonoBehaviour
                 Debug.Log(rel.primaryDataObject.name + " Coops with: " + rel.secondaryDataObject.name);
 
         Debug.Log("------------- SCANNING MEMBERSHIPS -------------");
-        foreach (Scheme ins in schemeList)
+        foreach (Institution ins in institutionList)
         {
             string charstr = "";
             foreach (Character cha in ins.GetMemberCharacters())            

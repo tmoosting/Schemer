@@ -59,7 +59,7 @@ public class ObjectViewCard : MonoBehaviour
         if (dataObject.dataType == DataObject.DataType.Material)
             LoadMaterialObject((Material)dataObject);
         if (dataObject.dataType == DataObject.DataType.Scheme)
-            LoadSchemeObject((Scheme)dataObject);
+            LoadSchemeObject((Institution)dataObject);
         if (dataObject.dataType == DataObject.DataType.Relation)
             LoadRelationObject((Relation)dataObject);
         SetSelectedStatus(containedObject == UIController.Instance.primarySelectedObject);
@@ -135,7 +135,7 @@ public class ObjectViewCard : MonoBehaviour
                         CreateLinkObject("Owner: ", rel.primaryDataObject);
         }
     }
-    void LoadSchemeObject(Scheme scheme)
+    void LoadSchemeObject(Institution scheme)
     {
         titleText.text = scheme.name;
         if (UIController.Instance.toggleShowDatabase.isOn)
