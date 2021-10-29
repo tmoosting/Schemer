@@ -1903,6 +1903,11 @@ MonoBehaviour:
   charactersText: {fileID: 101180798}
   institutionsText: {fileID: 453490395}
   highscoresText: {fileID: 1582728987}
+  lastTakenActionType: 0
+  lastGivenMaterialSubtype: 0
+  lastGivenMaterialAmount: 0
+  lastTakenActionPrimaryObjectName: 
+  lastTakenActionSecondaryObjectName: 
 --- !u!4 &97675125
 Transform:
   m_ObjectHideFlags: 0
@@ -3069,6 +3074,7 @@ MonoBehaviour:
   actionWindow: {fileID: 1361346755}
   explosionPrefab: {fileID: 7855376134781479289, guid: 66f0fc2fa0310c84483db92cf4d0233c, type: 3}
   giftPrefab: {fileID: 3315662998726822224, guid: 8d11653854c766e40bc7c87ab1c26dee, type: 3}
+  calculatePowerButton: {fileID: 2113637536}
   cardListRegular: []
   cardListFocusView: []
 --- !u!4 &204957502
@@ -4198,6 +4204,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   addRandomCharacterTraits: 1
+  calculatePowerOnStart: 1
   sweepUnownedMaterials: 1
   sweepUnownedSchemes: 1
   verifyRelationsAtStart: 1
@@ -4242,8 +4249,9 @@ MonoBehaviour:
   SUBTYPE_VALUE_TOOL: 15
   SUBTYPE_VALUE_SMALLARMS: 20
   SUBTYPE_VALUE_NUGGET: 1
-  SCHEME_COOPERATION_POWER_PERCENTAGE_BONUS: 0.1
-  PRIMARY_OWNER_POWERSHARE: 0.5
+  INSTITUTION_PRIMARY_OWNER_POWERPROPORTION: 0.5
+  INSTITUTION_COOPERATOR_POWERPROPORTION: 0.2
+  INSTITUTION_OWNEE_POWERPROPORTION: 0.02
 --- !u!1 &309236504
 GameObject:
   m_ObjectHideFlags: 0
@@ -15009,6 +15017,12 @@ MonoBehaviour:
   giftCharactersLabel: {fileID: 427030898}
   giftUnnamedCharactersLabel: {fileID: 1027322510}
   amountInputField: {fileID: 1113343655}
+  lastTakenActionType: 0
+  lastUsedMaterialSubtype: 0
+  lastGivenMaterialAmount: 0
+  lastTakenActionPrimaryObjectName: 
+  lastTakenActionSecondaryObjectName: 
+  actionTaken: 0
 --- !u!1 &1382531577
 GameObject:
   m_ObjectHideFlags: 0

@@ -85,10 +85,10 @@ public class ObjectViewCard : MonoBehaviour
             CreateTextObject("Fearfulness: "+ character.fearfulness);
             CreateTextObject("Charisma: "+ character.charisma);
             CreateTextObject("Skill: "+ character.decisionMaking);
-            CreateTextObject("Pow.Potential: "+ character.powerPotential);
-            CreateTextObject("Pow.Material: "+ character.materialPower);
-            CreateTextObject("Pow.Instus: "+ character.schemesPower);
-            CreateTextObject("Pow.Total: "+ character.totalPower);
+            CreateTextObject("Pow.Potential: "+ character.powerPotential.ToString("F1"));
+            CreateTextObject("Pow.Material: "+ character.materialPower.ToString("F1"));
+            CreateTextObject("Pow.Instus: "+ character.schemesPower.ToString("F1"));
+            CreateTextObject("Pow.Total: "+ character.totalPower.ToString("F1"));
             CreateTextObject("----------------------------");
         }
         if (UIController.Instance.toggleShowRelations.isOn)
@@ -128,8 +128,8 @@ public class ObjectViewCard : MonoBehaviour
         }
         if (UIController.Instance.toggleShowPower.isOn)
         {
-            CreateTextObject("Base Amount: " + material.baseAmount);
-            CreateTextObject("Pow.Potential: " + material.totalPower);
+            CreateTextObject("Base Amount: " + material.baseAmount.ToString("F1"));
+            CreateTextObject("Pow.Potential: " + material.totalPower.ToString("F1"));
             CreateTextObject("----------------------------");
         }
         if (UIController.Instance.toggleShowRelations.isOn)
@@ -156,15 +156,15 @@ public class ObjectViewCard : MonoBehaviour
         }
         if (UIController.Instance.toggleShowPower.isOn)
         {
-            CreateTextObject("Pow.NamedOwners: " + scheme.namedOwnerPower); 
-            CreateTextObject("Pow.NamedCoops: " + scheme.namedCooperativePower); 
-            CreateTextObject("Pow.NamedOwnees: " + scheme.namedOwneePower); 
-            CreateTextObject("Pow.GenerOwners: " + scheme.genericOwnerPower); 
-            CreateTextObject("Pow.GenerCoops: " + scheme.genericCooperativePower); 
-            CreateTextObject("Pow.GenerOwnees: " + scheme.genericOwneePower); 
-            CreateTextObject("Pow.Material: " + scheme.materialPower); 
-            CreateTextObject("Pow.Cooperation: " + scheme.cooperationPower); 
-            CreateTextObject("Pow.Total: " + scheme.totalPower);
+            CreateTextObject("Pow.NamedOwners: " + scheme.namedOwnerPower.ToString("F1")); 
+            CreateTextObject("Pow.NamedCoops: " + scheme.namedCooperativePower.ToString("F1")); 
+            CreateTextObject("Pow.NamedOwnees: " + scheme.namedOwneePower.ToString("F1")); 
+            CreateTextObject("Pow.GenerOwners: " + scheme.genericOwnerPower.ToString("F1")); 
+            CreateTextObject("Pow.GenerCoops: " + scheme.genericCooperativePower.ToString("F1")); 
+            CreateTextObject("Pow.GenerOwnees: " + scheme.genericOwneePower.ToString("F1")); 
+            CreateTextObject("Pow.Material: " + scheme.materialPower.ToString("F1")); 
+            CreateTextObject("Pow.Cooperation: " + scheme.cooperationPower.ToString("F1")); 
+            CreateTextObject("Pow.Total: " + scheme.totalPower.ToString("F1"));
             CreateTextObject("----------------------------");
         }
         if (UIController.Instance.toggleShowRelations.isOn)

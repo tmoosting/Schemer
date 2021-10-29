@@ -28,7 +28,23 @@ public class ActionWindow : MonoBehaviour
     public TextMeshProUGUI giftUnnamedCharactersLabel;
     public TMP_InputField amountInputField;
 
-     
+
+    // for logging:
+    public enum ActionType { DESTROY, GIFT, GIFTALL, CLAIM, CREATECOOP, BREAKCOOP }
+
+    [HideInInspector]
+    public ActionType lastTakenActionType;
+    [HideInInspector]
+    public Material.MaterialSubtype lastUsedMaterialSubtype;
+    [HideInInspector]
+    public int lastGivenMaterialAmount;
+    [HideInInspector]
+    public string lastTakenActionPrimaryObjectName;
+    [HideInInspector]
+    public string lastTakenActionSecondaryObjectName;
+    [HideInInspector]
+    public bool actionTaken = false;
+
     public void UpdateActionWindow()
     {
         ui = UIController.Instance;
@@ -195,6 +211,9 @@ public class ActionWindow : MonoBehaviour
 
     public void ClickDestroyButton()
     {
+        actionTaken = true;
+        lastTakenActionType = ActionType.DESTROY;
+        lastTakenActionPrimaryObjectName = UIController.Instance.primarySelectedObject.name;
         UIController.Instance.PlayExplosionAtObject(UIController.Instance.primarySelectedObject);
         DataController.Instance.changer.KillDataObject(UIController.Instance.primarySelectedObject);
     //    UpdateActionWindow();
@@ -202,47 +221,73 @@ public class ActionWindow : MonoBehaviour
 
     public void ClickGiftButton()
     {
+        lastTakenActionPrimaryObjectName = UIController.Instance.primarySelectedObject.name;
+        lastUsedMaterialSubtype = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), giftDropdown.selectedText.text);
+        actionTaken = true;
+         
         int amount = 1;
         if (amountInputField.text != "")
             amount = int.Parse(amountInputField.text);
+        lastGivenMaterialAmount = amount;
 
         if (UIController.Instance.primarySelectedObject.dataType != DataObject.DataType.Institution)
         {
+            lastTakenActionType = ActionType.GIFT;
             DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text, amount);
         }
         else if (UIController.Instance.primarySelectedObject.dataType == DataObject.DataType.Institution)
         {
             if (giftCharactersSwitch.isOn == true)
             {
+                lastTakenActionType = ActionType.GIFTALL;  
                 DataController.Instance.changer.GiftMaterialToInstitutionNamedCharacters(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text, amount);
                 if (giftUnnamedCharactersSwitch.isOn == true)
                     DataController.Instance.changer.GiftMaterialToInstitutionUnnamedCharacters(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text, amount);
 
             }
             else
+            {
+                lastTakenActionType = ActionType.GIFT;
                 DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text, amount);
+            }
         }
+        
         UpdateActionWindow();
     }
 
     public void ClickClaimButton()
     {
+        actionTaken = true;
+        lastTakenActionPrimaryObjectName = UIController.Instance.primarySelectedObject.name;
+        lastTakenActionSecondaryObjectName = UIController.Instance.secondarySelectedObject.name;
+      
+        lastTakenActionType = ActionType.CLAIM;
         DataController.Instance.changer.ClaimDataObject(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
         UpdateActionWindow();
     }
     public void ClickCreateCoopButton()
     {
+        actionTaken = true;
+        lastTakenActionPrimaryObjectName = UIController.Instance.primarySelectedObject.name;
+        lastTakenActionSecondaryObjectName = UIController.Instance.secondarySelectedObject.name;
+        lastTakenActionType = ActionType.CREATECOOP;
         DataController.Instance.changer.CreateCooperation(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
         UpdateActionWindow();
     }
     public void ClickBreakNeutralButton()
     {
+        actionTaken = true;
+        lastTakenActionPrimaryObjectName = UIController.Instance.primarySelectedObject.name;
+        lastTakenActionSecondaryObjectName = UIController.Instance.secondarySelectedObject.name;
+        lastTakenActionType = ActionType.BREAKCOOP;
         DataController.Instance.changer.BreakCooperationNeutral(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
         UpdateActionWindow();
     }
 
     public void ClickBreakHostileButton()
     {
+        actionTaken = true;
+        lastTakenActionType = ActionType.BREAKCOOP;
         DataController.Instance.changer.BreakCooperationHostile(UIController.Instance.primarySelectedObject, UIController.Instance.secondarySelectedObject);
         UpdateActionWindow();
     }

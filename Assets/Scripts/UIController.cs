@@ -61,7 +61,7 @@ public class UIController : MonoBehaviour
     public ActionWindow actionWindow;
     public GameObject explosionPrefab;
     public GameObject giftPrefab;
-
+    public GameObject calculatePowerButton;
 
     [HideInInspector] 
     public List<ObjectViewCard> cardListRegular = new List<ObjectViewCard>();

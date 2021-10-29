@@ -9,6 +9,7 @@ public class DataController : MonoBehaviour
 
     [Header("Options")]
     public bool addRandomCharacterTraits;
+    public bool calculatePowerOnStart;
     public bool sweepUnownedMaterials;
     public bool sweepUnownedSchemes;
     public bool verifyRelationsAtStart;
@@ -50,7 +51,14 @@ public class DataController : MonoBehaviour
         if (verifyRelationsAtStart == true)
             VerifyDuplicateRelations();
         UIController.Instance.RunStartupToggles();
-        powerCalculator.CalculatePowers();
+
+        powerCalculator.CalculatePowers(); // once here because first one invalid for not sure what reason anymore
+
+        if (calculatePowerOnStart == true)
+        {
+            powerCalculator.CalculatePowers();
+            UIController.Instance.calculatePowerButton.SetActive(false);
+        }
     }
     void AutoCreate()
     { 
@@ -227,17 +235,11 @@ public class DataController : MonoBehaviour
 
 
     // --------------- GET FUNCTIONS
-
-    public List<DataObject> GetAllNonRelationNonMaterialObjects()
+ 
+    public List<Character> GetCharacters()
     {
-        List<DataObject> returnList = new List<DataObject>();
-        foreach (DataObject dataObject in characterList)
-            returnList.Add(dataObject);
-        foreach (DataObject dataObject in institutionList)
-            returnList.Add(dataObject);
-        return returnList;
+        return characterList;
     }
-
     public Character GetCharacterWithID(string id)
     {
         Character character = null;
@@ -683,7 +685,7 @@ public class DataController : MonoBehaviour
             if (rel.relationType == Relation.RelationType.Ownership)            
                 if (rel.primaryDataObject == scheme)                
                     if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
-                        returnList.Add((Material)rel.secondaryDataObject);    
+                        returnList.Add((Material)rel.secondaryDataObject); 
         return returnList;
     }  
     
