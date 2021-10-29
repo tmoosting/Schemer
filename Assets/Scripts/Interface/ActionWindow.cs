@@ -23,7 +23,10 @@ public class ActionWindow : MonoBehaviour
     public TextMeshProUGUI breakCoopText;
     public CustomDropdown giftDropdown;
     public SwitchManager giftCharactersSwitch;
+    public SwitchManager giftUnnamedCharactersSwitch;
     public TextMeshProUGUI giftCharactersLabel;
+    public TextMeshProUGUI giftUnnamedCharactersLabel;
+    public TMP_InputField amountInputField;
 
      
     public void UpdateActionWindow()
@@ -46,13 +49,17 @@ public class ActionWindow : MonoBehaviour
         str1 += ui.primarySelectedObject.ID;
         destroyText.text = str1;
 
+        amountInputField.text = "";
+        giftUnnamedCharactersLabel.gameObject.SetActive(false);
+        giftUnnamedCharactersSwitch.gameObject.SetActive(false);
         // GIFT
-     //   if (primaryType != DataObject.DataType.Material && primaryType != DataObject.DataType.Relation)
+        //   if (primaryType != DataObject.DataType.Material && primaryType != DataObject.DataType.Relation)
         if (primaryType != DataObject.DataType.Relation)
         {
             giftButton.gameObject.SetActive(true);
             giftText.gameObject.SetActive(true);
             giftDropdown.gameObject.SetActive(true);
+            amountInputField.gameObject.SetActive(true);
             giftText.text = "GIFT TO " + ui.primarySelectedObject.ID; 
             if (primaryType == DataObject.DataType.Institution)
             { 
@@ -62,7 +69,10 @@ public class ActionWindow : MonoBehaviour
             else
             {
                 giftCharactersSwitch.gameObject.SetActive(false);
-                giftCharactersLabel.gameObject.SetActive(false); 
+                giftUnnamedCharactersSwitch.gameObject.SetActive(false);
+                giftCharactersLabel.gameObject.SetActive(false);
+                giftUnnamedCharactersLabel.gameObject.SetActive(false);  
+
             }
         }
         else
@@ -71,7 +81,10 @@ public class ActionWindow : MonoBehaviour
             giftText.gameObject.SetActive(false);
             giftDropdown.gameObject.SetActive(false);
             giftCharactersSwitch.gameObject.SetActive(false);
+            giftUnnamedCharactersSwitch.gameObject.SetActive(false);
             giftCharactersLabel.gameObject.SetActive(false);
+            giftUnnamedCharactersLabel.gameObject.SetActive(false);
+            amountInputField.gameObject.SetActive(false);
         }
 
         if (ui.secondarySelectedObject != null)
@@ -172,7 +185,11 @@ public class ActionWindow : MonoBehaviour
     }
 
 
-
+    public void ClickGiftAllChractersSwitch()
+    {
+        giftUnnamedCharactersLabel.gameObject.SetActive(true);
+        giftUnnamedCharactersSwitch.gameObject.SetActive(true);
+    }
 
     // BUTTON FUNCTIONS
 
@@ -185,16 +202,25 @@ public class ActionWindow : MonoBehaviour
 
     public void ClickGiftButton()
     {
+        int amount = 1;
+        if (amountInputField.text != "")
+            amount = int.Parse(amountInputField.text);
+
         if (UIController.Instance.primarySelectedObject.dataType != DataObject.DataType.Institution)
         {
-            DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);
+            DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text, amount);
         }
         else if (UIController.Instance.primarySelectedObject.dataType == DataObject.DataType.Institution)
         {
-            if (giftCharactersSwitch.isOn == true)            
-                DataController.Instance.changer.GiftMaterialToInstitutionNamedCharacters(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);            
+            if (giftCharactersSwitch.isOn == true)
+            {
+                DataController.Instance.changer.GiftMaterialToInstitutionNamedCharacters(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text, amount);
+                if (giftUnnamedCharactersSwitch.isOn == true)
+                    DataController.Instance.changer.GiftMaterialToInstitutionUnnamedCharacters(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text, amount);
+
+            }
             else
-                DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text);
+                DataController.Instance.changer.GiftMaterial(UIController.Instance.primarySelectedObject, giftDropdown.selectedText.text, amount);
         }
         UpdateActionWindow();
     }

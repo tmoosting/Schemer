@@ -85,21 +85,63 @@ public class DataController : MonoBehaviour
             materialList.Add(new Material(fieldNamesAndValues));
         }
 
-        // Link Material-Elements after all are created
+        // Link Material-MaterialCollection after all are created
         foreach (Material mat in materialList)        
             mat.LinkMaterialCollections();
-        
 
-        // INSTITUTIONS
+   
 
-        foreach (string id in linker.GetIDValuesForTable("Institution"))
+            // INSTITUTIONS
+
+            foreach (string id in linker.GetIDValuesForTable("Institution"))
         {
             Dictionary<string, string> fieldNamesAndValues = new Dictionary<string, string>();
             foreach (string field in linker.GetFieldNamesForTable("Institution"))
                 fieldNamesAndValues.Add(field, linker.GetEntryForTableAndFieldWithID("Institution", field, id));
             institutionList.Add(new Institution(fieldNamesAndValues));
         }
-         
+
+
+
+
+
+        // Create Nuggets from baseWealth for CHA and INS
+        foreach (Character character in characterList)
+            for (int i = 0; i < character.baseWealth; i++)
+            {
+                if (DoesObjectOwnMaterialSubtypeAlready(character, Material.MaterialSubtype.Nugget) == true)
+                    GetAnyOwnedMaterialOfSubtype(character, Material.MaterialSubtype.Nugget).baseAmount++;
+                else
+                    CreateStandardMaterial(Material.MaterialSubtype.Nugget, character);
+            }
+        foreach (Institution institution in institutionList)
+            for (int i = 0; i < institution.baseWealth; i++)
+            {
+                if (DoesObjectOwnMaterialSubtypeAlready(institution, Material.MaterialSubtype.Nugget) == true)
+                    GetAnyOwnedMaterialOfSubtype(institution, Material.MaterialSubtype.Nugget).baseAmount++;
+                else
+                    CreateStandardMaterial(Material.MaterialSubtype.Nugget, institution);
+            }
+
+        // Create Equipped materials
+
+        foreach (Institution institution in institutionList)
+        {
+            if (institution.equippedWith != "")
+            {
+                // give each named character the material.
+                // give the institution the material for each generic character. preferably stacked
+                Material.MaterialSubtype subType = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), institution.equippedWith);
+                foreach (Character character in GetSchemeCharacters(institution))
+                    CreateStandardMaterial(subType, character);
+
+                Material createdMaterial = CreateStandardMaterial(subType, institution);
+                createdMaterial.baseAmount = (institution.genericOwnerCount + institution.genericCooperativeCount + institution.genericOwneeCount);
+
+
+            }
+        }
+
         // DISABLED because no separate relation table for now
         //foreach (string id in linker.GetIDValuesForTable("Relation"))
         //{
@@ -141,11 +183,11 @@ public class DataController : MonoBehaviour
     {
         createdRelationsAmount++;
         Relation relation = new Relation(type, primaryObject, secondaryObject, createdRelationsAmount);
-        relationList.Add(relation);
+        relationList.Add(relation); 
     }
 
     // standard means no attribute bonuses
-    public void CreateStandardMaterial(Material.MaterialSubtype subType, DataObject owner)
+    public Material CreateStandardMaterial(Material.MaterialSubtype subType, DataObject owner)
     {
         createdMaterialAmount++;
         Dictionary<string, string> creationDict = new Dictionary<string, string>();
@@ -160,15 +202,16 @@ public class DataController : MonoBehaviour
         else
             idString = "MATC" + createdMaterialAmount;
 
-        creationDict["ID"] = idString;
-        creationDict["Name"] = subType.ToString()+ createdMaterialAmount.ToString();
+        creationDict["ID"] = idString;    
+        creationDict["Name"] = subType.ToString() + createdMaterialAmount.ToString();
         creationDict["Subtype"] = subType.ToString();
         creationDict["Type"] = Constants.Instance.materialTyping[subType].ToString(); 
 
         Material material = new Material(creationDict);
         material.totalPower = Constants.Instance.materialSubtypeBaseValues[subType];
         materialList.Add(material);
-        CreateRelation(Relation.RelationType.Ownership, owner, material); 
+        CreateRelation(Relation.RelationType.Ownership, owner, material);
+        return material;
     }
 
 
@@ -382,6 +425,16 @@ public class DataController : MonoBehaviour
             Debug.LogWarning("Could not find next owner for Institution: " + scheme.name);
         return returnCharacter;
     }
+    public List<Material> GetMaterialsOwnedByDataObject(DataObject dataObject)
+    {
+        List<Material> returnList = new List<Material>();
+        foreach (Relation rel in relationList)
+            if (rel.relationType == Relation.RelationType.Ownership)
+                if (rel.primaryDataObject == dataObject)
+                    if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
+                        returnList.Add((Material)rel.secondaryDataObject);
+        return returnList;
+    }
     public List<Material> GetMaterialsOwnedByCharacter(Character character)
     {
         List<Material> returnList = new List<Material>();
@@ -474,7 +527,15 @@ public class DataController : MonoBehaviour
         return returnList;
     }
 
-
+    public Material GetAnyOwnedMaterialOfSubtype(DataObject dataObject, Material.MaterialSubtype subType)
+    {
+        Material material = null;
+        foreach (Material  mat in GetMaterialsOwnedByDataObject(dataObject))        
+            if (mat.materialSubtype == subType)
+                material = mat;
+        return material; 
+    }
+  
 
 
 
@@ -662,7 +723,13 @@ public class DataController : MonoBehaviour
         return returnBool;
     }
 
-
+    public bool DoesObjectOwnMaterialSubtypeAlready (DataObject dataObject, Material.MaterialSubtype subType)
+    {
+        bool returnBool = false;
+        if (GetAnyOwnedMaterialOfSubtype(dataObject, subType) != null)
+            returnBool = true; 
+        return returnBool;
+    }
 
 
 

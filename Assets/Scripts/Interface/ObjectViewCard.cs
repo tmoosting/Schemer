@@ -83,7 +83,7 @@ public class ObjectViewCard : MonoBehaviour
         {
             CreateTextObject("Pow.Potential: "+ character.powerPotential);
             CreateTextObject("Pow.Material: "+ character.materialPower);
-            CreateTextObject("Pow.Instes: "+ character.schemesPower);
+            CreateTextObject("Pow.Instus: "+ character.schemesPower);
             CreateTextObject("Pow.Total: "+ character.totalPower);
             CreateTextObject("----------------------------");
         }

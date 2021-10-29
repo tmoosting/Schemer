@@ -14,22 +14,21 @@ public class Material : DataObject
     } 
     public enum MaterialSubtype 
     {
-        Land, // Constructive, order of magnitude
         Settlement, // could be more specific: city, town, village
         Estate,
         Building,
         Tool,
-        WarMachine,    // Destructive, order of magnitude
         SmallArms,
         Nugget // Exchange Unit
     }
     public MaterialType materialType;
     public MaterialSubtype materialSubtype;
      
-    public float bonusPower; // also used for exchange type value, eco and power= interchangeable
+    public float baseAmount; // Nugget and others: amount; Settlement: #inhabitants
     public float bonusFear;
     public float bonusCharisma;
     public float bonusSkill; 
+    public float inhabitants; 
 
     // From database - meta
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
@@ -53,14 +52,14 @@ public class Material : DataObject
             materialType = (MaterialType)System.Enum.Parse(typeof(MaterialType), dict["Type"]);
         if (dict["Subtype"] != "")
             materialSubtype = (MaterialSubtype)System.Enum.Parse(typeof(MaterialSubtype), dict["Subtype"]);
-        if (dict["BonusPower"] != "")
-            bonusPower = int.Parse(dict["BonusPower"]);
+        if (dict["BaseAmount"] != "")
+            baseAmount = int.Parse(dict["BaseAmount"]);
         if (dict["BonusFear"] != "")
             bonusFear = int.Parse(dict["BonusFear"]);
         if (dict["BonusCharisma"] != "")
             bonusCharisma = int.Parse(dict["BonusCharisma"]);
         if (dict["BonusSkill"] != "")
-            bonusSkill = int.Parse(dict["BonusSkill"]); 
+            bonusSkill = int.Parse(dict["BonusSkill"]);
     }
 
     public void LinkMaterialCollections()

@@ -11,4 +11,6 @@ public class DataObject
     public DataType dataType;
 
     public float totalPower;
+
+    
 }

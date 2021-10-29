@@ -15,6 +15,8 @@ public class Institution : DataObject
     public int genericOwnerCount;
     public int genericCooperativeCount;
     public int genericOwneeCount;
+    public int baseWealth;
+    public string equippedWith;
 
     // From database - meta
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
@@ -45,6 +47,9 @@ public class Institution : DataObject
             genericCooperativeCount = int.Parse(dict["GenericCooperativeCharacters"]);
         if (dict["GenericOwneeCharacters"] != "")
             genericOwneeCount = int.Parse(dict["GenericOwneeCharacters"]);
+        if (dict["Wealth"] != "")
+            baseWealth = int.Parse(dict["Wealth"]);
+        equippedWith = dict["Equipped"];
     }
 
     public void CreateSchemeRelations()

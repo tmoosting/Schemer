@@ -16,37 +16,30 @@ public class Constants : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        materialTyping.Add (Material.MaterialSubtype.Land, Material.MaterialType.Constructive);
         materialTyping.Add( Material.MaterialSubtype.Settlement, Material.MaterialType.Constructive); 
         materialTyping.Add( Material.MaterialSubtype.Estate, Material.MaterialType.Constructive);
         materialTyping.Add( Material.MaterialSubtype.Building, Material.MaterialType.Constructive);
         materialTyping.Add( Material.MaterialSubtype.Tool, Material.MaterialType.Constructive);
-        materialTyping.Add( Material.MaterialSubtype.WarMachine, Material.MaterialType.Destructive); 
         materialTyping.Add( Material.MaterialSubtype.SmallArms, Material.MaterialType.Destructive);
         materialTyping.Add( Material.MaterialSubtype.Nugget, Material.MaterialType.Exchange);
 
-
-        materialSubtypeBaseValues.Add(Material.MaterialSubtype.Land, SUBTYPE_VALUE_LAND); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Settlement, SUBTYPE_VALUE_SETTLEMENT);  
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Estate, SUBTYPE_VALUE_ESTATE); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Building, SUBTYPE_VALUE_BUILDING); 
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Tool, SUBTYPE_VALUE_TOOL); 
-        materialSubtypeBaseValues.Add(Material.MaterialSubtype.WarMachine, SUBTYPE_VALUE_WARMACHINE);  
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.SmallArms, SUBTYPE_VALUE_SMALLARMS);  
         materialSubtypeBaseValues.Add(Material.MaterialSubtype.Nugget, SUBTYPE_VALUE_NUGGET);  
     }
 
     // Base Values      
 
-    public float BASE_CHARACTER_POWER_POTENTIAL = 20f;
-    public float SUBTYPE_VALUE_LAND = 1500f;
-    public float SUBTYPE_VALUE_SETTLEMENT = 600f; 
-    public float SUBTYPE_VALUE_ESTATE = 150f;
-    public float SUBTYPE_VALUE_BUILDING = 50f;
-    public float SUBTYPE_VALUE_TOOL = 20f;
-    public float SUBTYPE_VALUE_WARMACHINE = 120f;
-    public float SUBTYPE_VALUE_SMALLARMS = 20f;
-    public float SUBTYPE_VALUE_NUGGET = 1f;
+    public float BASE_CHARACTER_POWER_POTENTIAL;
+    public float SUBTYPE_VALUE_SETTLEMENT ; 
+    public float SUBTYPE_VALUE_ESTATE ;
+    public float SUBTYPE_VALUE_BUILDING ;
+    public float SUBTYPE_VALUE_TOOL;
+    public float SUBTYPE_VALUE_SMALLARMS ;
+    public float SUBTYPE_VALUE_NUGGET;
 
 
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Michsky.UI.ModernUIPack;
 
-public class FocusLabel : MonoBehaviour
+public class SwitchLabel : MonoBehaviour
 {
     public SwitchManager focusSwitch;
 

@@ -76,11 +76,18 @@ public class PowerCalculator : MonoBehaviour
     void CalculateMaterialPowerPotential(Material material)
     {
         float calculatedPower = 0f;
-        calculatedPower += constants.materialSubtypeBaseValues[material.materialSubtype];
-        calculatedPower += material.bonusPower;
+        calculatedPower += constants.materialSubtypeBaseValues[material.materialSubtype]; 
         calculatedPower += material.bonusFear;
         calculatedPower += material.bonusCharisma;
         calculatedPower += material.bonusSkill;
+
+        float baseBonus = 0;
+        if (material.materialSubtype == Material.MaterialSubtype.Settlement)        
+            baseBonus += material.baseAmount *= Constants.Instance.BASE_CHARACTER_POWER_POTENTIAL;        
+        else 
+            baseBonus += material.baseAmount * Constants.Instance.materialSubtypeBaseValues[material.materialSubtype];
+        calculatedPower += baseBonus;
+
         material.totalPower += calculatedPower;
     }
     void CalculateCharacterOwnedMaterialPower(Character character)

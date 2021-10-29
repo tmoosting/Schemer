@@ -30,15 +30,33 @@ public class DataChanger : MonoBehaviour
    
    
 
-    public void GiftMaterial(DataObject receiverObject, string materialSubtype)
+    public void GiftMaterial(DataObject receiverObject, string materialSubtype, int amount)
     {
-        Material.MaterialSubtype subType = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), materialSubtype);
+        for (int i = 0; i < amount; i++)
+        {
+            Material.MaterialSubtype subType = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), materialSubtype);  
+            if (subType != Material.MaterialSubtype.Nugget)
+            { 
+                DataController.Instance.CreateStandardMaterial(subType, receiverObject);
+            }
+            else if (subType == Material.MaterialSubtype.Nugget)
+            {
+                if (DataController.Instance.DoesObjectOwnMaterialSubtypeAlready(receiverObject, subType) == true)
+                {
+                    DataController.Instance.GetAnyOwnedMaterialOfSubtype(receiverObject, subType).baseAmount++;
+                }
+                else
+                { 
+                    DataController.Instance.CreateStandardMaterial(subType, receiverObject);
+                }
+            }
+            
+        }
         UIController.Instance.PlayGiftSparksAtObject(receiverObject);
-        DataController.Instance.CreateStandardMaterial(subType, receiverObject);
         if (limitReloadCardObject == false)
             DataController.Instance.powerCalculator.CalculatePowers();
     }
-    public void GiftMaterialToInstitutionNamedCharacters(DataObject receiverInstitution, string materialSubtype)
+    public void GiftMaterialToInstitutionNamedCharacters(DataObject receiverInstitution, string materialSubtype, int amount)
     {
         Material.MaterialSubtype subType = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), materialSubtype);
         UIController.Instance.PlayGiftSparksAtObject(receiverInstitution);
@@ -47,7 +65,18 @@ public class DataChanger : MonoBehaviour
         if (limitReloadCardObject == false)
             DataController.Instance.powerCalculator.CalculatePowers();
     }
+    public void GiftMaterialToInstitutionUnnamedCharacters(DataObject receiverInstitution, string materialSubtype, int amount)
+    {
+        Material.MaterialSubtype subType = (Material.MaterialSubtype)System.Enum.Parse(typeof(Material.MaterialSubtype), materialSubtype);
+        UIController.Instance.PlayGiftSparksAtObject(receiverInstitution);
 
+        Institution ins = (Institution)receiverInstitution;
+        Material createdMaterial =DataController.Instance.CreateStandardMaterial(subType, receiverInstitution);
+        createdMaterial.baseAmount = (ins.genericOwnerCount + ins.genericCooperativeCount + ins.genericOwneeCount);
+
+        if (limitReloadCardObject == false)
+            DataController.Instance.powerCalculator.CalculatePowers();
+    }
 
     public void ClaimDataObject(DataObject receiverObject,  DataObject claimedObject)
     {

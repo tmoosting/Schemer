@@ -12,6 +12,7 @@ public class Character : DataObject
     public float fearfulness;
     public float charisma;
     public float decisionMaking;
+    public int baseWealth;
 
     // From database - meta
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
@@ -40,8 +41,9 @@ public class Character : DataObject
             charisma = float.Parse(dict["Charisma"]);
         if (dict["DecisionMaking"] != "")
             decisionMaking = float.Parse(dict["DecisionMaking"]);
+        if (dict["Wealth"] != "")
+            baseWealth = int.Parse(dict["Wealth"]);
 
-        
     }
 
  
