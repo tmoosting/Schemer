@@ -28,7 +28,6 @@ public class Material : DataObject
     public float bonusFear;
     public float bonusCharisma;
     public float bonusSkill; 
-    public float inhabitants; 
 
     // From database - meta
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();

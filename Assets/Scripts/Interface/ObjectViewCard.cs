@@ -75,12 +75,16 @@ public class ObjectViewCard : MonoBehaviour
             foreach (string str in character.fieldValueDict.Keys)
                 if (str != "Name")
                 {
-                    CreateTextObject(str + ": " + character.fieldValueDict[str]);
+                    if (character.fieldValueDict[str] != "")
+                      CreateTextObject(str + ": " + character.fieldValueDict[str]);
                 }
             CreateTextObject("----------------------------");
         }
         if (UIController.Instance.toggleShowPower.isOn)
         {
+            CreateTextObject("Fearfulness: "+ character.fearfulness);
+            CreateTextObject("Charisma: "+ character.charisma);
+            CreateTextObject("Skill: "+ character.decisionMaking);
             CreateTextObject("Pow.Potential: "+ character.powerPotential);
             CreateTextObject("Pow.Material: "+ character.materialPower);
             CreateTextObject("Pow.Instus: "+ character.schemesPower);
@@ -117,12 +121,14 @@ public class ObjectViewCard : MonoBehaviour
             foreach (string str in material.fieldValueDict.Keys)
                 if (str != "Name")
                 {
-                    CreateTextObject(str + ": " + material.fieldValueDict[str]);
+                    if (material.fieldValueDict[str] != "")
+                        CreateTextObject(str + ": " + material.fieldValueDict[str]);
                 }
             CreateTextObject("----------------------------");
         }
         if (UIController.Instance.toggleShowPower.isOn)
         {
+            CreateTextObject("Base Amount: " + material.baseAmount);
             CreateTextObject("Pow.Potential: " + material.totalPower);
             CreateTextObject("----------------------------");
         }
@@ -143,7 +149,8 @@ public class ObjectViewCard : MonoBehaviour
             foreach (string str in scheme.fieldValueDict.Keys)
                 if (str != "Name")
                 {
-                    CreateTextObject(str + ": " + scheme.fieldValueDict[str]);
+                    if (scheme.fieldValueDict[str] != "")
+                        CreateTextObject(str + ": " + scheme.fieldValueDict[str]);
                 }
             CreateTextObject("----------------------------");
         }

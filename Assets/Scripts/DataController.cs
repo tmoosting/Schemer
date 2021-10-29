@@ -8,6 +8,7 @@ public class DataController : MonoBehaviour
 
 
     [Header("Options")]
+    public bool addRandomCharacterTraits;
     public bool sweepUnownedMaterials;
     public bool sweepUnownedSchemes;
     public bool verifyRelationsAtStart;
@@ -71,6 +72,16 @@ public class DataController : MonoBehaviour
             characterList.Add(new Character(fieldNamesAndValues));
         }
 
+        if (addRandomCharacterTraits == true)
+            foreach (Character character in characterList)
+            {
+                if (character.fearfulness == 0)
+                    character.fearfulness = Random.Range(0, 99);
+                if (character.charisma == 0)
+                    character.charisma = Random.Range(0, 99);
+                if (character.decisionMaking == 0)
+                    character.decisionMaking = Random.Range(0, 99);
+            }
         // MATERIAL
         // Manual-create template
         foreach (string field in linker.GetFieldNamesForTable("Material"))
@@ -216,6 +227,16 @@ public class DataController : MonoBehaviour
 
 
     // --------------- GET FUNCTIONS
+
+    public List<DataObject> GetAllNonRelationNonMaterialObjects()
+    {
+        List<DataObject> returnList = new List<DataObject>();
+        foreach (DataObject dataObject in characterList)
+            returnList.Add(dataObject);
+        foreach (DataObject dataObject in institutionList)
+            returnList.Add(dataObject);
+        return returnList;
+    }
 
     public Character GetCharacterWithID(string id)
     {

@@ -1898,6 +1898,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a68790eef0367d445b567fee9cb8a796, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  trackPowerRankings: 1
   calculateButton: {fileID: 1296496132}
   charactersText: {fileID: 101180798}
   institutionsText: {fileID: 453490395}
@@ -3010,7 +3011,7 @@ MonoBehaviour:
   createKillEffect: 1
   createGiftEffect: 1
   enableToggleCharactersOnStart: 1
-  enableToggleMaterialsOnStart: 1
+  enableToggleMaterialsOnStart: 0
   enableToggleInstitutionsOnStart: 1
   enableToggleRelationsOnStart: 0
   enableToggleDatabaseInfoOnStart: 0
@@ -4196,6 +4197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b6831345cecef64b872fbe068f5f67c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  addRandomCharacterTraits: 1
   sweepUnownedMaterials: 1
   sweepUnownedSchemes: 1
   verifyRelationsAtStart: 1

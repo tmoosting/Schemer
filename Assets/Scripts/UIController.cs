@@ -346,7 +346,6 @@ public class UIController : MonoBehaviour
     int SortByPower(DataObject obj1, DataObject obj2)
     {
         return DataController.Instance.GetTotalPower(obj2).CompareTo(DataController.Instance.GetTotalPower(obj1));
-
     }
 
     void ClearObjectCards(bool focusView)

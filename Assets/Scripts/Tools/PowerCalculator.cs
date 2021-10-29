@@ -6,17 +6,26 @@ using TMPro;
 
 public class PowerCalculator : MonoBehaviour
 {
+
+    [Header("Options")]
+    public bool trackPowerRankings;
+
     [Header ("Assigns")]
     public Button calculateButton;
     public TextMeshProUGUI charactersText;
     public TextMeshProUGUI institutionsText;
     public TextMeshProUGUI highscoresText;
 
-     
+    bool firstRun = true;
 
     DataController data;
     Constants constants;
 
+    [HideInInspector] 
+    public Dictionary<DataObject, int> previousPowerRankings = new Dictionary<DataObject, int>(); 
+    public Dictionary<DataObject, int> newPowerRankings = new Dictionary<DataObject, int>();
+    List<DataObject> previousPowerRankingList = new List<DataObject>();
+    List<DataObject> newPowerRankingList = new List<DataObject>();
 
     private void Start()
     {
@@ -29,40 +38,98 @@ public class PowerCalculator : MonoBehaviour
     {
         CalculatePowers(); 
     }
-  
+    int SortByPower(DataObject obj1, DataObject obj2)
+    {
+        return DataController.Instance.GetTotalPower(obj2).CompareTo(DataController.Instance.GetTotalPower(obj1));
+    }
 
     public void CalculatePowers()
     {
-        ResetPowerValues();
+        if (firstRun == true)
+        {
+            firstRun = false;
+        }
+        else
+        {
+            if (trackPowerRankings == true)
+            {
+                previousPowerRankingList = new List<DataObject>();
+                previousPowerRankingList = DataController.Instance.GetAllNonRelationNonMaterialObjects();
+                previousPowerRankingList.Sort(SortByPower);
+            //    Debug.Log("oldrel has pos 1 " + previousPowerRankingList[0].ID);
 
-        foreach (Character cha in data.characterList)
-            CalculateCharacterPowerPotential(cha);
+                previousPowerRankings = new Dictionary<DataObject, int>();
+                int rank = 0;
+                foreach (DataObject dataObject in previousPowerRankingList)
+                {
+                    rank++;
+                    previousPowerRankings.Add(dataObject, rank);
+                }
+            }
+      
+            
+            ResetPowerValues();
 
-        foreach (Material mat in data.materialList)
-            CalculateMaterialPowerPotential(mat);
+            foreach (Character cha in data.characterList)
+                CalculateCharacterPowerPotential(cha);
 
-        foreach (Character cha in data.characterList)
-            CalculateCharacterOwnedMaterialPower(cha);
+            foreach (Material mat in data.materialList)
+                CalculateMaterialPowerPotential(mat);
 
-        foreach (Institution ins in data.institutionList)
-            AddSchemePowerFromCharacters(ins);
+            foreach (Character cha in data.characterList)
+                CalculateCharacterOwnedMaterialPower(cha);
 
-        foreach (Institution ins in data.institutionList)
-            AddSchemePowerFromMaterials(ins);
+            foreach (Institution ins in data.institutionList)
+                AddSchemePowerFromCharacters(ins);
 
-        foreach (Institution ins in data.institutionList)
-            CalculateSchemePowerFromCooperations(ins);
+            foreach (Institution ins in data.institutionList)
+                AddSchemePowerFromMaterials(ins);
 
-        foreach (Institution ins in data.institutionList)
-            AddSchemePowerFromCooperations(ins);
+            foreach (Institution ins in data.institutionList)
+                CalculateSchemePowerFromCooperations(ins);
 
-        foreach (Character cha in data.characterList)
-            AddCharacterPowerFromSchemes(cha);
-         
-           UIController.Instance.ReloadObjectCards();
+            foreach (Institution ins in data.institutionList)
+                AddSchemePowerFromCooperations(ins);
+
+            foreach (Character cha in data.characterList)
+                AddCharacterPowerFromSchemes(cha);
+
+            UIController.Instance.ReloadObjectCards();
+
+            if (trackPowerRankings == true)
+            {
+                newPowerRankingList = new List<DataObject>();
+                newPowerRankingList = DataController.Instance.GetAllNonRelationNonMaterialObjects();
+                newPowerRankingList.Sort(SortByPower);
+           //     Debug.Log("newrel has pos 1 " + newPowerRankingList[0].ID);
+                newPowerRankings = new Dictionary<DataObject, int>();
+                int rank = 0;
+                foreach (DataObject dataObject in newPowerRankingList)
+                {
+                    rank++;
+                    newPowerRankings.Add(dataObject, rank);
+                }
+
+                foreach (DataObject dataObject in newPowerRankings.Keys)
+                {
+                    if (newPowerRankings[dataObject] > previousPowerRankings[dataObject])                    
+                        Debug.Log(dataObject.ID + " UP " + (newPowerRankings[dataObject] - previousPowerRankings[dataObject]).ToString());
+                    else if (newPowerRankings[dataObject] < previousPowerRankings[dataObject])
+                        Debug.Log(dataObject.ID + " DOWN " + (previousPowerRankings[dataObject] - newPowerRankings[dataObject]).ToString());
+
+                }
+            }
+
+
+        }
+
     }
 
    
+    void LogPowerChanges()
+    {
+
+    }
 
     void CalculateCharacterPowerPotential(Character character)
     {  
