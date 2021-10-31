@@ -68,8 +68,7 @@ public class ObjectViewCard : MonoBehaviour
    
     void LoadCharacterObject(Character character)
     {
-        titleText.text = character.name;
-
+        titleText.text = character.name; 
         if (UIController.Instance.toggleShowDatabase.isOn)
         {
             foreach (string str in character.fieldValueDict.Keys)
@@ -80,8 +79,10 @@ public class ObjectViewCard : MonoBehaviour
                 }
             CreateTextObject("----------------------------");
         }
+        else
+            CreateTextObject(character.ID);
         if (UIController.Instance.toggleShowPower.isOn)
-        {
+        { 
             CreateTextObject("Fearfulness: "+ character.fearfulness);
             CreateTextObject("Charisma: "+ character.charisma);
             CreateTextObject("Skill: "+ character.decisionMaking);
@@ -126,6 +127,8 @@ public class ObjectViewCard : MonoBehaviour
                 }
             CreateTextObject("----------------------------");
         }
+        else
+            CreateTextObject(material.ID);
         if (UIController.Instance.toggleShowPower.isOn)
         {
             CreateTextObject("Base Amount: " + material.baseAmount.ToString("F1"));
@@ -154,6 +157,8 @@ public class ObjectViewCard : MonoBehaviour
                 }
             CreateTextObject("----------------------------");
         }
+        else
+            CreateTextObject(scheme.ID);
         if (UIController.Instance.toggleShowPower.isOn)
         {
             CreateTextObject("Pow.NamedOwners: " + scheme.namedOwnerPower.ToString("F1")); 
@@ -191,6 +196,7 @@ public class ObjectViewCard : MonoBehaviour
     void LoadRelationObject(Relation relation)
     {
         titleText.text = relation.name;
+        CreateTextObject(relation.ID);
         CreateTextObject("Type: " + relation.relationType);
         CreateLinkObject("Pri: ", relation.primaryDataObject);
         CreateLinkObject("Sec: ", relation.secondaryDataObject);

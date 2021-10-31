@@ -44,6 +44,7 @@ public class Constants : MonoBehaviour
 
 
     // Power Calculation 
+    public float INSTITUTION_COOPERATION_POWER_BONUS = 0.1f;
     public float INSTITUTION_PRIMARY_OWNER_POWERPROPORTION = 0.5f;
     public float INSTITUTION_COOPERATOR_POWERPROPORTION = 0.2f;
     public float INSTITUTION_OWNEE_POWERPROPORTION = 0.02f;

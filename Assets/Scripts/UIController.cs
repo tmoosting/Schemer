@@ -60,8 +60,7 @@ public class UIController : MonoBehaviour
     public SwitchManager focusSwitch;
     public ActionWindow actionWindow;
     public GameObject explosionPrefab;
-    public GameObject giftPrefab;
-    public GameObject calculatePowerButton;
+    public GameObject giftPrefab; 
 
     [HideInInspector] 
     public List<ObjectViewCard> cardListRegular = new List<ObjectViewCard>();

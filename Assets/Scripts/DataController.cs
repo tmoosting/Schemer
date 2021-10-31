@@ -56,8 +56,7 @@ public class DataController : MonoBehaviour
 
         if (calculatePowerOnStart == true)
         {
-            powerCalculator.CalculatePowers();
-            UIController.Instance.calculatePowerButton.SetActive(false);
+            powerCalculator.CalculatePowers(); 
         }
     }
     void AutoCreate()

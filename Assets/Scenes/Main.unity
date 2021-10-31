@@ -1776,7 +1776,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: RECALCULATE
+  m_text: LOG
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 84dd14695854bbc43a5faa24fcf93d0d, type: 2}
   m_sharedMaterial: {fileID: 21261991626553910, guid: 84dd14695854bbc43a5faa24fcf93d0d, type: 2}
@@ -3039,7 +3039,7 @@ MonoBehaviour:
     rgba: 4288409996
   colorViewCardSelected:
     serializedVersion: 2
-    rgba: 4294934528
+    rgba: 4294902013
   colorSelectButtonNormal:
     serializedVersion: 2
     rgba: 4281336576
@@ -3074,7 +3074,6 @@ MonoBehaviour:
   actionWindow: {fileID: 1361346755}
   explosionPrefab: {fileID: 7855376134781479289, guid: 66f0fc2fa0310c84483db92cf4d0233c, type: 3}
   giftPrefab: {fileID: 3315662998726822224, guid: 8d11653854c766e40bc7c87ab1c26dee, type: 3}
-  calculatePowerButton: {fileID: 2113637536}
   cardListRegular: []
   cardListFocusView: []
 --- !u!4 &204957502
@@ -4249,6 +4248,7 @@ MonoBehaviour:
   SUBTYPE_VALUE_TOOL: 15
   SUBTYPE_VALUE_SMALLARMS: 20
   SUBTYPE_VALUE_NUGGET: 1
+  INSTITUTION_COOPERATION_POWER_BONUS: 0.1
   INSTITUTION_PRIMARY_OWNER_POWERPROPORTION: 0.5
   INSTITUTION_COOPERATOR_POWERPROPORTION: 0.2
   INSTITUTION_OWNEE_POWERPROPORTION: 0.02
@@ -22973,7 +22973,7 @@ GameObject:
   - component: {fileID: 2113637539}
   - component: {fileID: 2113637538}
   m_Layer: 5
-  m_Name: ButtonRecalculate
+  m_Name: ButtonLogHierarchy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22997,8 +22997,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 543, y: 0.70000076}
-  m_SizeDelta: {x: 200, y: 55}
+  m_AnchoredPosition: {x: 633.7, y: -0.000011444092}
+  m_SizeDelta: {x: 85.71, y: 55.95}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2113637538
 MonoBehaviour:
@@ -23086,13 +23086,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a12ddbc47b17cd478cb447d1113a22b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonText: RECALCULATE
+  buttonText: LOG
   clickEvent:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 97675124}
         m_TargetAssemblyTypeName: PowerCalculator, Assembly-CSharp
-        m_MethodName: ClickCalculateButton
+        m_MethodName: ClickLogButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

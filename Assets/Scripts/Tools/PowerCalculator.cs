@@ -30,6 +30,8 @@ public class PowerCalculator : MonoBehaviour
     public Dictionary<Institution, int> newInstitutionPowerRankings = new Dictionary<Institution, int>();
     List<Institution> previousInstitutionPowerRankingList = new List<Institution>();
     List<Institution> newInstitutionPowerRankingList = new List<Institution>();
+    public Dictionary<DataObject, float> previousPowerValues = new Dictionary<DataObject, float>();
+    public Dictionary<DataObject, float> newPowerValues = new Dictionary<DataObject, float>();
 
     private void Start()
     {
@@ -68,9 +70,8 @@ public class PowerCalculator : MonoBehaviour
                     chaRank++;
                     previousCharacterPowerRankings.Add((Character)dataObject, chaRank);
                 }
-         
 
-
+               
                 // INS
                 previousInstitutionPowerRankingList = new List<Institution>();
                 previousInstitutionPowerRankingList = DataController.Instance.institutionList;
@@ -82,6 +83,15 @@ public class PowerCalculator : MonoBehaviour
                     insRank++;
                     previousInstitutionPowerRankings.Add((Institution)dataObject, insRank);
                 }
+
+                // Net power tracking
+
+                previousPowerValues = new Dictionary<DataObject, float>();
+                newPowerValues = new Dictionary<DataObject, float>();
+                foreach (Character character in DataController.Instance.characterList)                
+                    previousPowerValues.Add(character, character.totalPower);
+                foreach (Institution institution in DataController.Instance.institutionList)
+                    previousPowerValues.Add(institution, institution.totalPower);
 
             }
       
@@ -140,12 +150,20 @@ public class PowerCalculator : MonoBehaviour
                     newInstitutionPowerRankings.Add(dataObject, insRank);
                 }
 
+                // Net power tracking
+                foreach (Character character in DataController.Instance.characterList)
+                    newPowerValues.Add(character, character.totalPower);
+                foreach (Institution institution in DataController.Instance.institutionList)
+                    newPowerValues.Add(institution, institution.totalPower);
+
                 if (UIController.Instance.actionWindow.actionTaken == true)
                 {
                     LogLastAction();
+                    LogNetPowerChanges();
                     LogHierarchyChanges();
                 }
 
+             
 
                 UIController.Instance.actionWindow.actionTaken = false;
 
@@ -239,8 +257,9 @@ public class PowerCalculator : MonoBehaviour
     void CalculateSchemePowerFromCooperations(Institution scheme)
     {
         float calcPower = 0f;
-        foreach (Institution coopScheme in DataController.Instance.GetSchemesCoopedByScheme(scheme)) 
-     scheme.cooperationPower = calcPower;        
+        foreach (Institution coopScheme in DataController.Instance.GetSchemesCoopedByScheme(scheme))        
+            calcPower += coopScheme.totalPower * Constants.Instance.INSTITUTION_COOPERATION_POWER_BONUS;        
+        scheme.cooperationPower = calcPower;
     }
     void AddSchemePowerFromCooperations(Institution scheme)
     {        
@@ -322,7 +341,7 @@ public class PowerCalculator : MonoBehaviour
     void LogLastAction()
     {
         ActionWindow window = UIController.Instance.actionWindow;
-        string actionString = "Action: ";
+        string actionString = "------------ ";
         if (window.lastTakenActionType == ActionWindow.ActionType.DESTROY)
             actionString += window.lastTakenActionType.ToString() +" "+ window.lastTakenActionPrimaryObjectName;
         else if (window.lastTakenActionType == ActionWindow.ActionType.GIFT)
@@ -336,10 +355,184 @@ public class PowerCalculator : MonoBehaviour
         else if (window.lastTakenActionType == ActionWindow.ActionType.BREAKCOOP)
             actionString += window.lastTakenActionPrimaryObjectName + " BREAKS COOP WITH " + window.lastTakenActionSecondaryObjectName;
 
+        actionString += " ------------";
+
         Debug.Log(actionString);
     }
 
 
+    void LogNetPowerChanges()
+    {
+        float firstNetGain = 0;
+        float secondNetGain = 0;
+        float thirdNetGain = 0;
+        float fourthNetGain = 0;
+        float fifthNetGain = 0;
+        float firstNetLoss = 0;
+        float secondNetLoss = 0;
+        float thirdNetLoss = 0;
+        float fourthNetLoss = 0;
+        float fifthNetLoss = 0;
+        DataObject firstWinner = null;
+        DataObject secondWinner = null;
+        DataObject thirdWinner = null;
+        DataObject fourthWinner = null;
+        DataObject fifthWinner = null;
+        DataObject firstLoser = null;
+        DataObject secondLoser = null;
+        DataObject thirdLoser = null;
+        DataObject fourthLoser = null;
+        DataObject fifthLoser = null;
+
+        // FIRST
+        foreach (DataObject dataObject in newPowerValues.Keys)
+        {
+            if (newPowerValues[dataObject] > previousPowerValues[dataObject])
+            {
+                float powerGained = newPowerValues[dataObject] - previousPowerValues[dataObject];
+                if (powerGained > firstNetGain)
+                {
+                    firstNetGain = powerGained;
+                    firstWinner = dataObject;
+                }
+            }
+            else if (previousPowerValues[dataObject] > newPowerValues[dataObject])
+            {
+                float powerLost  = previousPowerValues[dataObject] - newPowerValues[dataObject];
+                if (powerLost > firstNetLoss)
+                {
+                    firstNetLoss = powerLost;
+                    firstLoser = dataObject;
+                }
+            }
+        }
+        // SECOND
+        foreach (DataObject dataObject in newPowerValues.Keys)
+        {
+            if (dataObject != firstWinner && dataObject != firstLoser)
+            {
+                if (newPowerValues[dataObject] > previousPowerValues[dataObject])
+                {
+                    float powerGained = newPowerValues[dataObject] - previousPowerValues[dataObject];
+                    if (powerGained > secondNetGain)
+                    {
+                        secondNetGain = powerGained;
+                        secondWinner = dataObject;
+                    }
+                }
+                else if (previousPowerValues[dataObject] > newPowerValues[dataObject])
+                {
+                    float powerLost = previousPowerValues[dataObject] - newPowerValues[dataObject];
+                    if (powerLost > secondNetLoss)
+                    {
+                        secondNetLoss = powerLost;
+                        secondLoser = dataObject;
+                    }
+                }
+            } 
+        }
+        // THIRD
+        foreach (DataObject dataObject in newPowerValues.Keys)
+        {
+            if (dataObject != firstWinner && dataObject != firstLoser &&
+                dataObject != secondWinner && dataObject != secondLoser)
+            {
+                if (newPowerValues[dataObject] > previousPowerValues[dataObject])
+                {
+                    float powerGained = newPowerValues[dataObject] - previousPowerValues[dataObject];
+                    if (powerGained > thirdNetGain)
+                    {
+                        thirdNetGain = powerGained;
+                        thirdWinner = dataObject;
+                    }
+                }
+                else if (previousPowerValues[dataObject] > newPowerValues[dataObject])
+                {
+                    float powerLost = previousPowerValues[dataObject] - newPowerValues[dataObject];
+                    if (powerLost > thirdNetLoss)
+                    {
+                        thirdNetLoss = powerLost;
+                        thirdLoser = dataObject;
+                    }
+                }
+            }
+        }
+        // FOURTH
+        foreach (DataObject dataObject in newPowerValues.Keys)
+        {
+            if (dataObject != firstWinner && dataObject != firstLoser &&
+                dataObject != secondWinner && dataObject != secondLoser &&
+                dataObject != thirdWinner && dataObject != thirdLoser)
+            {
+                if (newPowerValues[dataObject] > previousPowerValues[dataObject])
+                {
+                    float powerGained = newPowerValues[dataObject] - previousPowerValues[dataObject];
+                    if (powerGained > fourthNetGain)
+                    {
+                        fourthNetGain = powerGained;
+                        fourthWinner = dataObject;
+                    }
+                }
+                else if (previousPowerValues[dataObject] > newPowerValues[dataObject])
+                {
+                    float powerLost = previousPowerValues[dataObject] - newPowerValues[dataObject];
+                    if (powerLost > fourthNetLoss)
+                    {
+                        fourthNetLoss = powerLost;
+                        fourthLoser = dataObject;
+                    }
+                }
+            }
+        }
+        // FIFTH
+        foreach (DataObject dataObject in newPowerValues.Keys)
+        {
+            if (dataObject != firstWinner && dataObject != firstLoser &&
+                dataObject != secondWinner && dataObject != secondLoser &&
+                dataObject != thirdWinner && dataObject != thirdLoser &&
+                dataObject != fourthWinner && dataObject != fourthLoser)
+            {
+                if (newPowerValues[dataObject] > previousPowerValues[dataObject])
+                {
+                    float powerGained = newPowerValues[dataObject] - previousPowerValues[dataObject];
+                    if (powerGained > fifthNetGain)
+                    {
+                        fifthNetGain = powerGained;
+                        fifthWinner = dataObject;
+                    }
+                }
+                else if (previousPowerValues[dataObject] > newPowerValues[dataObject])
+                {
+                    float powerLost = previousPowerValues[dataObject] - newPowerValues[dataObject];
+                    if (powerLost > fifthNetLoss)
+                    {
+                        fifthNetLoss = powerLost;
+                        fifthLoser = dataObject;
+                    }
+                }
+            }
+        }
+        if (firstWinner != null)
+            Debug.Log("NET WINNER 1: " + firstWinner.name + " +  " + firstNetGain + " Power");
+        if (secondWinner != null)
+            Debug.Log("NET WINNER 2: " + secondWinner.name + " +  " + secondNetGain + " Power");
+        if (thirdWinner != null)
+            Debug.Log("NET WINNER 3: " + thirdWinner.name + " +  " + thirdNetGain + " Power");
+        if (fourthWinner != null)
+            Debug.Log("NET WINNER 4: " + fourthWinner.name + " +  " + fourthNetGain + " Power");
+        if (fifthWinner != null)
+            Debug.Log("NET WINNER 5: " + fifthWinner.name + " +  " + fifthNetGain + " Power");
+        if (firstLoser != null)
+            Debug.Log("NET LOSER 1: " + firstLoser.name + " -  " + firstNetLoss + " Power");
+        if (secondLoser != null)
+            Debug.Log("NET LOSER 2: " + secondLoser.name + " -  " + secondNetLoss + " Power");
+        if (thirdLoser != null)
+            Debug.Log("NET LOSER 3: " + thirdLoser.name + " -  " + thirdNetLoss + " Power");
+        if (fourthLoser != null)
+            Debug.Log("NET LOSER 2: " + fourthLoser.name + " -  " + fourthNetLoss + " Power");
+        if (fifthLoser != null)
+            Debug.Log("NET LOSER 3: " + fifthLoser.name + " -  " + fifthNetLoss + " Power");
+    }
 
     void LogHierarchyChanges()
     {
@@ -522,36 +715,53 @@ public class PowerCalculator : MonoBehaviour
                 }
             }
         }
-        // log action too
-        if (firstWinnerCharacter != null)
-            Debug.Log("GAIN: First CHA is " + firstWinnerCharacter.name + ": "+ firstRanksGainCharacter + " ranks");
-        if (secondWinnerCharacter != null)
-            Debug.Log("GAIN: Second CHA is " + secondWinnerCharacter.name + ": " + secondRanksGainCharacter + " ranks");
-        if (thirdWinnerCharacter != null)
-            Debug.Log("GAIN: Third CHA is " + thirdWinnerCharacter.name + ": " + thirdRanksGainCharacter + " ranks");
+       
+   
+        if (firstWinnerCharacter != null && firstRanksGainCharacter > 1)
+            Debug.Log("RANK WINNER CHA 1: " + firstWinnerCharacter.name + ": "+ firstRanksGainCharacter + " ranks");
+        if (secondWinnerCharacter != null && secondRanksGainCharacter > 1)
+            Debug.Log("RANK WINNER CHA 2: " + secondWinnerCharacter.name + ": " + secondRanksGainCharacter + " ranks");
+        if (thirdWinnerCharacter != null && thirdRanksGainCharacter > 1)
+            Debug.Log("RANK WINNER CHA 3: " + thirdWinnerCharacter.name + ": " + thirdRanksGainCharacter + " ranks");
         if (firstLoserCharacter != null && firstRanksLossCharacter > 1 )
-            Debug.Log("LOSS: First CHA is " + firstLoserCharacter.name + ": " + firstRanksLossCharacter + " ranks");
+            Debug.Log("RANK LOSER CHA 1: " + firstLoserCharacter.name + ": " + firstRanksLossCharacter + " ranks");
         if (secondLoserCharacter != null && secondRanksLossCharacter > 1 )
-            Debug.Log("LOSS: Second CHA is " + secondLoserCharacter.name + ": " + secondRanksLossCharacter + " ranks");
+            Debug.Log("RANK LOSER CHA 2: " + secondLoserCharacter.name + ": " + secondRanksLossCharacter + " ranks");
         if (thirdLoserCharacter != null && thirdRanksLossCharacter > 1)
-            Debug.Log("LOSS: Third CHA is " + thirdLoserCharacter.name + ": " + thirdRanksLossCharacter + " ranks");
+            Debug.Log("RANK LOSER CHA 3: " + thirdLoserCharacter.name + ": " + thirdRanksLossCharacter + " ranks");
 
-        if (firstWinnerInstitution != null)
-            Debug.Log("GAIN: First INS is " + firstWinnerInstitution.name + ": " + firstRanksGainInstitution + " ranks" );
-        if (secondWinnerInstitution != null)
-            Debug.Log("GAIN: Second INS is " + secondWinnerInstitution.name + ": " + secondRanksGainInstitution + " ranks");
-        if (thirdWinnerInstitution != null)
-            Debug.Log("GAIN: Third INS is " + thirdWinnerInstitution.name + ": " + thirdRanksGainInstitution + " ranks"); 
+        if (firstWinnerInstitution != null && firstRanksGainInstitution > 1)
+            Debug.Log("RANK WINNER INS 1: " + firstWinnerInstitution.name + ": " + firstRanksGainInstitution + " ranks" );
+        if (secondWinnerInstitution != null && secondRanksGainInstitution > 1)
+            Debug.Log("RANK WINNER INS 2: " + secondWinnerInstitution.name + ": " + secondRanksGainInstitution + " ranks");
+        if (thirdWinnerInstitution != null && thirdRanksGainInstitution > 1)
+            Debug.Log("RANK WINNER INS 3: " + thirdWinnerInstitution.name + ": " + thirdRanksGainInstitution + " ranks"); 
         if (firstLoserInstitution != null && firstRanksLossInstitution > 1)
-            Debug.Log("LOSS: First INS is " + firstLoserInstitution.name + ": " + firstRanksLossInstitution + " ranks");
+            Debug.Log("RANK LOSER INS 1: " + firstLoserInstitution.name + ": " + firstRanksLossInstitution + " ranks");
         if (secondLoserInstitution != null && secondRanksLossInstitution > 1)
-            Debug.Log("LOSS: Second INS is " + secondLoserInstitution.name + ": " + secondRanksLossInstitution + " ranks");
+            Debug.Log("RANK LOSER INS 2: " + secondLoserInstitution.name + ": " + secondRanksLossInstitution + " ranks");
         if (thirdLoserInstitution != null && thirdRanksLossInstitution > 1)
-            Debug.Log("LOSS: Third INS is " + thirdLoserInstitution.name + ": " + thirdRanksLossInstitution + " ranks");
+            Debug.Log("RANK LOSER INS 3: " + thirdLoserInstitution.name + ": " + thirdRanksLossInstitution + " ranks");
     }
 
 
+    public void ClickLogButton()
+    {
+        List<DataObject> charactersAndInstitutions = new List<DataObject>();
+        foreach (Character item in DataController.Instance.characterList)        
+            charactersAndInstitutions.Add(item);
+        foreach (Institution item in DataController.Instance.institutionList)
+            charactersAndInstitutions.Add(item);
 
+        charactersAndInstitutions.Sort(SortByPower);
+        int rankCount = 0;
+        foreach (DataObject item in charactersAndInstitutions)
+        {
+            rankCount++;
+            Debug.Log(rankCount + ".  " + item.name+ ":  " + item.totalPower);
+        }
+
+    }
 
 
 
