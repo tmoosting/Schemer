@@ -18,7 +18,7 @@ public class Material : DataObject
         Estate,
         Building,
         Tool,
-        SmallArms,
+        Arms,
         Nugget // Exchange Unit
     }
     public MaterialType materialType;
@@ -28,11 +28,13 @@ public class Material : DataObject
     public float bonusFear;
     public float bonusCharisma;
     public float bonusSkill; 
+    
 
     // From database - meta
     public Dictionary<string, string> fieldValueDict = new Dictionary<string, string>();
 
     public List<Material> materialCollection = new List<Material>();
+    public bool createdThroughAction = false;
 
     // Calculated In Runtime
  //   public float totalPower;  now set in DataObject parent
@@ -44,6 +46,7 @@ public class Material : DataObject
         data = DataController.Instance;
         fieldValueDict = dict;
         dataType = DataType.Material;
+        createdThroughAction = false;
 
         ID = dict["ID"];
         name = dict["Name"];

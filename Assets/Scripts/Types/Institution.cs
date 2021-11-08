@@ -15,6 +15,7 @@ public class Institution : DataObject
     public int genericOwnerCount;
     public int genericCooperativeCount;
     public int genericOwneeCount;
+    public int genericOwneeCountFromSettlements;
     public int baseWealth;
     public string equippedWith;
 
@@ -54,12 +55,12 @@ public class Institution : DataObject
 
     public void CreateSchemeRelations()
     {
-        if (fieldValueDict["PrimaryMaterial"] != "")
-        {
-            Material mat = DataController.Instance.GetMaterialWithID(fieldValueDict["PrimaryMaterial"]);
-            if (mat != null)
-                data.CreateRelation(Relation.RelationType.Ownership, this, mat);
-        }
+        //if (fieldValueDict["PrimaryMaterial"] != "")
+        //{
+        //    Material mat = DataController.Instance.GetMaterialWithID(fieldValueDict["PrimaryMaterial"]);
+        //    if (mat != null)
+        //        data.CreateRelation(Relation.RelationType.Ownership, this, mat);
+        //}
 
         foreach (string memberID in fieldValueDict["OwnsMaterials"].Split(','))
             foreach (Material mat in data.materialList)
@@ -115,6 +116,7 @@ public class Institution : DataObject
                              returnList.Add((Character)rel.primaryDataObject);
         return returnList;
     }
+    
     public List<Character> GetCooperativeCharacters()
     {
         List<Character> charList = data.GetSchemeCharacters(this);

@@ -3039,7 +3039,7 @@ MonoBehaviour:
     rgba: 4288409996
   colorViewCardSelected:
     serializedVersion: 2
-    rgba: 4294902013
+    rgba: 4279501055
   colorSelectButtonNormal:
     serializedVersion: 2
     rgba: 4281336576
@@ -4246,12 +4246,13 @@ MonoBehaviour:
   SUBTYPE_VALUE_ESTATE: 150
   SUBTYPE_VALUE_BUILDING: 50
   SUBTYPE_VALUE_TOOL: 15
-  SUBTYPE_VALUE_SMALLARMS: 20
+  SUBTYPE_VALUE_ARMS: 25
   SUBTYPE_VALUE_NUGGET: 1
   INSTITUTION_COOPERATION_POWER_BONUS: 0.1
   INSTITUTION_PRIMARY_OWNER_POWERPROPORTION: 0.5
   INSTITUTION_COOPERATOR_POWERPROPORTION: 0.2
-  INSTITUTION_OWNEE_POWERPROPORTION: 0.02
+  INSTITUTION_OWNEE_POWERPROPORTION: 0.01
+  POPULATION_POWER_CONTRIBUTION_PROPORTION: 0.4
 --- !u!1 &309236504
 GameObject:
   m_ObjectHideFlags: 0
@@ -14822,7 +14823,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60cbad7dd69a94b4086b6d2e845d7614, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultDatabase: Villages
+  defaultDatabase: Caesar
 --- !u!4 &1311455656
 Transform:
   m_ObjectHideFlags: 0

@@ -119,14 +119,27 @@ public class DataChanger : MonoBehaviour
             Institution claimedScheme = (Institution)claimedObject;
             if (receiverObject.dataType == DataObject.DataType.Character)
             {
-                DataObject oldOwner = DataController.Instance.GetCharacterOwnerOfScheme(claimedScheme);
-                TransferSchemeOwnership(oldOwner, receiverObject, claimedScheme, true);
+                DataObject oldSchemeOwner = DataController.Instance.GetSchemeOwnerOfScheme(claimedScheme);
+                DataObject oldCharacterOwner = DataController.Instance.GetCharacterOwnerOfScheme(claimedScheme);
+
+                if (oldSchemeOwner != null)
+                    TransferSchemeOwnership(oldSchemeOwner, receiverObject, claimedScheme, true);
+                else if (oldCharacterOwner != null)
+                    TransferSchemeOwnership(oldCharacterOwner, receiverObject, claimedScheme, true);
+                else
+                {
+                    DataController.Instance.CreateRelation(Relation.RelationType.Ownership, receiverObject, claimedScheme);
+                }
+                 
             }
             else if (receiverObject.dataType == DataObject.DataType.Institution)
             {
-                DataObject oldOwner = DataController.Instance.GetSchemeOwnerOfScheme(claimedScheme);
-                if (oldOwner != null)
-                     TransferSchemeOwnership(oldOwner, receiverObject, claimedScheme, true);
+                DataObject oldSchemeOwner = DataController.Instance.GetSchemeOwnerOfScheme(claimedScheme);
+                DataObject oldCharacterOwner = DataController.Instance.GetCharacterOwnerOfScheme(claimedScheme);
+                if (oldSchemeOwner != null)
+                     TransferSchemeOwnership(oldSchemeOwner, receiverObject, claimedScheme, true);
+                else if (oldCharacterOwner != null)
+                    TransferSchemeOwnership(oldCharacterOwner, receiverObject, claimedScheme, true);
                 else
                 {
                     DataController.Instance.CreateRelation(Relation.RelationType.Ownership, receiverObject, claimedScheme); 
@@ -539,8 +552,7 @@ public class DataChanger : MonoBehaviour
         //if (dataObject.dataType == DataObject.DataType.Institution)
         //    destroyedMaterials = DataController.Instance.GetMaterialsOwnedByScheme((Institution)dataObject);
 
-
-
+         
         if (dataObject.dataType == DataObject.DataType.Character)
             DataController.Instance.characterList.Remove((Character)dataObject);
         else if (dataObject.dataType == DataObject.DataType.Material)

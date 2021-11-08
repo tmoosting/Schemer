@@ -108,6 +108,9 @@ public class PowerCalculator : MonoBehaviour
                 CalculateCharacterOwnedMaterialPower(cha);
 
             foreach (Institution ins in data.institutionList)
+                AddSchemeGenericsFromSettlementInhabitants(ins);
+
+            foreach (Institution ins in data.institutionList)
                 AddSchemePowerFromCharacters(ins);
 
             foreach (Institution ins in data.institutionList)
@@ -120,7 +123,10 @@ public class PowerCalculator : MonoBehaviour
                 AddSchemePowerFromCooperations(ins);
 
             foreach (Character cha in data.characterList)
-                AddCharacterPowerFromSchemes(cha);
+                AddCharacterPowerFromSchemes(cha);   
+            
+            foreach (Character cha in data.characterList)
+                AddCharacterPowerFromIndirectlyOwnedSchemes(cha);
 
             UIController.Instance.ReloadObjectCards();
 
@@ -180,9 +186,9 @@ public class PowerCalculator : MonoBehaviour
     void CalculateCharacterPowerPotential(Character character)
     {  
         float calculatedPower = Constants.Instance.BASE_CHARACTER_POWER_POTENTIAL;
-        calculatedPower += character.fearfulness;
+        calculatedPower += character.coercion;
         calculatedPower += character.charisma;
-        calculatedPower += character.decisionMaking; 
+        calculatedPower += character.capability; 
         character.powerPotential = calculatedPower;
         character.totalPower += character.powerPotential;
     }
@@ -195,10 +201,9 @@ public class PowerCalculator : MonoBehaviour
         calculatedPower += material.bonusSkill;
 
         float baseBonus = 0;
-        if (material.materialSubtype == Material.MaterialSubtype.Settlement)        
-            baseBonus += material.baseAmount * Constants.Instance.BASE_CHARACTER_POWER_POTENTIAL;        
-        else 
+        if (material.materialSubtype != Material.MaterialSubtype.Settlement)       
             baseBonus += material.baseAmount * Constants.Instance.materialSubtypeBaseValues[material.materialSubtype];
+
         calculatedPower += baseBonus;
 
         material.totalPower += calculatedPower;
@@ -217,6 +222,13 @@ public class PowerCalculator : MonoBehaviour
         character.materialPower = matPower;
         character.totalPower += character.materialPower;
     }
+    void AddSchemeGenericsFromSettlementInhabitants (Institution institution)
+    {
+        foreach (Material material in DataController.Instance.GetMaterialsOwnedByScheme(institution))         
+            if (material.materialSubtype == Material.MaterialSubtype.Settlement)            
+                institution.genericOwneeCountFromSettlements += (int)(material.baseAmount *Constants.Instance.POPULATION_POWER_CONTRIBUTION_PROPORTION);
+    }
+
     void AddSchemePowerFromCharacters(Institution scheme)
     {  
         foreach (Character cha in scheme.GetSchemeOwnerCharacters())
@@ -238,6 +250,7 @@ public class PowerCalculator : MonoBehaviour
         scheme.genericOwnerPower += scheme.genericOwnerCount * constants.BASE_CHARACTER_POWER_POTENTIAL;
         scheme.genericCooperativePower += scheme.genericCooperativeCount * constants.BASE_CHARACTER_POWER_POTENTIAL;
         scheme.genericOwneePower += scheme.genericOwneeCount * constants.BASE_CHARACTER_POWER_POTENTIAL;
+        scheme.genericOwneePower += scheme.genericOwneeCountFromSettlements * constants.BASE_CHARACTER_POWER_POTENTIAL;
 
         float calcPower =
             scheme.namedOwnerPower + scheme.namedCooperativePower + scheme.namedOwneePower +
@@ -258,7 +271,9 @@ public class PowerCalculator : MonoBehaviour
     {
         float calcPower = 0f;
         foreach (Institution coopScheme in DataController.Instance.GetSchemesCoopedByScheme(scheme))        
-            calcPower += coopScheme.totalPower * Constants.Instance.INSTITUTION_COOPERATION_POWER_BONUS;        
+            calcPower += coopScheme.totalPower * Constants.Instance.INSTITUTION_COOPERATION_POWER_BONUS;
+        foreach (Character coopCharacter in DataController.Instance.GetCharactersCoopedByScheme(scheme))
+            calcPower += coopCharacter.totalPower * Constants.Instance.INSTITUTION_COOPERATION_POWER_BONUS;
         scheme.cooperationPower = calcPower;
     }
     void AddSchemePowerFromCooperations(Institution scheme)
@@ -275,14 +290,15 @@ public class PowerCalculator : MonoBehaviour
                 if (sch.GetSchemeOwnerCharacters()[0] == character)
                 {
                     calcPower += (sch.totalPower * constants.INSTITUTION_PRIMARY_OWNER_POWERPROPORTION);
-                    calcPower += sch.totalPower / sch.GetMemberCharacters().Count; 
+                    calcPower += sch.totalPower / sch.GetSchemeOwnerCharacters().Count;
                 }
                 else
                 {
                     int secondaryOwnersAmount = sch.GetSchemeOwnerCharacters().Count - 1 + sch.genericOwnerCount;
                     calcPower += ((sch.totalPower * (1f- constants.INSTITUTION_PRIMARY_OWNER_POWERPROPORTION)) / secondaryOwnersAmount);
-                    calcPower += sch.totalPower / sch.GetMemberCharacters().Count; 
+                    calcPower += sch.totalPower / sch.GetSchemeOwnerCharacters().Count; 
                 }
+                    character.powerAddedAlreadyInstitutions.Add(sch);
             }
             else if (sch.GetCooperativeCharacters().Contains(character))
             {
@@ -296,10 +312,22 @@ public class PowerCalculator : MonoBehaviour
                 calcPower += (sch.totalPower * Constants.Instance.INSTITUTION_OWNEE_POWERPROPORTION) / owneesAmount;
             }
         }
-       character.schemesPower = calcPower;
-       character.totalPower += character.schemesPower;
+       character.institutionsPower = calcPower;
+       character.totalPower += character.institutionsPower;
     }
+    void AddCharacterPowerFromIndirectlyOwnedSchemes(Character character)
+    {
+        float calcPower = 0f;
+        List<Institution> indrectlyOwnedInstitutions = data.GetSchemesIndirectlyOwnedByCharacter(character);
 
+        foreach (Institution ins in indrectlyOwnedInstitutions)        
+            calcPower += ins.totalPower * Constants.Instance.INSTITUTION_PRIMARY_OWNER_POWERPROPORTION;
+        
+        character.indirectInstitutionsPower = calcPower;
+        character.totalPower += character.indirectInstitutionsPower;
+    
+        
+    }
 
 
     void ResetPowerValues()
@@ -308,8 +336,10 @@ public class PowerCalculator : MonoBehaviour
         {
             cha.powerPotential = 0f;
             cha.materialPower = 0f;
-            cha.schemesPower = 0f;
+            cha.institutionsPower = 0f;
+            cha.indirectInstitutionsPower = 0f;
             cha.totalPower = 0f;
+            cha.powerAddedAlreadyInstitutions = new List<Institution>();
         }
         foreach (Material mat in data.materialList)
         {
@@ -323,21 +353,12 @@ public class PowerCalculator : MonoBehaviour
             ins.genericOwnerPower = 0f;
             ins.genericCooperativePower = 0f;
             ins.genericOwneePower = 0f;
+            ins.genericOwneeCountFromSettlements = 0;
             ins.materialPower = 0f;
             ins.totalPower = 0f;
         }
     }
-    public enum ActionType { DESTROY, GIFT, GIFTALL, CLAIM, CREATECOOP, BREAKCOOP }
-    [HideInInspector]
-    public ActionType lastTakenActionType;
-    [HideInInspector]
-    public Material.MaterialSubtype lastGivenMaterialSubtype;
-    [HideInInspector]
-    public int lastGivenMaterialAmount;
-    [HideInInspector]
-    public string lastTakenActionPrimaryObjectName;
-    [HideInInspector]
-    public string lastTakenActionSecondaryObjectName;
+ 
     void LogLastAction()
     {
         ActionWindow window = UIController.Instance.actionWindow;
@@ -758,7 +779,16 @@ public class PowerCalculator : MonoBehaviour
         foreach (DataObject item in charactersAndInstitutions)
         {
             rankCount++;
-            Debug.Log(rankCount + ".  " + item.name+ ":  " + item.totalPower);
+            if (item.dataType == DataObject.DataType.Character)
+            {
+                Character character = (Character)item;
+              Debug.Log(rankCount + ". CHA " + item.name+ ":  TOTAL:" + item.totalPower.ToString("F0")  + "  MAT: " + character.materialPower.ToString("F0") + "  INS: "+ character.institutionsPower.ToString("F0"));
+            }
+            else if (item.dataType == DataObject.DataType.Institution)
+            {
+                Institution institution = (Institution)item;
+                Debug.Log(rankCount + ". INS " + item.name + ":  TOTAL:" + item.totalPower.ToString("F0") + "  MAT: " + institution.materialPower.ToString("F0") + "  INS: " + institution.cooperationPower.ToString("F0"));
+            }
         }
 
     }

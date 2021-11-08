@@ -83,12 +83,13 @@ public class ObjectViewCard : MonoBehaviour
             CreateTextObject(character.ID);
         if (UIController.Instance.toggleShowPower.isOn)
         { 
-            CreateTextObject("Fearfulness: "+ character.fearfulness);
+            CreateTextObject("Fearfulness: "+ character.coercion);
             CreateTextObject("Charisma: "+ character.charisma);
-            CreateTextObject("Skill: "+ character.decisionMaking);
+            CreateTextObject("Skill: "+ character.capability);
             CreateTextObject("Pow.Potential: "+ character.powerPotential.ToString("F1"));
             CreateTextObject("Pow.Material: "+ character.materialPower.ToString("F1"));
-            CreateTextObject("Pow.Instus: "+ character.schemesPower.ToString("F1"));
+            CreateTextObject("Pow.Instus: "+ character.institutionsPower.ToString("F1"));
+            CreateTextObject("Pow.IndInstus: "+ character.indirectInstitutionsPower.ToString("F1"));
             CreateTextObject("Pow.Total: "+ character.totalPower.ToString("F1"));
             CreateTextObject("----------------------------");
         }

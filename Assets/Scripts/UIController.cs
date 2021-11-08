@@ -228,9 +228,10 @@ public class UIController : MonoBehaviour
         if (toggleRelation.isOn)
             foreach (Relation rel in data.relationList)
                 cardObjects.Add(rel);
-         
 
-        if (currentSortMode == SortMode.Relations)
+        if (currentSortMode == SortMode.ID)
+            cardObjects.Sort(SortByID);
+        else if (currentSortMode == SortMode.Relations)
             cardObjects.Sort(SortByRelationAmount);
         else if (currentSortMode == SortMode.Power)
             cardObjects.Sort(SortByPower);
@@ -337,6 +338,37 @@ public class UIController : MonoBehaviour
         } 
         foreach (ObjectViewCard carrd in cardListFocusView)
             carrd.SetBodyColor();
+    }
+    int SortByID(DataObject obj1, DataObject obj2)
+    {
+        int intID1 = 0;
+        int intID2 = 0;
+        // need exception for Material created through action which has ID: MATC###
+        if (obj1.dataType == DataObject.DataType.Material)
+        {
+            Material mat = (Material)obj1;
+            if (mat.createdThroughAction == true)
+                intID1 = int.Parse(mat.ID.Substring(4, 3));
+            else
+                intID1 = int.Parse(mat.ID.Substring(3, 3));
+        }
+        else
+        {
+            intID1 = int.Parse(obj1.ID.Substring(3, 3));
+        }
+        if (obj2.dataType == DataObject.DataType.Material)
+        {
+            Material mat = (Material)obj2;
+            if (mat.createdThroughAction == true)
+                intID2 = int.Parse(mat.ID.Substring(4, 3));
+            else
+                intID2 = int.Parse(mat.ID.Substring(3, 3));
+        }
+        else
+        {
+            intID2 = int.Parse(obj2.ID.Substring(3, 3));
+        }
+        return intID1.CompareTo(intID2);
     }
     int SortByRelationAmount(DataObject obj1, DataObject obj2)
     {

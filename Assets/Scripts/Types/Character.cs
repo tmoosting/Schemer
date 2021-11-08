@@ -9,9 +9,9 @@ public class Character : DataObject
   
     // From database
     public int age;
-    public float fearfulness;
+    public float coercion;
     public float charisma;
-    public float decisionMaking;
+    public float capability;
     public int baseWealth;
 
     // From database - meta
@@ -20,8 +20,9 @@ public class Character : DataObject
     // Calculated In Runtime
     public float powerPotential = 10f;
     public float materialPower = 0f;
-    public float schemesPower = 0f; 
-
+    public float institutionsPower = 0f; 
+    public float indirectInstitutionsPower = 0f;
+    public List<Institution> powerAddedAlreadyInstitutions = new List<Institution>();
 
 
     public Character(Dictionary<string, string> dict)
@@ -33,14 +34,14 @@ public class Character : DataObject
 
         ID = dict["ID"];
         name = dict["Name"];
-        if (dict["Age"] != "")
-            age = int.Parse(dict["Age"]); 
-        if (dict["Fearfulness"] != "")
-            fearfulness = float.Parse(dict["Fearfulness"]);
+        //if (dict["Age"] != "")
+        //    age = int.Parse(dict["Age"]); 
+        if (dict["Coercion"] != "")
+            coercion = float.Parse(dict["Coercion"]);
         if (dict["Charisma"] != "")
             charisma = float.Parse(dict["Charisma"]);
-        if (dict["DecisionMaking"] != "")
-            decisionMaking = float.Parse(dict["DecisionMaking"]);
+        if (dict["Capability"] != "")
+            capability = float.Parse(dict["Capability"]);
         if (dict["Wealth"] != "")
             baseWealth = int.Parse(dict["Wealth"]);
 

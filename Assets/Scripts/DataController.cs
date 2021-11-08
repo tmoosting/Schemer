@@ -82,12 +82,12 @@ public class DataController : MonoBehaviour
         if (addRandomCharacterTraits == true)
             foreach (Character character in characterList)
             {
-                if (character.fearfulness == 0)
-                    character.fearfulness = Random.Range(0, 99);
+                if (character.coercion == 0)
+                    character.coercion = Random.Range(0, 99);
                 if (character.charisma == 0)
                     character.charisma = Random.Range(0, 99);
-                if (character.decisionMaking == 0)
-                    character.decisionMaking = Random.Range(0, 99);
+                if (character.capability == 0)
+                    character.capability = Random.Range(0, 99);
             }
         // MATERIAL
         // Manual-create template
@@ -190,7 +190,7 @@ public class DataController : MonoBehaviour
                 if (rel.secondaryDataObject.dataType == DataObject.DataType.Material)
                 {
                     if (foundOwnedMaterials.Contains((Material)rel.secondaryDataObject))
-                        Debug.LogWarning("Found a duplicate material: " + rel.secondaryDataObject.name);
+                        Debug.LogWarning("Found a duplicate material relationship: " + rel.secondaryDataObject.name);
                     else
                         foundOwnedMaterials.Add((Material)rel.secondaryDataObject);                    
                 }
@@ -226,6 +226,7 @@ public class DataController : MonoBehaviour
         creationDict["Type"] = Constants.Instance.materialTyping[subType].ToString(); 
 
         Material material = new Material(creationDict);
+        material.createdThroughAction = true;
         material.totalPower = Constants.Instance.materialSubtypeBaseValues[subType];
         materialList.Add(material);
         CreateRelation(Relation.RelationType.Ownership, owner, material);
@@ -485,6 +486,61 @@ public class DataController : MonoBehaviour
                 if (rel.primaryDataObject == character)
                     if (rel.secondaryDataObject.dataType == DataObject.DataType.Institution)
                         returnList.Add((Institution)rel.secondaryDataObject);
+        return returnList;
+    }
+    public List<Institution> GetSchemesIndirectlyOwnedByCharacter(Character character)
+    {
+        List<Institution> returnList = new List<Institution>();
+        List<Institution> directlyOwnedSchemes = GetSchemesOwnedByCharacter(character); 
+
+        if (directlyOwnedSchemes.Count != 0)
+        {
+            foreach (Institution sch in directlyOwnedSchemes)
+            { 
+                if (GetSchemesOwnedByScheme(sch) == null)
+                {
+                    // scheme owns no other schemes, do nothing
+                }
+                else
+                {
+                    foreach (Institution indirectScheme1 in GetSchemesOwnedByScheme(sch))
+                    {
+                        returnList.Add(indirectScheme1);
+
+                        if (GetSchemesOwnedByScheme(indirectScheme1) != null)
+                        {
+                            foreach (Institution indirectScheme2 in GetSchemesOwnedByScheme(indirectScheme1))
+                            {
+                                returnList.Add(indirectScheme2);
+                                if (GetSchemesOwnedByScheme(indirectScheme2) != null)
+                                {
+                                    foreach (Institution indirectScheme3 in GetSchemesOwnedByScheme(indirectScheme2))
+                                    {
+                                        returnList.Add(indirectScheme3);
+                                        if (GetSchemesOwnedByScheme(indirectScheme3) != null)
+                                        {
+                                            foreach (Institution indirectScheme4 in GetSchemesOwnedByScheme(indirectScheme3))
+                                            {
+                                                returnList.Add(indirectScheme4);
+                                                if (GetSchemesOwnedByScheme(indirectScheme4) != null)
+                                                {
+                                                    foreach (Institution indirectScheme5 in GetSchemesOwnedByScheme(indirectScheme4))
+                                                    {
+                                                        returnList.Add(indirectScheme5); 
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        } 
+                    }
+                } 
+            }
+        }
+ 
         return returnList;
     }
     public List<Institution> GetSchemesCoopedByCharacter(Character character)
@@ -763,7 +819,7 @@ public class DataController : MonoBehaviour
 
         Debug.Log("------------- SCANNING OBJECTS -------------");
         foreach (Character cha in characterList)        
-            Debug.Log("Character " + cha.name + " has ID " + cha.ID + " and age " + cha.age);
+            Debug.Log("Character " + cha.name + " has ID " + cha.ID );
         foreach (Material mat in materialList)
             Debug.Log("Material " + mat.name + " has ID " + mat.ID + " and type " + mat.materialType);
         foreach (Institution ins in institutionList)
