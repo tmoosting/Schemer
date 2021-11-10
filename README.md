@@ -1,5 +1,7 @@
 # Schemer
-Graduation Research Project for Masters program: Media Technology in Leiden.
+<sub>Graduation Research Project for Masters program: [Media Technology](https://www.universiteitleiden.nl/en/education/study-programmes/master/media-technology) in Leiden.
+</sub> 
+
 
 A data framework with Unity application that translates political settings through an SQLite database into political hierarchies which can be acted upon to simular political power dynamics.
 
