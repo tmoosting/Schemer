@@ -7,8 +7,11 @@ Original research question:
 
 *Can the essentials of political power be represented in a flexible digital platform that allows playful exploration of the concept?*
 
-### Link to Research Paper
-eta nov 26-11-2021
+### Unity WebGL
+to follow
+
+### Research Paper
+eta nov 2021
 
 
 
