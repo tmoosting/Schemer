@@ -3,7 +3,7 @@
 </sub> 
 
 
-A data framework with Unity application that translates political settings through an SQLite database into political hierarchies which can be acted upon to simular political power dynamics.
+A data framework with Unity application that translates political settings through an SQLite database into political hierarchies which can be acted upon to simulate political power dynamics.
 
 Original research question: 
 
