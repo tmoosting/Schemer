@@ -34,7 +34,9 @@ eta dec 2021
 ### Using a Custom Database
 - Download an SQLite database editor tool such as [DB Browser for SQLite](https://sqlitebrowser.org/) or [DBeaver](https://dbeaver.io/)
 - Open Template.db from the Assets folder and save as new database
-- Create your Characters, Materials and Institutions into each table. ID fields cannot be null. 
+- Create your Characters, Materials and Institutions into each table
+- ID fields cannot be null
+- Fields that start with 'Own' or 'Coop' hold one or more IDs, separated by commas, no spaces 
 - Load your database through the Unity project or executable version
 
 ### Framework Data Types
