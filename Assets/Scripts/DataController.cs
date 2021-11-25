@@ -43,11 +43,25 @@ public class DataController : MonoBehaviour
     }
     private void Start()
     {
+        if (UIController.Instance.showEntryScreen == true)
+        {
+            UIController.Instance.ShowEntryScreen();
+        }
+        else
+        {
+            linker.LoadDefaultDataBase();
+            LoadApplication();
+        }
+   
+    }
+
+    public void LoadApplication()
+    {
         AutoCreate();
         if (scanDatabaseAtStart == true)
             linker.DatabaseTestScan(false);
         if (scanUnityObjectsAtStart == true)
-             ScanCreatedObjects();
+            ScanCreatedObjects();
         if (verifyRelationsAtStart == true)
             VerifyDuplicateRelations();
         UIController.Instance.RunStartupToggles();
@@ -56,7 +70,7 @@ public class DataController : MonoBehaviour
 
         if (calculatePowerOnStart == true)
         {
-            powerCalculator.CalculatePowers(); 
+            powerCalculator.CalculatePowers();
         }
     }
     void AutoCreate()

@@ -232,7 +232,10 @@ public class ObjectViewCard : MonoBehaviour
         selectionImage.color = color;
         //     mainImage.color = color; 
         if (UIController.Instance.primarySelectedObject == containedObject)
-            selectionImage.color = UIController.Instance.colorViewCardSelected; 
+            mainImage.color = UIController.Instance.colorViewCardSelected; 
+        else
+            mainImage.color = UIController.Instance.colorViewCardDefault;
+
     }
 
     public int GetRelationAmount()

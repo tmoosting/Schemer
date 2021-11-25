@@ -25,7 +25,21 @@ public class DataLinker : MonoBehaviour
             Debug.LogWarning("Failed to load database!"); 
     }
   
+    public void LoadCustomDataBase(string databaseName)
+    { 
+        conn = "URI=file:" + Application.dataPath + "/" + databaseName + ".db";
 
+        if ((File.Exists(Application.dataPath + "/" + databaseName + ".db")) == false)
+            Debug.LogWarning("Failed to load database!");
+    }
+    public void LoadDefaultDataBase()
+    {
+        loadedDatabaseName = defaultDatabase;
+        conn = "URI=file:" + Application.dataPath + "/" + loadedDatabaseName + ".db";
+
+        if ((File.Exists(Application.dataPath + "/" + loadedDatabaseName + ".db")) == false)
+            Debug.LogWarning("Failed to load database!");
+    }
 
     // ---------------- DATABASE RETRIEVING
 

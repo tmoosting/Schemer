@@ -10,6 +10,7 @@ public class UIController : MonoBehaviour
     public static UIController Instance;
     DataController data;
     [Header("Options")]
+    public bool showEntryScreen;
     public bool showRelationsInFocusMode;
     public bool createKillEffect;
     public bool createGiftEffect;
@@ -60,7 +61,11 @@ public class UIController : MonoBehaviour
     public SwitchManager focusSwitch;
     public ActionWindow actionWindow;
     public GameObject explosionPrefab;
-    public GameObject giftPrefab; 
+    public GameObject giftPrefab;
+    public GameObject entryPanel;
+    public TMP_InputField entryPanelInputField;
+    public GameObject entryPanelButton;
+    public GameObject helpPanel;
 
     [HideInInspector] 
     public List<ObjectViewCard> cardListRegular = new List<ObjectViewCard>();
@@ -88,6 +93,8 @@ public class UIController : MonoBehaviour
         panelFocusView.SetActive(false);
         focusViewSwitch.SetActive(false);
         focusViewLabel.SetActive(false);
+        entryPanel.SetActive(false);
+        helpPanel.SetActive(false);
         actionWindow.gameObject.SetActive(false); 
         textPrimarySelectedObject.gameObject.SetActive(false);
         textSecondarySelectedObject.gameObject.SetActive(false);
@@ -126,6 +133,20 @@ public class UIController : MonoBehaviour
                 card.SetSelectButtonColor(colorSelectButtonNormal);
         }
     }
+    public void ShowEntryScreen()
+    {
+        entryPanel.SetActive(true); 
+    }
+    public void ClickEntryScreenButton()
+    {
+        string databaseName = entryPanelInputField.text;
+        if (entryPanelInputField.text == "")
+            databaseName = DataController.Instance.linker.defaultDatabase;
+        DataController.Instance.linker.LoadCustomDataBase(databaseName);
+        DataController.Instance.LoadApplication();
+
+        entryPanel.SetActive(false);
+    }
     // Called from DataController when done creating
     public void RunStartupToggles()
     {
@@ -138,6 +159,10 @@ public class UIController : MonoBehaviour
         toggleRelation.isOn = enableToggleRelationsOnStart; 
     }
 
+    public void ShowHelpScreen(bool showOrHide)
+    {
+        helpPanel.SetActive(showOrHide); 
+    }
     public void PlayExplosionAtObject(DataObject dataObject)
     {
         if (createKillEffect == true)
