@@ -37,6 +37,7 @@ eta dec 2021
 - Create your Characters, Materials and Institutions into each table
 - ID fields cannot be null
 - Fields that start with 'Own' or 'Coop' hold one or more IDs, separated by commas, no spaces 
+- See section 5 of the research paper for more detailed information on each field
 - Load your database through the Unity project or executable version
 
 ### Framework Data Types
