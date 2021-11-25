@@ -46,7 +46,7 @@ eta dec 2021
 - Represents any individual actor
 
 #### Material (MAT)
-- Represents any type of physical object that is not a Character
+- Represents any physical object that is not a Character
 
 #### Institution (INS)
 - Represents any type of collective association or political organisation
