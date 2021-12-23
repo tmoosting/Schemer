@@ -56,12 +56,12 @@ public class Material : DataObject
             materialSubtype = (MaterialSubtype)System.Enum.Parse(typeof(MaterialSubtype), dict["Subtype"]);
         if (dict["BaseAmount"] != "")
             baseAmount = int.Parse(dict["BaseAmount"]);
-        if (dict["BonusFear"] != "")
-            bonusFear = int.Parse(dict["BonusFear"]);
+        if (dict["BonusCoercion"] != "")
+            bonusFear = int.Parse(dict["BonusCoercion"]);
         if (dict["BonusCharisma"] != "")
             bonusCharisma = int.Parse(dict["BonusCharisma"]);
-        if (dict["BonusSkill"] != "")
-            bonusSkill = int.Parse(dict["BonusSkill"]);
+        if (dict["BonusCapability"] != "")
+            bonusSkill = int.Parse(dict["BonusCapability"]);
     }
 
     public void LinkMaterialCollections()
