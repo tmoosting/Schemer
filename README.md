@@ -10,7 +10,7 @@ Original research question:
 *Can the essentials of political power be represented in a flexible digital platform that allows playful exploration of the concept?*
 
 ### Research Paper
-eta dec 2021
+[Link](https://drive.google.com/file/d/1zHoXPJeq1YQ2I_0ahdzD6Fc2aUJYuFBs/view?usp=sharing)
 
 
 
